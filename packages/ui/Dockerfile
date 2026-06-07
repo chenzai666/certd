@@ -5,7 +5,6 @@ WORKDIR /workspace/
 # Copy workspace root files first
 COPY pnpm-workspace.yaml /workspace/
 COPY package.json /workspace/
-COPY .npmrc /workspace/ 2>/dev/null || true
 
 # Copy packages needed for build
 COPY packages/ui/ /workspace/packages/ui/
