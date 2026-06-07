@@ -5,7 +5,7 @@ WORKDIR /workspace/
 # Copy only what's needed for production install
 COPY pnpm-workspace.yaml /workspace/
 COPY package.json /workspace/
-COPY pnpm-lock.yaml /workspace/ 2>/dev/null || true
+COPY pnpm-lock.yaml /workspace/
 
 # Copy all packages (with pre-built dist/ from CI)
 COPY packages/ /workspace/packages/
