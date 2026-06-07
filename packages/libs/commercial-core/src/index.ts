@@ -1,25 +1,18 @@
 /*
  * Self-Hosted Edition - @certd/commercial-core
  * All enterprise/commercial features unlocked.
- * NOTE: No imports from workspace packages - this is a standalone stub.
  */
 
 import { BaseEntity } from "typeorm";
+import { Provide, Configuration as MwConfiguration, App } from "@midwayjs/core";
 
 // ==================== Configuration ====================
-// Minimal Midway stubs (avoid importing @midwayjs/core)
-const _Provide = (): ClassDecorator => { return (target: any) => {}; };
-const _Inject = (): PropertyDecorator => { return (target: any, key: string | symbol) => {}; };
 
-class _Configuration {
-  namespace = "commercial-core";
-  async onReady(_container: any) {}
-}
+@MwConfiguration({ namespace: "commercial-core" })
+export class CommercialConfiguration {
+  @App()
+  app: any;
 
-export class CommercialConfiguration extends _Configuration {
-  constructor() {
-    super();
-  }
   async onReady(_container: any) {
     // self-hosted: all features unlocked
   }
@@ -118,6 +111,7 @@ export const paymentProviderFactory = {
 /**
  * UserSuiteService stub - self-hosted unlimited.
  */
+@Provide()
 export class UserSuiteService {
   async getSuiteSetting() {
     return { enabled: false };
@@ -143,6 +137,7 @@ export class UserSuiteService {
 /**
  * InviteService stub - self-hosted.
  */
+@Provide()
 export class InviteService {
   async bindInvitee(_inviter: any, _opts: { inviteeUserId: number; inviteCode: string }) {
     // no-op
