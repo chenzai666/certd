@@ -1,58 +1,45 @@
-FROM node:22-alpine3.21 AS builder
+FROM node:22-alpine AS builder
 
 WORKDIR /workspace/
 
-# Copy workspace root files
+# Copy only what's needed for production install
 COPY pnpm-workspace.yaml /workspace/
 COPY package.json /workspace/
+COPY pnpm-lock.yaml /workspace/ 2>/dev/null || true
 
 # Copy all packages (with pre-built dist/ from CI)
 COPY packages/ /workspace/packages/
 
-# pnpm v11打包会报错，暂时固定10.33.4版本
-RUN npm install -g pnpm@10.33.4
+# Install ALL dependencies (needed for builder stage)
+RUN npm install -g pnpm@10.33.4 && \
+    pnpm install --filter=@certd/ui-server... --filter=@certd/ui-client... 
 
-# Install all dependencies (server dist is already pre-built, no TS compile needed)
-RUN cd /workspace/packages/ui/certd-server && pnpm install
+# Copy certd-client dist into certd-server/public
+RUN mkdir -p /workspace/packages/ui/certd-server/public && \
+    cp -r /workspace/packages/ui/certd-client/dist/* /workspace/packages/ui/certd-server/public/ 2>/dev/null || true
 
-# Copy pre-built client dist to server public dir
-RUN cp /workspace/packages/ui/certd-client/dist/* /workspace/packages/ui/certd-server/public/ -rf
+# Prune to production only in builder
+RUN cd /workspace && pnpm prune --prod
 
-# Prune dev dependencies for production image
-RUN cd /workspace/packages/ui/certd-server && pnpm prune --prod
+# --- Final stage ---
+FROM node:22-alpine
 
+WORKDIR /home/certd/
 
-FROM node:22-alpine3.21
-EXPOSE 7001
-EXPOSE 7002
+# Copy production node_modules and built code from builder
+COPY --from=builder /workspace/node_modules/ ./node_modules/
+COPY --from=builder /workspace/packages/ui/certd-server/ ./packages/ui/certd-server/
+COPY --from=builder /workspace/packages/ui/certd-client/dist/ ./packages/ui/certd-server/public/
+COPY --from=builder /workspace/pnpm-workspace.yaml ./
+COPY --from=builder /workspace/package.json ./
 
-RUN apk add --no-cache openssl
-RUN apk add --no-cache openjdk8
-RUN apk add --no-cache gcompat
-WORKDIR /app/
-COPY --from=builder /workspace/packages/ui/certd-server/ /app/
+# Copy bootstrap.js
+COPY --from=builder /workspace/packages/ui/certd-server/bootstrap.js ./packages/ui/certd-server/
 
-COPY ./packages/ui/patch/ssh2/*.js /app/node_modules/.pnpm/node_modules/ssh2/lib/protocol/
-
-ENV LEGO_VERSION=4.30.1
-ENV LEGO_DOWNLOAD_DIR=/app/tools/lego
-
-ENV ALIYUN_CLIENT_CONNECT_TIMEOUT=10000
-ENV ALIYUN_CLIENT_READ_TIMEOUT=20000
-
-RUN mkdir -p $LEGO_DOWNLOAD_DIR
-
-# 根据架构下载不同的文件
-RUN ARCH=$(uname -m) && \
-    if [ "$ARCH" = "x86_64" ]; then \
-        wget -O $LEGO_DOWNLOAD_DIR/lego_v${LEGO_VERSION}_linux_amd64.tar.gz https://github.com/go-acme/lego/releases/download/v${LEGO_VERSION}/lego_v${LEGO_VERSION}_linux_amd64.tar.gz; \
-    elif [ "$ARCH" = "aarch64" ]; then \
-        wget -O $LEGO_DOWNLOAD_DIR/lego_v${LEGO_VERSION}_linux_arm64.tar.gz https://github.com/go-acme/lego/releases/download/v${LEGO_VERSION}/lego_v${LEGO_VERSION}_linux_arm64.tar.gz; \
-    else \
-        echo "Unsupported architecture: $ARCH"; \
-    fi
-
-ENV TZ=Asia/Shanghai
 ENV NODE_ENV=production
-ENV MIDWAY_SERVER_ENV=production
-CMD ["node", "--optimize-for-size", "./bootstrap.js"]
+
+WORKDIR /home/certd/packages/ui/certd-server/
+
+EXPOSE 7001
+
+CMD ["node", "bootstrap.js"]
