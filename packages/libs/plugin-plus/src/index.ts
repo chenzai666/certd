@@ -1,16 +1,15 @@
 /*
  * Self-Hosted Edition - @certd/plugin-plus
  * Plus plugin base classes and cloud provider client stubs.
- * NOTE: No imports from workspace packages - this is a standalone stub.
  */
+import { AbstractTaskPlugin } from "@certd/pipeline";
 
 /**
- * AbstractPlusTaskPlugin - self-hosted passthrough.
- * We inline a minimal AbstractTaskPlugin stub so we don't need @certd/pipeline.
+ * AbstractPlusTaskPlugin - self-hosted edition.
+ * Extends AbstractTaskPlugin directly (no VIP/Plus authorization checks).
+ * The real commercial version adds checkPlus() / authorization logic here.
  */
-export abstract class AbstractPlusTaskPlugin {
-  // Minimal stub - real implementation comes from @certd/pipeline at runtime
-  // via pnpm workspace resolution. This is only for TypeScript compilation.
+export abstract class AbstractPlusTaskPlugin extends AbstractTaskPlugin {
 }
 
 // ============================================================
