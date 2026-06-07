@@ -1,7 +1,7 @@
 name: discord
 title: Discord 通知
 desc: Discord 机器人通知
-needPlus: true
+needPlus: false
 input:
   webhook:
     title: Webhook URL

@@ -6,7 +6,7 @@ name: ProxmoxUploadCert
 title: Proxmox-上传证书到Proxmox
 icon: svg:icon-proxmox
 group: panel
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

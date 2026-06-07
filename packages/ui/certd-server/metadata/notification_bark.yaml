@@ -1,7 +1,7 @@
 name: bark
 title: Bark 通知
 desc: Bark 推送通知插件
-needPlus: true
+needPlus: false
 input:
   webhook:
     title: 服务地址

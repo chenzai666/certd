@@ -1,7 +1,7 @@
 name: feishu
 title: 飞书通知
 desc: 飞书群聊webhook通知
-needPlus: true
+needPlus: false
 input:
   webhook:
     title: webhook地址

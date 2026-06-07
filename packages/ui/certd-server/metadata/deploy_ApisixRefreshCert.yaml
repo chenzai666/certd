@@ -7,7 +7,7 @@ title: APISIX-更新证书
 desc: 自动更新APISIX证书
 icon: svg:icon-lucky
 group: cdn
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

@@ -1,7 +1,7 @@
 name: slack
 title: Slack通知
 desc: Slack消息推送通知
-needPlus: true
+needPlus: false
 input:
   webhook:
     title: webhook地址

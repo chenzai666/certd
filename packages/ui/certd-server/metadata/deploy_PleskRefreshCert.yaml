@@ -7,7 +7,7 @@ title: Plesk-更新证书
 icon: svg:icon-plesk
 desc: 不会创建新证书记录，直接更新旧的证书
 group: panel
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

@@ -1,7 +1,7 @@
 name: vocechat
 title: VoceChat通知
 desc: https://voce.chat
-needPlus: true
+needPlus: false
 input:
   endpoint:
     title: 服务地址

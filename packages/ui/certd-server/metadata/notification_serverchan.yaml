@@ -1,7 +1,7 @@
 name: serverchan
 title: Server酱ᵀ
 desc: https://sct.ftqq.com/
-needPlus: true
+needPlus: false
 input:
   endpoint:
     title: 服务地址

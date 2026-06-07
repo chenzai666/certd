@@ -7,7 +7,7 @@ title: 威联通-部署证书到威联通
 icon: svg:icon-qnap
 group: panel
 desc: 部署证书到qnap
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

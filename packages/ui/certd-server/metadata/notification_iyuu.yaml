@@ -1,7 +1,7 @@
 name: iyuu
 title: 爱语飞飞微信通知(iyuu)
 desc: https://iyuu.cn/
-needPlus: true
+needPlus: false
 input:
   token:
     title: Token令牌

@@ -7,7 +7,7 @@ title: AcePanel-部署到网站
 desc: 上传证书并部署到指定网站
 icon: svg:icon-lucky
 group: panel
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

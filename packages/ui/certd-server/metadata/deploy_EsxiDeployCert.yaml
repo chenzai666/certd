@@ -6,7 +6,7 @@ name: EsxiDeployCert
 title: ESXi-部署证书到ESXi
 icon: svg:icon-lucky
 group: host
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

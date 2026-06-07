@@ -6,7 +6,7 @@ name: HostDeployToIIS
 title: IIS-部署到IIS站点
 icon: devicon:windows8
 group: host
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

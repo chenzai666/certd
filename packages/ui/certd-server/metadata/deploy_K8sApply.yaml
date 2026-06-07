@@ -6,7 +6,7 @@ name: K8sApply
 title: K8S-Apply自定义yaml
 icon: mdi:kubernetes
 desc: apply自定义yaml到k8s
-needPlus: true
+needPlus: false
 group: panel
 input:
   cert:

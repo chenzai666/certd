@@ -6,8 +6,8 @@ import { resolveDomainBySoaRecord } from "@certd/acme-client";
 
 export function parseDomainByPsl(fullDomain: string) {
   const parsed = psl.parse(fullDomain) as psl.ParsedDomain;
-  if (parsed.error) {
-    throw new Error(`解析${fullDomain}域名失败:` + JSON.stringify(parsed.error));
+  if (!parsed || !parsed.domain) {
+    throw new Error(`解析${fullDomain}域名失败:` + JSON.stringify(parsed));
   }
   return parsed;
 }

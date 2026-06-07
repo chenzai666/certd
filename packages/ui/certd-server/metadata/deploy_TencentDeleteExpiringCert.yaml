@@ -7,7 +7,7 @@ title: 腾讯云-删除即将过期证书
 icon: svg:icon-tencentcloud
 group: tencent
 desc: 仅删除未使用的证书
-needPlus: true
+needPlus: false
 input:
   accessId:
     title: Access提供者

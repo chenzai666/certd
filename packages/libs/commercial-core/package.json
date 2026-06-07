@@ -1,0 +1,27 @@
+{
+  "name": "@certd/commercial-core",
+  "version": "1.41.1",
+  "description": "Self-hosted edition - all features unlocked",
+  "private": true,
+  "type": "module",
+  "module": "./dist/index.js",
+  "main": "./dist/index.js",
+  "types": "./dist/index.d.ts",
+  "exports": {
+    ".": {
+      "import": "./dist/index.js",
+      "types": "./dist/index.d.ts"
+    }
+  },
+  "scripts": {
+    "dev-build": "tsc -p tsconfig.json",
+    "build": "tsc -p tsconfig.json"
+  },
+  "dependencies": {
+    "@certd/basic": "^1.41.1",
+    "@certd/plus-core": "^1.41.1",
+    "@certd/lib-server": "^1.41.1",
+    "@midwayjs/core": "^3.0.0",
+    "typeorm": "^0.3.20"
+  }
+}

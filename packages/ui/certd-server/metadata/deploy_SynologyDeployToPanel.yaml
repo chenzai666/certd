@@ -7,7 +7,7 @@ title: 群晖-部署证书到群晖面板
 icon: simple-icons:synology
 group: panel
 desc: Synology，支持6.x以上版本
-needPlus: true
+needPlus: false
 input:
   certName:
     title: 群晖证书描述

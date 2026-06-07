@@ -1,7 +1,7 @@
 name: telegram
 title: Telegram通知
 desc: Telegram Bot推送通知
-needPlus: true
+needPlus: false
 input:
   endpoint:
     title: URL

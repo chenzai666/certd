@@ -7,7 +7,7 @@ title: Dokploy-部署server证书
 desc: 自动更新Dokploy server证书
 icon: svg:icon-lucky
 group: panel
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

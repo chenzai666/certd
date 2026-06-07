@@ -6,7 +6,7 @@ name: PleskDeploySiteCert
 title: Plesk-部署Plesk网站证书
 icon: svg:icon-plesk
 group: panel
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

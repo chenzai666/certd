@@ -7,7 +7,7 @@ title: 宝塔-面板证书部署
 icon: svg:icon-bt
 group: panel
 desc: 部署宝塔面板本身的ssl证书
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

@@ -6,7 +6,7 @@ name: OpenwrtDeployCert
 title: Openwrt-部署证书到Openwrt
 icon: svg:icon-lucky
 group: host
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

@@ -7,7 +7,7 @@ title: 火山引擎-替换VKE证书
 icon: svg:icon-volcengine
 group: volcengine
 desc: 替换火山引擎VKE集群中的TLS Secret证书
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

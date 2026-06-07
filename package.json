@@ -9,7 +9,10 @@
     "@lerna-lite/run": "^3.9.3",
     "@lerna-lite/version": "^3.9.3",
     "axios": "^1.9.0",
+    "balanced-match": "^2.0.0",
+    "brace-expansion": "^4.0.0",
     "cross-env": "^7.0.3",
+    "execa": "^9.6.1",
     "medium-zoom": "^1.1.0",
     "vitepress": "^2.0.0-alpha.4",
     "vitepress-plugin-lightbox": "^1.0.2"
@@ -20,7 +23,7 @@
     "devb": "lerna run dev-build",
     "i-all": "lerna link && lerna exec npm install  ",
     "publish": "pnpm run prepublishOnly2  && lerna publish --force-publish=pro/plus-core --conventional-commits && pnpm run afterpublishOnly ",
-    "publish2":" npm run pub_all && pnpm run afterpublishOnly",
+    "publish2": " npm run pub_all && pnpm run afterpublishOnly",
     "afterpublishOnly": "pnpm run copylogs && time /t >trigger/build.trigger && git add ./trigger/build.trigger && git commit -m \"build: trigger build image\" && TIMEOUT /T 10 && pnpm run commitAll",
     "transform-sql": "cd ./packages/ui/certd-server/db/ && node --experimental-json-modules transform.js",
     "plugin-doc-gen": "cd ./packages/ui/certd-server/ && pnpm run export-metadata",
@@ -48,6 +51,11 @@
     "get_version": "node --experimental-json-modules ./scripts/version.js"
   },
   "license": "AGPL-3.0",
+  "overrides": {
+    "execa": "^9.0.0",
+    "balanced-match": "^3.0.0",
+    "brace-expansion": "^4.0.0"
+  },
   "dependencies": {
     "copyfiles": "^2.4.1",
     "lodash-es": "^4.17.21",
@@ -58,6 +66,9 @@
     "packages/**"
   ],
   "pnpm": {
-    "neverBuiltDependencies": []
+    "neverBuiltDependencies": [],
+    "overrides": {
+      "execa": "^9.0.0"
+    }
   }
 }

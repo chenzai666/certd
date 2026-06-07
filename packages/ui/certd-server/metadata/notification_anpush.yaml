@@ -1,7 +1,7 @@
 name: anpush
 title: AnPush
 desc: https://anpush.com
-needPlus: true
+needPlus: false
 input:
   token:
     title: API密钥

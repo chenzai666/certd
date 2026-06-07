@@ -1,7 +1,14 @@
 packages:
-  - 'packages/**'  # <--------------开发插件请注释掉这一行，PR时本修改不要提交
+  - 'packages/**' # <--------------开发插件请注释掉这一行，PR时本修改不要提交
   - 'packages/ui/**'
   - '!**/test/**'
 
+cacheDir: C:/Users/tt/WorkBuddy/2026-06-06-20-59-11/certd/.pnpm-cache
+
 linkWorkspacePackages: deep
+minimumReleaseAgeExclude:
+  - '@certd/commercial-core@1.41.1'
+  - '@certd/plugin-plus@1.41.1'
+  - '@certd/plus-core@1.41.1'
 preferWorkspacePackages: true
+storeDir: C:/Users/tt/WorkBuddy/2026-06-06-20-59-11/certd/.pnpm-store

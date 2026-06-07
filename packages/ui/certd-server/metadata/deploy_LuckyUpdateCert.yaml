@@ -6,7 +6,7 @@ name: LuckyUpdateCert
 title: lucky-更新Lucky证书
 icon: svg:icon-lucky
 group: panel
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

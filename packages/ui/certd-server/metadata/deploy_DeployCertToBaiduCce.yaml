@@ -7,7 +7,7 @@ title: 百度云-部署到CCE
 icon: ant-design:cloud-outlined
 desc: 部署到百度云CCE集群Ingress等通过Secret管理证书的应用
 group: baidu
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

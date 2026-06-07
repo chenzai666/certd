@@ -7,7 +7,7 @@ title: 中国移动-部署证书到CDN
 desc: 中国移动自动部署证书到CDN
 icon: svg:icon-cmcc
 group: cdn
-needPlus: true
+needPlus: false
 input:
   cert:
     title: 域名证书

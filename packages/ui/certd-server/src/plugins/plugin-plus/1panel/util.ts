@@ -38,11 +38,8 @@ function urlDecode(value: string): string {
 
 function generateAESKey(): string {
   const keyLength = 16;
-  const randomBytes = new Uint8Array(keyLength);
-  crypto.getRandomValues(randomBytes);
-  return Array.from(randomBytes)
-    .map(b => b.toString(16).padStart(2, "0"))
-    .join("");
+  // Use Node.js crypto.randomBytes instead of Web Crypto API getRandomValues
+  return crypto.randomBytes(keyLength).toString("hex");
 }
 
 export const encryptPassword = (rsaPublicKeyText: string, password: string) => {

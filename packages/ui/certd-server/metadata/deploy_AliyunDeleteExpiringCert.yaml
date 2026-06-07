@@ -7,7 +7,7 @@ title: 阿里云-删除即将过期证书
 icon: ant-design:aliyun-outlined
 group: aliyun
 desc: 仅删除未使用的证书
-needPlus: true
+needPlus: false
 input:
   accessId:
     title: Access提供者

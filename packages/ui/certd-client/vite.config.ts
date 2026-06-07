@@ -5,7 +5,8 @@ import viteCompression from "vite-plugin-compression";
 import { createHtmlPlugin } from "vite-plugin-html";
 import { loadEnv } from "vite";
 import * as path from "path";
-import DefineOptions from "unplugin-vue-define-options/vite";
+// Vue 3.3+ has built-in defineOptions, no plugin needed
+// import DefineOptions from "unplugin-vue-define-options/vite";
 import { theme } from "ant-design-vue";
 const { defaultAlgorithm, defaultSeed } = theme;
 const mapToken = defaultAlgorithm(defaultSeed);
@@ -32,7 +33,6 @@ export default (req: any) => {
   return {
     base: base,
     plugins: [
-      DefineOptions(),
       vueJsx(),
       vue(),
       createHtmlPlugin({
@@ -57,7 +57,7 @@ export default (req: any) => {
     ],
     esbuild: {
       drop: command === "build" ? ["debugger"] : [],
-      pure: ["console.log", "debugger"],
+      pure: ["console.log"],
       jsxFactory: "h",
       jsxFragment: "Fragment",
     },

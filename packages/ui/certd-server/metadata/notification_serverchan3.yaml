@@ -1,7 +1,7 @@
 name: serverchan3
 title: Server酱³
 desc: https://doc.sc3.ft07.com/serverchan3
-needPlus: true
+needPlus: false
 input:
   apiURL:
     title: ApiURL
