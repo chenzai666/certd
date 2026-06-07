@@ -67,7 +67,8 @@ jobs:
         with:
           platforms: linux/amd64,linux/arm64
           push: true
-          context: ./packages/ui/
+          context: .
+          file: ./packages/ui/Dockerfile
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/certd:latest
             ${{ secrets.DOCKER_HUB_USERNAME }}/certd:${{ steps.get_certd_version.outputs.result }}
@@ -79,7 +80,8 @@ jobs:
         with:
           platforms: linux/arm/v7
           push: true
-          context: ./packages/ui/
+          context: .
+          file: ./packages/ui/Dockerfile
           tags: |
             ${{ secrets.DOCKER_HUB_USERNAME }}/certd:armv7
             ${{ secrets.DOCKER_HUB_USERNAME }}/certd:${{ steps.get_certd_version.outputs.result }}-armv7
