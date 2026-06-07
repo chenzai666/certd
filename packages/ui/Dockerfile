@@ -10,6 +10,9 @@ COPY pnpm-lock.yaml /workspace/
 # Copy all packages (with pre-built dist/ from CI)
 COPY packages/ /workspace/packages/
 
+# Install build tools for native Node.js addons (aws-crt needs cmake/gcc/python)
+RUN apk add --no-cache python3 make g++ cmake linux-headers
+
 # Install deps ONLY for server + client (use --filter to avoid installing everything)
 RUN npm install -g pnpm@10.33.4 && \
     pnpm install --frozen-lockfile --filter=@certd/ui-server... --filter=@certd/ui-client...
