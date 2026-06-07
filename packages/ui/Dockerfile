@@ -2,7 +2,7 @@ FROM node:22-alpine AS builder
 
 WORKDIR /workspace/
 
-# Copy only what's needed for production install
+# Copy workspace config and lockfile
 COPY pnpm-workspace.yaml /workspace/
 COPY package.json /workspace/
 COPY pnpm-lock.yaml /workspace/
@@ -10,16 +10,16 @@ COPY pnpm-lock.yaml /workspace/
 # Copy all packages (with pre-built dist/ from CI)
 COPY packages/ /workspace/packages/
 
-# Install ALL dependencies (needed for builder stage)
+# Install ALL dependencies
 RUN npm install -g pnpm@10.33.4 && \
-    pnpm install --filter=@certd/ui-server... --filter=@certd/ui-client... 
+    pnpm install --frozen-lockfile
 
 # Copy certd-client dist into certd-server/public
 RUN mkdir -p /workspace/packages/ui/certd-server/public && \
     cp -r /workspace/packages/ui/certd-client/dist/* /workspace/packages/ui/certd-server/public/ 2>/dev/null || true
 
-# Prune to production only in builder
-RUN cd /workspace && pnpm prune --prod
+# Prune devDependencies in each workspace package
+RUN cd /workspace && pnpm --filter=@certd/ui-server --filter=@certd/ui-client prune --prod
 
 # --- Final stage ---
 FROM node:22-alpine
