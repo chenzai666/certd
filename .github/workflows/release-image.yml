@@ -31,16 +31,32 @@ jobs:
             console.log("certd_version:", pkg.version);
             return pkg.version
 
-      - name: Pre-build all packages
+      - name: Setup pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.33.4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: pnpm
+          cache-dependency-path: pnpm-lock.yaml
+
+      - name: Pre-build all workspace packages
         run: |
-          npm install -g pnpm@10.33.4
           pnpm install
-          # Build stub packages
+          # Build ALL workspace packages in dependency order
+          # This ensures dist/ exists for every workspace dep (lib-server, midway-flyway-js, acme-client, etc.)
+          pnpm -r run build
+        working-directory: ./
+
+      - name: Override stub packages (ensure our stubs are used)
+        run: |
+          # Re-build stub packages to ensure they override npm versions
           npx tsc -p packages/libs/plus-core/tsconfig.json
           npx tsc -p packages/libs/commercial-core/tsconfig.json
           npx tsc -p packages/libs/plugin-plus/tsconfig.json
-          # Build workspace dependencies
-          npx lerna run build --scope=@certd/lib-iframe --scope=@certd/pipeline --include-dependencies
         working-directory: ./
 
       - name: Build certd-client
