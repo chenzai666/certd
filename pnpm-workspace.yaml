@@ -1,6 +1,7 @@
 packages:
   - 'packages/**' # <--------------开发插件请注释掉这一行，PR时本修改不要提交
   - 'packages/ui/**'
+  - 'packages/libs/**'
   - '!**/test/**'
 
 cacheDir: C:/Users/tt/WorkBuddy/2026-06-06-20-59-11/certd/.pnpm-cache
