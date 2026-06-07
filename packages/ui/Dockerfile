@@ -2,24 +2,24 @@ FROM node:22-alpine3.21 AS builder
 
 WORKDIR /workspace/
 
-# Copy workspace root files first
+# Copy workspace root files
 COPY pnpm-workspace.yaml /workspace/
 COPY package.json /workspace/
 
-# Copy packages needed for build
-COPY packages/ui/ /workspace/packages/ui/
-COPY packages/libs/ /workspace/packages/libs/
-COPY packages/core/ /workspace/packages/core/
-COPY packages/plugins/ /workspace/packages/plugins/
+# Copy all packages (with pre-built dist/ from CI)
+COPY packages/ /workspace/packages/
 
 # pnpm v11打包会报错，暂时固定10.33.4版本
 RUN npm install -g pnpm@10.33.4
 
-# Copy pre-built client dist
+# Install all dependencies (server dist is already pre-built, no TS compile needed)
+RUN cd /workspace/packages/ui/certd-server && pnpm install
+
+# Copy pre-built client dist to server public dir
 RUN cp /workspace/packages/ui/certd-client/dist/* /workspace/packages/ui/certd-server/public/ -rf
 
-# Build server (pnpm will resolve workspace packages including stubs)
-RUN cd /workspace/packages/ui/certd-server && pnpm install && npm run build-on-docker
+# Prune dev dependencies for production image
+RUN cd /workspace/packages/ui/certd-server && pnpm prune --prod
 
 
 FROM node:22-alpine3.21

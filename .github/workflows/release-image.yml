@@ -31,10 +31,15 @@ jobs:
             console.log("certd_version:", pkg.version);
             return pkg.version
 
-      - name: Pre-build dependencies
+      - name: Pre-build all packages
         run: |
           npm install -g pnpm@10.33.4
           pnpm install
+          # Build stub packages
+          npx tsc -p packages/libs/plus-core/tsconfig.json
+          npx tsc -p packages/libs/commercial-core/tsconfig.json
+          npx tsc -p packages/libs/plugin-plus/tsconfig.json
+          # Build workspace dependencies
           npx lerna run build --scope=@certd/lib-iframe --scope=@certd/pipeline --include-dependencies
         working-directory: ./
 
@@ -42,6 +47,13 @@ jobs:
         run: |
           npm run build
         working-directory: ./packages/ui/certd-client
+
+      - name: Build certd-server
+        run: |
+          node ./before-build.js
+          pnpm run build-only
+          node export-plugin-yaml.js docoff
+        working-directory: ./packages/ui/certd-server
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
