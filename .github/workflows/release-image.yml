@@ -1,7 +1,6 @@
 name: build-image-for-release
 on:
   push:
-    branches: ['v2']
     tags: ['v*']
   workflow_dispatch:
 
