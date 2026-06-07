@@ -26,10 +26,15 @@ FROM node:22-alpine
 
 WORKDIR /home/certd/
 
-# Copy production node_modules and built code from builder
+# Copy production node_modules (contains symlinks to workspace packages)
 COPY --from=builder /workspace/node_modules/ ./node_modules/
-COPY --from=builder /workspace/packages/ui/certd-server/ ./packages/ui/certd-server/
+
+# Copy ALL workspace packages (needed because node_modules symlinks point here)
+COPY --from=builder /workspace/packages/ ./packages/
+
+# Copy certd-client dist into certd-server/public
 COPY --from=builder /workspace/packages/ui/certd-client/dist/ ./packages/ui/certd-server/public/
+
 COPY --from=builder /workspace/pnpm-workspace.yaml ./
 COPY --from=builder /workspace/package.json ./
 
