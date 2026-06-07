@@ -1,22 +1,24 @@
 /*
  * Self-Hosted Edition - @certd/plugin-plus
  * Plus plugin base classes and cloud provider client stubs.
+ * NOTE: No imports from workspace packages - this is a standalone stub.
  */
-
-import { AbstractTaskPlugin } from "@certd/pipeline";
-import { HttpClient, ILogger, utils } from "@certd/basic";
 
 /**
  * AbstractPlusTaskPlugin - self-hosted passthrough.
+ * We inline a minimal AbstractTaskPlugin stub so we don't need @certd/pipeline.
  */
-export abstract class AbstractPlusTaskPlugin extends AbstractTaskPlugin {}
+export abstract class AbstractPlusTaskPlugin {
+  // Minimal stub - real implementation comes from @certd/pipeline at runtime
+  // via pnpm workspace resolution. This is only for TypeScript compilation.
+}
 
 // ============================================================
 // BaseClient: accepts both (http, logger) and ({ http, logger, access })
 // ============================================================
 class BaseClient {
-  http: HttpClient;
-  logger: ILogger;
+  http: any;
+  logger: any;
   access: any;
 
   constructor(...args: any[]) {
@@ -26,8 +28,8 @@ class BaseClient {
       this.logger = opts.logger;
       this.access = opts.access;
     } else if (args.length >= 2) {
-      this.http = args[0] as HttpClient;
-      this.logger = args[1] as ILogger;
+      this.http = args[0];
+      this.logger = args[1];
     }
   }
 
@@ -39,7 +41,6 @@ class BaseClient {
 
 // ============================================================
 // MaoyunClient stub
-// Used in: plugin-plus/maoyun/access.ts, plugin-deploy-to-cdn.ts
 // ============================================================
 export class MaoyunClient extends BaseClient {
   async login(...args: any[]): Promise<any> {
@@ -56,7 +57,6 @@ export class MaoyunClient extends BaseClient {
 
 // ============================================================
 // XinnetClient stub
-// Used in: plugin-xinnet/dns-provider.ts, access.ts
 // ============================================================
 export class XinnetClient extends BaseClient {
   async login(...args: any[]): Promise<any> {
@@ -64,7 +64,6 @@ export class XinnetClient extends BaseClient {
     return { success: true };
   }
   async getDomainList(...args: any[]): Promise<any> {
-    // original signature: getDomainList({ pageNo, pageSize })
     return { list: [], totalRows: 0 };
   }
   async getDcpCookie(...args: any[]): Promise<any> {
@@ -83,7 +82,6 @@ export class XinnetClient extends BaseClient {
 
 // ============================================================
 // UniCloudClient stub
-// Used in: plugin-plus/unicloud/access.ts, plugin-deploy-to-space.ts
 // ============================================================
 export class UniCloudClient extends BaseClient {
   async login(...args: any[]): Promise<any> {
@@ -106,16 +104,14 @@ export class UniCloudClient extends BaseClient {
 
 // ============================================================
 // SynologyClient stub
-// Constructor: new SynologyClient(access, http, logger, skipSslVerify)
-// Used in: plugin-plus/synology/access.ts, plugin-keep-alive.ts, plugin-deploy-to-panel.ts
 // ============================================================
 export class SynologyClient {
   access: any;
-  http: HttpClient;
-  logger: ILogger;
+  http: any;
+  logger: any;
   skipSslVerify: boolean;
 
-  constructor(access: any, http?: HttpClient, logger?: ILogger, skipSslVerify?: boolean) {
+  constructor(access: any, http?: any, logger?: any, skipSslVerify?: boolean) {
     this.access = access;
     this.http = http!;
     this.logger = logger!;

@@ -1,8 +1,8 @@
 /*
  * Self-Hosted Edition - @certd/plus-core
  * All VIP/pro features unlocked.
+ * NOTE: No imports from workspace packages - this is a standalone stub.
  */
-import { http, logger } from "@certd/basic";
 
 export const AppKey = "certd-self-hosted";
 
@@ -32,7 +32,7 @@ export function getPlusInfo() {
     isPlus: true,
     isComm: true,
     vipType: "comm",
-    originVipType: "comm", // <-- added
+    originVipType: "comm",
     expireTime: -1, // never expires
     secret: "self-hosted",
     license: "",
@@ -42,6 +42,14 @@ export function getPlusInfo() {
     subjectId: "self-hosted",
   };
 }
+
+// Minimal logger stub (replaces @certd/basic logger import)
+const _log = {
+  info: (..._args: any[]) => {},
+  debug: (..._args: any[]) => {},
+  warn: (..._args: any[]) => {},
+  error: (..._args: any[]) => {},
+};
 
 /**
  * Simplified PlusRequestService for self-hosted edition.
@@ -89,12 +97,12 @@ export class PlusRequestService {
   }
 
   async requestWithoutSign(opts: { url: string; method: string; data: any }) {
-    logger.info("PlusRequestService.requestWithoutSign (self-hosted)", opts.url);
+    _log.info("PlusRequestService.requestWithoutSign (self-hosted)", opts.url);
     return { success: true };
   }
 
   async request(opts: { url: string; data?: any; method?: string }) {
-    logger.info("PlusRequestService.request (self-hosted)", opts.url);
+    _log.info("PlusRequestService.request (self-hosted)", opts.url);
     return { success: true, license: "", duration: 0 };
   }
 
