@@ -100,16 +100,3 @@ jobs:
             ${{ secrets.DOCKER_HUB_USERNAME }}/certd:${{ steps.get_certd_version.outputs.result }}
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ steps.get_certd_version.outputs.result }}
-
-      - name: Build armv7
-        uses: docker/build-push-action@v6
-        with:
-          platforms: linux/arm/v7
-          push: true
-          context: .
-          file: ./packages/ui/Dockerfile
-          tags: |
-            ${{ secrets.DOCKER_HUB_USERNAME }}/certd:armv7
-            ${{ secrets.DOCKER_HUB_USERNAME }}/certd:${{ steps.get_certd_version.outputs.result }}-armv7
-            ghcr.io/${{ github.repository }}:armv7
-            ghcr.io/${{ github.repository }}:${{ steps.get_certd_version.outputs.result }}-armv7
