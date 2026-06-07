@@ -1,7 +1,7 @@
 name: publish-gitee
 on:
   push:
-    branches: ['v2-dev']
+    branches: ['v2']
     paths:
       - 'trigger/publish.trigger'
   workflow_run:
@@ -28,7 +28,7 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-          ref: 'v2-dev'
+          ref: 'v2'
 
       - name: publish_to_gitee
         id: publish_to_gitee

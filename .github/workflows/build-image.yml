@@ -1,7 +1,7 @@
 name: build-image
 on:
   push:
-    branches: ['v2-dev']
+    branches: ['v2']
     paths:
       - 'trigger/build.trigger'
   workflow_dispatch: # 添加手动触发
@@ -21,7 +21,7 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-          ref: 'v2-dev'
+          ref: 'v2'
       - name: get_certd_version
         id: get_certd_version
         uses: actions/github-script@v6

@@ -1,7 +1,7 @@
 name: deploy-demo
 on:
   push:
-    branches: ['v2-dev']
+    branches: ['v2']
     paths:
       - 'trigger/deploy.trigger'
   workflow_run:
@@ -25,7 +25,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
-          ref: v2-dev
+          ref: v2
 
       - name: get_certd_version
         id: get_certd_version

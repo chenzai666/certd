@@ -20,7 +20,7 @@ async function createRelease(versionTitle, content) {
             tag_name: `v${versionTitle}`,
             name: `v${versionTitle}`,
             body: content,
-            target_commitish: 'v2-dev'
+            target_commitish: 'v2'
         },
     })
     console.log("createRelease success")

@@ -1,7 +1,7 @@
 name: sync-to-cnb-dev
 on:
   push:
-    branches: ['v2-dev']
+    branches: ['v2']
 #  schedule:
 #    - # 国际时间 19:17 执行，北京时间3:17  ↙↙↙ 改成你想要每天自动执行的时间
 #    - cron: '17 19 * * *'
@@ -17,7 +17,7 @@ jobs:
         with:
           fetch-depth: 0
           lfs: true
-          ref: v2-dev
+          ref: v2
       - name: Set git user # 2. 给git命令设置用户名和邮箱,↙↙↙ 改成你的name和email
         run: |
           git config --global user.name "xiaojunnuo"
@@ -31,4 +31,4 @@ jobs:
       - name: push to cnb # 4. 执行同步
         run: |
           git remote add upstream https://cnb.cool/certd/certd.git
-          git push --set-upstream upstream v2-dev
+          git push --set-upstream upstream v2
