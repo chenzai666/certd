@@ -61,6 +61,10 @@ export class SysInviteCommissionSetting {
   static __key__ = "sys.inviteCommission";
   static __access__ = "private";
 
+  static getCacheKey() {
+    return "settings." + this.__key__;
+  }
+
   enabled: boolean = true;
   levelEnabled: boolean = false;
   fixedCommissionRate: number = 10;
