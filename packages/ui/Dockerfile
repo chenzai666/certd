@@ -10,9 +10,9 @@ COPY pnpm-lock.yaml /workspace/
 # Copy all packages (with pre-built dist/ from CI)
 COPY packages/ /workspace/packages/
 
-# Install ONLY production dependencies (no devDependencies)
+# Install deps ONLY for server + client (use --filter to avoid installing everything)
 RUN npm install -g pnpm@10.33.4 && \
-    pnpm install --frozen-lockfile --prod
+    pnpm install --frozen-lockfile --filter=@certd/ui-server... --filter=@certd/ui-client...
 
 # Copy certd-client dist into certd-server/public
 RUN mkdir -p /workspace/packages/ui/certd-server/public && \
