@@ -4,8 +4,7 @@
  */
 
 import { BaseEntity } from "typeorm";
-import { Provide, Configuration as MwConfiguration, App, Controller, Post, Body, Query, Inject, ALL } from "@midwayjs/core";
-import { Constants } from "@certd/lib-server";
+import { Provide, Configuration as MwConfiguration, App, Controller, Post } from "@midwayjs/core";
 
 // ==================== Configuration ====================
 
@@ -192,40 +191,37 @@ function makeUnlimitedDetail(): SuiteDetail {
 @Provide()
 @Controller("/api/mine/suite")
 export class SuiteController {
-  @Inject()
-  userSuiteService: any;
-
-  @Post("/detail", { summary: "获取我的套餐详情" })
+  @Post("/detail")
   async detail() {
     return makeUnlimitedDetail();
   }
 
-  @Post("/page", { summary: "分页列表" })
-  async page(@Body(ALL) _body: any) {
+  @Post("/page")
+  async page() {
     return { list: [], total: 0 };
   }
 
-  @Post("/add", { summary: "添加套餐" })
-  async add(@Body(ALL) _body: any) {
+  @Post("/add")
+  async add() {
     return { id: 0 };
   }
 
-  @Post("/update", { summary: "更新套餐" })
-  async update(@Body(ALL) _body: any) {
+  @Post("/update")
+  async update() {
     return { success: true };
   }
 
-  @Post("/delete", { summary: "删除套餐" })
-  async delete(@Query("id") _id: number) {
+  @Post("/delete")
+  async delete() {
     return { success: true };
   }
 
-  @Post("/info", { summary: "套餐详情" })
-  async info(@Query("id") _id: number) {
+  @Post("/info")
+  async info() {
     return null;
   }
 
-  @Post("/all", { summary: "所有套餐" })
+  @Post("/all")
   async all() {
     return { list: [] };
   }
