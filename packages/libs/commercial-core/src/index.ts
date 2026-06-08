@@ -4,7 +4,8 @@
  */
 
 import { BaseEntity } from "typeorm";
-import { Provide, Configuration as MwConfiguration, App } from "@midwayjs/core";
+import { Provide, Configuration as MwConfiguration, App, Controller, Post, Body, Query, Inject, ALL } from "@midwayjs/core";
+import { Constants } from "@certd/lib-server";
 
 // ==================== Configuration ====================
 
@@ -145,6 +146,88 @@ export class UserSuiteService {
 export class InviteService {
   async bindInvitee(_inviter: any, _opts: { inviteeUserId: number; inviteCode: string }) {
     // no-op
+  }
+}
+
+// ==================== Suite Controller (self-hosted) ====================
+
+/**
+ * Self-hosted: unlimited quota for all resources.
+ * -1 means unlimited in certd's business logic.
+ */
+type SuiteValue = {
+  max: number;
+  used: number;
+};
+
+type SuiteDetail = {
+  enabled?: boolean;
+  suites?: any[];
+  suiteList?: any[];
+  addonList?: any[];
+  expiresTime?: number;
+  pipelineCount?: SuiteValue;
+  domainCount?: SuiteValue;
+  wildcardDomainCount?: SuiteValue;
+  deployCount?: SuiteValue;
+  monitorCount?: SuiteValue;
+};
+
+function makeUnlimitedDetail(): SuiteDetail {
+  const unlimited: SuiteValue = { max: -1, used: 0 };
+  return {
+    enabled: false,
+    suites: [],
+    suiteList: [],
+    addonList: [],
+    expiresTime: undefined,
+    pipelineCount: unlimited,
+    domainCount: unlimited,
+    wildcardDomainCount: unlimited,
+    deployCount: unlimited,
+    monitorCount: unlimited,
+  };
+}
+
+@Provide()
+@Controller("/api/mine/suite")
+export class SuiteController {
+  @Inject()
+  userSuiteService: any;
+
+  @Post("/detail", { summary: "获取我的套餐详情" })
+  async detail() {
+    return makeUnlimitedDetail();
+  }
+
+  @Post("/page", { summary: "分页列表" })
+  async page(@Body(ALL) _body: any) {
+    return { list: [], total: 0 };
+  }
+
+  @Post("/add", { summary: "添加套餐" })
+  async add(@Body(ALL) _body: any) {
+    return { id: 0 };
+  }
+
+  @Post("/update", { summary: "更新套餐" })
+  async update(@Body(ALL) _body: any) {
+    return { success: true };
+  }
+
+  @Post("/delete", { summary: "删除套餐" })
+  async delete(@Query("id") _id: number) {
+    return { success: true };
+  }
+
+  @Post("/info", { summary: "套餐详情" })
+  async info(@Query("id") _id: number) {
+    return null;
+  }
+
+  @Post("/all", { summary: "所有套餐" })
+  async all() {
+    return { list: [] };
   }
 }
 
