@@ -1,5 +1,5 @@
 import { Controller, Post, Provide } from "@midwayjs/core";
-import { BaseController } from "@certd/lib-server";
+import { BaseController, Constants } from "@certd/lib-server";
 
 /**
  * Self-hosted suite controller - all features unlimited.
@@ -7,7 +7,7 @@ import { BaseController } from "@certd/lib-server";
 @Provide()
 @Controller("/api/mine/suite")
 export class SuiteController extends BaseController {
-  @Post("/detail")
+  @Post("/detail", { description: Constants.per.authOnly })
   async detail() {
     return this.ok({
       enabled: false,
@@ -22,32 +22,32 @@ export class SuiteController extends BaseController {
     });
   }
 
-  @Post("/page")
+  @Post("/page", { description: Constants.per.authOnly })
   async page() {
     return this.ok({ list: [], total: 0 });
   }
 
-  @Post("/add")
+  @Post("/add", { description: Constants.per.authOnly })
   async add() {
     return this.ok({ id: 0 });
   }
 
-  @Post("/update")
+  @Post("/update", { description: Constants.per.authOnly })
   async update() {
     return this.ok({ success: true });
   }
 
-  @Post("/delete")
+  @Post("/delete", { description: Constants.per.authOnly })
   async delete() {
     return this.ok({ success: true });
   }
 
-  @Post("/info")
+  @Post("/info", { description: Constants.per.authOnly })
   async info() {
     return this.ok(null);
   }
 
-  @Post("/all")
+  @Post("/all", { description: Constants.per.authOnly })
   async all() {
     return this.ok({ list: [] });
   }
