@@ -24,6 +24,9 @@ RUN mkdir -p /workspace/packages/ui/certd-server/public && \
 # --- Final stage ---
 FROM node:22-alpine
 
+# Install runtime dependencies (openssl needed for certificate operations)
+RUN apk add --no-cache openssl
+
 WORKDIR /home/certd/
 
 # Copy production node_modules (contains symlinks to workspace packages)
