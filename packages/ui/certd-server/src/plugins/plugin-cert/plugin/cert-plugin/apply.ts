@@ -624,6 +624,14 @@ export class CertApplyPlugin extends CertApplyBasePlugin {
     );
     this.logger.info("开始申请证书,", email, domains);
 
+    const hasIpDomain = domains.some((d: string) => utils.domain.isIp(d));
+    if (hasIpDomain) {
+      if (this.sslProvider === "google") {
+        throw new Error("Google CA 不支持 IP 地址证书，请改用 Let's Encrypt 或 ZeroSSL");
+      }
+      this.logger.info("检测到 IP 地址域名，将使用 HTTP-01 验证方式");
+    }
+
     let dnsProvider: IDnsProvider = null;
     let domainsVerifyPlan: DomainsVerifyPlan = null;
     let acmeAccount: AcmeAccountInfo = null;

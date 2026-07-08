@@ -15,6 +15,7 @@ export type DomainGroupItem = {
   domain: string;
   domains?: string[];
   keySubDomains?: string[];
+  isIp?: boolean;
 };
 
 export async function GetList() {

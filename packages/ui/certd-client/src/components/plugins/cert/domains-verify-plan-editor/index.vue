@@ -164,6 +164,12 @@ function showError(error: string) {
 
 type DomainGroup = Record<string, DomainGroupItem>;
 
+function isIpAddress(d: string) {
+  if (!d) return false;
+  if (/^(\d{1,3}\.){3}\d{1,3}$/.test(d)) return true;
+  try { new URL(`http://[${d}]`); return true; } catch { return false; }
+}
+
 async function onDomainsChanged(domains: string[]) {
   if (domains == null) {
     return;
@@ -182,6 +188,7 @@ async function onDomainsChanged(domains: string[]) {
         domain: mainDomain,
         domains: [],
         keySubDomains: [],
+        isIp: isIpAddress(mainDomain),
       } as DomainGroupItem;
       domainGroups[mainDomain] = group;
     }
@@ -196,6 +203,10 @@ async function onDomainsChanged(domains: string[]) {
       let type = props.defaultType || "cname";
       if (type === "dnses") {
         type = "dns";
+      }
+      // IP 地址只能用 HTTP-01 验证
+      if (domainGroupItem.isIp) {
+        type = "http";
       }
       planItem = {
         domain,
