@@ -25,49 +25,9 @@ jobs:
           result-encoding: string
           script: |
             const fs = require('fs');
-            const jsonFilePath = "./packages/ui/certd-server/package.json";
-            const jsonContent = fs.readFileSync(jsonFilePath, 'utf-8');
-            const pkg = JSON.parse(jsonContent)
+            const pkg = JSON.parse(fs.readFileSync('./packages/ui/certd-server/package.json', 'utf-8'));
             console.log("certd_version:", pkg.version);
             return pkg.version
-
-      - name: Setup pnpm
-        uses: pnpm/action-setup@v4
-        with:
-          version: 10.33.4
-
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: 22
-
-      - name: Pre-build all workspace packages
-        run: |
-          pnpm install
-          # Build ALL workspace packages in dependency order
-          # This ensures dist/ exists for every workspace dep (lib-server, midway-flyway-js, acme-client, etc.)
-          pnpm -r run build
-        working-directory: ./
-
-      - name: Override stub packages (ensure our stubs are used)
-        run: |
-          # Re-build stub packages to ensure they override npm versions
-          npx tsc -p packages/libs/plus-core/tsconfig.json
-          npx tsc -p packages/libs/commercial-core/tsconfig.json
-          npx tsc -p packages/libs/plugin-plus/tsconfig.json
-        working-directory: ./
-
-      - name: Build certd-client
-        run: |
-          npm run build
-        working-directory: ./packages/ui/certd-client
-
-      - name: Build certd-server
-        run: |
-          node ./before-build.js
-          pnpm run build-only
-          node export-plugin-yaml.js docoff
-        working-directory: ./packages/ui/certd-server
 
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v3
@@ -88,7 +48,7 @@ jobs:
           username: ${{ secrets.DOCKER_HUB_USERNAME }}
           password: ${{ secrets.DOCKER_HUB_TOKEN }}
 
-      - name: Build default platforms
+      - name: Build and push
         uses: docker/build-push-action@v6
         with:
           platforms: linux/amd64,linux/arm64
