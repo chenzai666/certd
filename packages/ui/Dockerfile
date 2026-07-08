@@ -13,7 +13,6 @@ FROM base-${TARGETARCH}${TARGETVARIANT:+-}${TARGETVARIANT}-${base_type} AS build
 WORKDIR /workspace/
 COPY . /workspace/
 
-# pnpm v11 打包会报错，暂时固定 10.33.4 版本
 RUN npm install -g pnpm@10.33.4
 
 # native addon 编译工具（aws-crt 等需要 cmake/g++/python3）
@@ -25,14 +24,10 @@ RUN if [ -f /etc/alpine-release ]; then \
         rm -rf /var/lib/apt/lists/*; \
     fi
 
-# pnpm v10 deploy 需要 inject-workspace-packages=true 才能正确打包工作区依赖
-# 在 Docker 构建层写入，不影响实际仓库
-RUN echo "inject-workspace-packages=true" >> /workspace/.npmrc
-
-# 安装所有工作区依赖（仓库无 lockfile，直接 install）
+# 安装所有工作区依赖
 RUN pnpm install
 
-# 构建所有工作区包（ui-client 和 ui-server 单独处理）
+# 构建所有库和插件包（ui-client 和 ui-server 单独处理）
 RUN pnpm -r --filter='!@certd/ui-client' --filter='!@certd/ui-server' run build
 
 # 构建前端
@@ -48,14 +43,15 @@ RUN cd /workspace/packages/ui/certd-server && \
     pnpm run build-only && \
     node export-plugin-yaml.js docoff
 
-# 用 pnpm deploy 打出自包含的生产包（工作区依赖已注入，无需 --legacy）
-RUN pnpm --filter=@certd/ui-server deploy --prod /app
-
-# 补充 deploy 不会自动包含的运行时文件
-RUN cp -rf /workspace/packages/ui/certd-server/dist      /app/dist && \
-    cp -rf /workspace/packages/ui/certd-server/public    /app/public && \
-    cp -rf /workspace/packages/ui/certd-server/db        /app/db && \
-    cp    /workspace/packages/ui/certd-server/bootstrap.js /app/bootstrap.js
+# 删除源码和开发工具，缩小最终镜像体积
+RUN find /workspace/packages -name "src" -type d \
+        -not -path "*/node_modules/*" \
+        -exec rm -rf {} + 2>/dev/null || true
+RUN find /workspace/packages -name "*.ts" \
+        -not -name "*.d.ts" \
+        -not -path "*/node_modules/*" \
+        -delete 2>/dev/null || true
+RUN find /workspace/node_modules -name "*.map" -delete 2>/dev/null || true
 
 # ------------------------------------------------------------------
 # 生产镜像
@@ -79,14 +75,12 @@ RUN if [ -f /etc/debian_version ]; then \
         echo "Unsupported base image"; exit 1; \
     fi
 
-WORKDIR /app/
-
 ENV TERM=xterm
 ENV LEGO_VERSION=4.30.1
-ENV LEGO_DOWNLOAD_DIR=/app/tools/lego
+ENV LEGO_DOWNLOAD_DIR=/workspace/tools/lego
 
 ENV JKS_GO_VERSION=1.0.3
-ENV JKS_GO_DOWNLOAD_DIR=/app/tools/jks-go
+ENV JKS_GO_DOWNLOAD_DIR=/workspace/tools/jks-go
 
 ENV ALIYUN_CLIENT_CONNECT_TIMEOUT=10000
 ENV ALIYUN_CLIENT_READ_TIMEOUT=20000
@@ -130,6 +124,8 @@ ENV TZ=Asia/Shanghai
 ENV NODE_ENV=production
 ENV MIDWAY_SERVER_ENV=production
 
-COPY --from=builder /app/ /app/
+# 拷贝整个 workspace（包含 node_modules 和所有构建产物）
+COPY --from=builder /workspace/ /workspace/
 
+WORKDIR /workspace/packages/ui/certd-server
 CMD ["node", "--optimize-for-size", "./bootstrap.js"]
