@@ -45,7 +45,7 @@ RUN cd /workspace/packages/ui/certd-server && \
     node export-plugin-yaml.js docoff
 
 # 用 pnpm deploy 打出自包含的生产包（自动解析工作区依赖为真实文件）
-RUN pnpm --filter=@certd/ui-server deploy --prod /app
+RUN pnpm --filter=@certd/ui-server deploy --prod --legacy /app
 
 # 补充 deploy 不会自动包含的运行时文件
 RUN cp -rf /workspace/packages/ui/certd-server/dist      /app/dist
