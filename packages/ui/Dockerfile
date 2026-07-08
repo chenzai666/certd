@@ -32,8 +32,8 @@ RUN echo "inject-workspace-packages=true" >> /workspace/.npmrc
 # 安装所有工作区依赖（仓库无 lockfile，直接 install）
 RUN pnpm install
 
-# 构建所有工作区包（除 ui-client，单独处理）
-RUN pnpm -r --filter='!@certd/ui-client' run build
+# 构建所有工作区包（ui-client 和 ui-server 单独处理）
+RUN pnpm -r --filter='!@certd/ui-client' --filter='!@certd/ui-server' run build
 
 # 构建前端
 RUN cd /workspace/packages/ui/certd-client && npm run build

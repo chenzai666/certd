@@ -1,4 +1,5 @@
 import { IsTaskPlugin, pluginGroups, RunStrategy, TaskInput } from "@certd/pipeline";
+import { utils } from "@certd/basic";
 import fs from "fs";
 import path from "path";
 import dayjs from "dayjs";
@@ -310,7 +311,7 @@ export class DBBackupPlugin extends AbstractPlusTaskPlugin {
 
     const ctx: OssClientContext = {
       logger: this.logger,
-      utils: this.ctx.utils,
+      utils: utils,
       accessService: this.accessService,
     };
 
