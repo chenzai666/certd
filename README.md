@@ -105,17 +105,23 @@ https://certd.handfree.work/
 
 #### Docker镜像说明：
 
-- 国内镜像地址:
-  - `registry.cn-shenzhen.aliyuncs.com/handsfree/certd:latest`
-  - `registry.cn-shenzhen.aliyuncs.com/handsfree/certd:armv7`、`[version]-armv7`
-- DockerHub地址：
-  - `https://hub.docker.com/r/greper/certd`
-  - `greper/certd:latest`
-  - `greper/certd:armv7`、`greper/certd:[version]-armv7`
-- GitHub Packages地址:
+**镜像版本：**
 
-  - `ghcr.io/certd/certd:latest`
-  - `ghcr.io/certd/certd:armv7`、`ghcr.io/certd/certd:[version]-armv7`
+| 版本标签 | 基础系统  | 说明 |
+| --- | --- | --- | --- |
+| `latest` / `[version]` | Alpine Linux  | 默认版本，镜像体积小 |
+| `slim` / `[version]-slim` | Debian slim  | 基于glibc，dns解析兼容性好（可能需要配置security_opt -seccomp=unconfined） |
+| `armv7` / `[version]-armv7` | Alpine Linux | ARMv7 架构专用版本 |
+
+**镜像地址：**
+
+| 镜像仓库 | latest | slim | armv7 |
+| --- | --- | --- | --- |
+| 阿里云 | `registry.cn-shenzhen.aliyuncs.com/handsfree/certd:latest` | `registry.cn-shenzhen.aliyuncs.com/handsfree/certd:slim` | `registry.cn-shenzhen.aliyuncs.com/handsfree/certd:armv7` |
+| Docker Hub | `greper/certd:latest` | `greper/certd:slim` | `greper/certd:armv7` |
+| GitHub Packages | `ghcr.io/certd/certd:latest` | `ghcr.io/certd/certd:slim` | `ghcr.io/certd/certd:armv7` |
+
+> 带版本号的标签请将 `latest` / `slim` / `armv7` 替换为 `[version]` / `[version]-slim` / `[version]-armv7`
 
 - 镜像构建通过`Actions`自动执行，过程公开透明，请放心使用
   - [点我查看镜像构建日志](https://github.com/certd/certd/actions/workflows/build-image.yml)
@@ -179,7 +185,11 @@ https://certd.handfree.work/
 2. 您的需求我们将优先实现，并且可能将作为专业版功能提供
 3. 获得专业版功能
 
-[50元专业版优惠券限时领取](https://app.handfree.work/subject/#/app/certd/product)
+
+> [50元专业版优惠券限时领取](https://app.handfree.work/subject/#/app/certd/product) 
+> https://app.handfree.work/subject/#/app/certd/product      
+> app.handfree.work是Certd官方激活码购买平台
+
 
 专业版、商业版特权对比
 

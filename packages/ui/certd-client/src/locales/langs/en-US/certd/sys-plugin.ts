@@ -26,7 +26,10 @@ export default {
   store: "Store",
   version: "Version",
   pluginDependencies: "Plugin Dependencies",
-  pluginDependenciesHelper: "Dependencies to install first in format: [author/]pluginName[:version]",
+  pluginDependenciesHelper:
+    "Format: pluginType:pluginName, use * for version\nSupported: plugin:name, access:name, notification:name, dnsProvider:name, addon:subtype:name\nExample: access:AliyunAccess, plugin:DeployToAliyunCDN",
+  thirdPartyDependencies: "Third-party Dependencies",
+  thirdPartyDependenciesHelper: "Format: npmPackageName: version. Auto-installed at runtime\nExample: aliyun-sdk: ^1.0.0",
   editableRunStrategy: "Editable Run Strategy",
   editable: "Editable",
   notEditable: "Not Editable",
@@ -40,4 +43,8 @@ export default {
   pluginManagement: "Plugin Management",
   pluginBetaWarning: "Custom plugins are in BETA and may have breaking changes in future",
   pleaseSelectRecord: "Please select records first",
+  clearRuntimeDeps: "Clear Runtime Deps Cache",
+  clearRuntimeDepsTooltip: "Restart the certd container after clearing, otherwise cached modules will not be reloaded",
+  clearRuntimeDepsConfirm: "Are you sure to clear the runtime dependencies cache? Please restart the certd container afterwards to ensure dependencies are reloaded.",
+  clearRuntimeDepsSuccess: "Runtime dependencies cache cleared successfully, please restart the certd container",
 };

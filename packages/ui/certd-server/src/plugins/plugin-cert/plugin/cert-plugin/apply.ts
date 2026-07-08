@@ -160,9 +160,13 @@ export class CertApplyPlugin extends CertApplyBasePlugin {
         onSelectedChange: ctx.compute(({form})=>{
           return ($event)=>{
            form.dnsProviderAccessType = $event.accessType
-           form.dnsProviderAccess = null
           }
-        })
+        }),
+        onChange: ctx.compute(({form})=>{
+          return ($event)=>{
+            form.dnsProviderAccess = null
+          }
+        }),
       },
     }
     `,
@@ -371,9 +375,10 @@ export class CertApplyPlugin extends CertApplyBasePlugin {
     component: {
       name: "access-selector",
       type: "acmeAccount",
+      defaultSelect: true,
     },
     required: false,
-    helper: "请选择颁发机构对应的ACME账号",
+    helper: "直接本地生成，无需外部注册\n点击选择按钮->添加->填写邮箱->生成账号即可",
     mergeScript: `
     return {
         show: ctx.compute(({form})=>{

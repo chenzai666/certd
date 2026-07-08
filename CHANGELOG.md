@@ -3,6 +3,93 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
+
+### Bug Fixes
+
+* 修复火山视频点播源站选择不到自定义源站的bug ([0071bcb](https://github.com/certd/certd/commit/0071bcb0e4dd108c86d7ca01820a9f6e6960e440))
+* 修复企业模式下弹出邮箱绑定提醒的问题 ([8d9dad9](https://github.com/certd/certd/commit/8d9dad9c82f6f2fd3ab3040068946a33f37145b1))
+* 修复AsiaIsp CDN证书重复情况下部署失败的问题 ([c3d6db3](https://github.com/certd/certd/commit/c3d6db3f1ef2f1c897b7989521fe8809dffaded1))
+* 修复cname用阿里云校验时报找不到runtimeDepsService的错误 ([072edd7](https://github.com/certd/certd/commit/072edd7affee424ab3411f4d41d338f084d7cac6))
+
+## [1.42.1](https://github.com/certd/certd/compare/v1.42.0...v1.42.1) (2026-07-06)
+
+### Bug Fixes
+
+* 修复多域名无法使用passkey登录的bug ([d176f9c](https://github.com/certd/certd/commit/d176f9cc0ebd051a614bfac74d1616d1945fc9a3))
+* 修复企业模式下登录报projectId不能为空的问题 ([a65366b](https://github.com/certd/certd/commit/a65366bbe1aadea8baaffbdadab58a5b631d9417))
+* **login:** 修复输入法 composing 状态下回车触发提交的问题 ([b74db81](https://github.com/certd/certd/commit/b74db81304bbe68476bbec5ea4307a2264060e92))
+
+### Performance Improvements
+
+* **certd-server:** 使用 jks-go转换jks证书，大幅精简镜像大小 ([c78898e](https://github.com/certd/certd/commit/c78898e4c10dd1701467d2e42e3f72bd8f2a352f))
+* **pipeline:** 将默认历史保留条数从30调整为100 ([d3e4677](https://github.com/certd/certd/commit/d3e4677ea4fac8e7533749d7f4187e410489e536))
+
+# [1.42.0](https://github.com/certd/certd/compare/v1.41.4...v1.42.0) (2026-07-05)
+
+### Bug Fixes
+
+* 修复jdk证书格式的问题 ([260f5ae](https://github.com/certd/certd/commit/260f5ae777b83493b0c578fe30fd00ec0c873226))
+* 修复telegram - 符号转义问题 ([d5882f1](https://github.com/certd/certd/commit/d5882f16bedb09baf09ace92049b02872620f5dc))
+* **aliyun:** 修复阿里云CDN/DCDN根据证书自动匹配不到证书的bug ([1ae185d](https://github.com/certd/certd/commit/1ae185d0bc356f4678bc38ca0582ce3396f82ebe))
+
+### Features
+
+* 通过插件配置懒加载依赖，动态加载第三方依赖包，精简安装镜像大小 ([01568ca](https://github.com/certd/certd/commit/01568ca1489069046b5a89ebdd4ced2f7f6ddf93))
+
+### Performance Improvements
+
+*  阿里云ESA证书部署支持SaaS模式 ([82276b5](https://github.com/certd/certd/commit/82276b53a8474a18a3d0237050907c994fc748f0))
+* 【破坏性更新】 证书压缩包不再生成文件存储，而是实时打包下载，证书申请插件不再输出certZip ([7cff1a9](https://github.com/certd/certd/commit/7cff1a98424120585205889874b3ef4956a30583))
+* 火山引擎点播插件支持部署到自定义源站域名 ([095791c](https://github.com/certd/certd/commit/095791cdc2b7c1f4b913b634643afec5e30fe9b0))
+* 基础镜像改成node:22-trixie-slim，对网络兼容性更好 ([c66a2bd](https://github.com/certd/certd/commit/c66a2bd77ab6dbb3e3fe2c00562b66287a9429ea))
+* 新增橙域网络(asia-isp) CDN证书部署插件 ([b48831e](https://github.com/certd/certd/commit/b48831e60b0059bef7ef9a34ab61c9dd2f684641))
+* 优化阿里云API网关增加翻页查询 ([ed58ae3](https://github.com/certd/certd/commit/ed58ae3c5339e4a0238a92acfe7ea6d2f566ea28))
+* 优化用户体验，首次访问时弹出邮箱账号绑定用以初始化账号 ([608cc2a](https://github.com/certd/certd/commit/608cc2a81ff0b4872c9fe11ed9c9c0b4b90a12a3))
+* 优化ACME账号字段的选择提示 ([bfd3cac](https://github.com/certd/certd/commit/bfd3cacc687fc5cbc3cb2ca3cadbc140de300dc2))
+* 支持全自动匹配部署宝塔网站证书 ([4dff48e](https://github.com/certd/certd/commit/4dff48e807c32a7623ec9206cf39c88e88f89f6a))
+* **cert-plugin:** 调整更新天数自动减半逻辑，仅7天ip证书生效，其他情况下不减半 ([56e5524](https://github.com/certd/certd/commit/56e5524a0f4af3645d70bc3b3ec750b45ba8de10))
+* dns默认ipv4first ([194463b](https://github.com/certd/certd/commit/194463bea9e797315aa7a724f4b2930701570419))
+* **passkey:** passkey支持多域名rpid ([79f6586](https://github.com/certd/certd/commit/79f65868ca0f5162bbc2f935ce89abc28011d816))
+* **plugin:** 在线插件编辑支持配置第三方依赖和插件依赖 ([635f069](https://github.com/certd/certd/commit/635f069012d4193cfb7cb051c96e28eec1247ca2))
+
+## [1.41.4](https://github.com/certd/certd/compare/v1.41.3...v1.41.4) (2026-06-14)
+
+### Bug Fixes
+
+* 修复设置里面不显示tab页签，导致某些页面需要点击查询按钮才有数据出来的bug ([c1b5a35](https://github.com/certd/certd/commit/c1b5a35f90a7d4b41397717b5c27905bc68e1bfb))
+
+### Performance Improvements
+
+* **plugin:** 增加 Dynadot DNS and access 插件 ([a3a215b](https://github.com/certd/certd/commit/a3a215b7ae2b90efcde91270ce4165bbfe77dc64))
+
+## [1.41.3](https://github.com/certd/certd/compare/v1.41.2...v1.41.3) (2026-06-11)
+
+### Bug Fixes
+
+* 修复litessl无法申请证书，报authorization must be pending 错误的问题 ([d6cd9d1](https://github.com/certd/certd/commit/d6cd9d136d2812b2335917305f36d6d9414507ad))
+
+### Performance Improvements
+
+* 首页夜间模式主图切换为黑色背景 ([15484bc](https://github.com/certd/certd/commit/15484bc119fef7a0ca7f3fdab01d665fde47e688))
+
+## [1.41.2](https://github.com/certd/certd/compare/v1.41.1...v1.41.2) (2026-06-10)
+
+### Bug Fixes
+
+* **cert-plugin:** 修复DNS提供商授权无法回显的bug ([016ae86](https://github.com/certd/certd/commit/016ae865b1d914fe5792e77a08e3ab5358df5f89))
+* Parse PEM chain and import certificate chain ([#747](https://github.com/certd/certd/issues/747)) ([454912d](https://github.com/certd/certd/commit/454912d31407d350cbd170953ccbd0564e74fd6c))
+
+### Performance Improvements
+
+* 添加AWS Rate Limit应对措施 ([#748](https://github.com/certd/certd/issues/748)) ([56b8c68](https://github.com/certd/certd/commit/56b8c689ec2b5cff49010a8c765483dd36803e9d))
+* 新增站点证书监控从DNS解析记录批量导入功能 ([f9541fa](https://github.com/certd/certd/commit/f9541fab701e01ba57af061da322204c894adfb8))
+* 优化 HiPM DNSMgr 插件，添加域名查询双层策略 ([#744](https://github.com/certd/certd/issues/744)) @WUHINS ([0f3f851](https://github.com/certd/certd/commit/0f3f8519e04d95cb848e28b98a3d4fcbed481fce))
+
+### Reverts
+
+* Revert "perf: 添加AWS Rate Limit应对措施 (#748)" (#749) ([5e8bdac](https://github.com/certd/certd/commit/5e8bdac00850bed4f5f2a272bee42c490730ec21)), closes [#748](https://github.com/certd/certd/issues/748) [#749](https://github.com/certd/certd/issues/749)
+
 ## [1.41.1](https://github.com/certd/certd/compare/v1.41.0...v1.41.1) (2026-06-05)
 
 ### Performance Improvements

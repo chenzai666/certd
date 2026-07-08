@@ -21,7 +21,7 @@ export class AwsClient {
   }
   async importCertificate(certInfo: CertInfo) {
     // 创建 ACM 客户端
-    const { ACMClient, ImportCertificateCommand } = await import("@aws-sdk/client-acm");
+    const { ACMClient, ImportCertificateCommand } = await this.access.importRuntime("@aws-sdk/client-acm");
     const acmClient = new ACMClient({
       region: this.region, // 替换为您的 AWS 区域
       credentials: {
@@ -30,22 +30,26 @@ export class AwsClient {
       },
     });
 
-    const cert = certInfo.crt.split("-----END CERTIFICATE-----")[0] + "-----END CERTIFICATE-----";
+    // Split the full PEM chain: first block is the leaf cert, the rest is the intermediate chain
+    const pemBlocks = certInfo.crt.split(/(?<=-----END CERTIFICATE-----)/);
+    const cert = pemBlocks[0].trim();
+    const chain = pemBlocks.slice(1).join("").trim();
+
     // 构建上传参数
     const data = await acmClient.send(
       new ImportCertificateCommand({
         Certificate: Buffer.from(cert),
         PrivateKey: Buffer.from(certInfo.key),
-        // CertificateChain: certificateChain, // 可选
+        CertificateChain: chain ? Buffer.from(chain) : undefined,
       })
     );
-    console.log("Upload successful:", data);
+    this.logger.info(`Upload successful: ${data.CertificateArn}`);
     // 返回证书 ARN（Amazon Resource Name）
     return data.CertificateArn;
   }
 
   async getCallerIdentity() {
-    const { STSClient, GetCallerIdentityCommand } = await import("@aws-sdk/client-sts");
+    const { STSClient, GetCallerIdentityCommand } = await this.access.importRuntime("@aws-sdk/client-sts");
 
     const client = new STSClient({
       region: this.access.region || "us-east-1",
@@ -64,7 +68,7 @@ export class AwsClient {
   }
 
   async route53ClientGet() {
-    const { Route53Client } = await import("@aws-sdk/client-route-53");
+    const { Route53Client } = await this.access.importRuntime("@aws-sdk/client-route-53");
     return new Route53Client({
       region: this.region,
       credentials: {
@@ -84,7 +88,7 @@ export class AwsClient {
     };
   }
   async route53ListHostedZones(name: string): Promise<{ Id: string; Name: string }[]> {
-    const { ListHostedZonesByNameCommand } = await import("@aws-sdk/client-route-53"); // ES Modules import
+    const { ListHostedZonesByNameCommand } = await this.access.importRuntime("@aws-sdk/client-route-53"); // ES Modules import
 
     const client = await this.route53ClientGet();
     const input = {
@@ -92,7 +96,7 @@ export class AwsClient {
       DNSName: name,
     };
     const command = new ListHostedZonesByNameCommand(input);
-    const response = await this.doRequest(() => client.send(command));
+    const response: any = await this.doRequest(() => client.send(command));
     if (response.HostedZones.length === 0) {
       throw new Error(`找不到 HostedZone ${name}`);
     }
@@ -101,7 +105,7 @@ export class AwsClient {
   }
 
   async route53ListHostedZonesPage(req: PageSearch): Promise<PageRes<DomainRecord>> {
-    const { ListHostedZonesByNameCommand } = await import("@aws-sdk/client-route-53"); // ES Modules import
+    const { ListHostedZonesByNameCommand } = await this.access.importRuntime("@aws-sdk/client-route-53"); // ES Modules import
 
     const client = await this.route53ClientGet();
     const input: any = {
@@ -112,7 +116,7 @@ export class AwsClient {
       input.DNSName = req.searchKey;
     }
     const command = new ListHostedZonesByNameCommand(input);
-    const response = await this.doRequest(() => client.send(command));
+    const response: any = await this.doRequest(() => client.send(command));
     let list: any[] = response.HostedZones || [];
     list = list.map((item: any) => ({
       id: item.Id.replace("/hostedzone/", ""),
@@ -125,7 +129,7 @@ export class AwsClient {
   }
 
   async route53ChangeRecord(req: { hostedZoneId: string; fullRecord: string; type: string; value: string; action: "UPSERT" | "DELETE" }) {
-    const { ChangeResourceRecordSetsCommand } = await import("@aws-sdk/client-route-53"); // ES Modules import
+    const { ChangeResourceRecordSetsCommand } = await this.access.importRuntime("@aws-sdk/client-route-53"); // ES Modules import
     // const { Route53Client, ChangeResourceRecordSetsCommand } = require("@aws-sdk/client-route-53"); // CommonJS import
     // import type { Route53ClientConfig } from "@aws-sdk/client-route-53";
     const client = await this.route53ClientGet();

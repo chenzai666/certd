@@ -17,14 +17,16 @@
 </template>
 
 <script lang="ts" setup>
-import { onActivated, onMounted } from "vue";
+import { useMounted } from "/@/use/use-mounted";
 import { useFs } from "@fast-crud/fast-crud";
 import createCrudOptions from "./crud";
 import { message, Modal } from "ant-design-vue";
 import { DeleteBatch } from "./api";
 import { useI18n } from "/src/locales";
-import { useProjectStore } from "/@/store/project";
+import { useCrudPermission } from "/@/plugin/permission";
 import AdminModeIntro from "./intro.vue";
+import { useProjectStore } from "/@/store/project";
+
 const { t } = useI18n();
 
 defineOptions({
@@ -52,10 +54,7 @@ const handleBatchDelete = () => {
 };
 
 // 页面打开后获取列表数据
-onMounted(() => {
-  // crudExpose.doRefresh();
-});
-onActivated(async () => {
+useMounted(async () => {
   await crudExpose.doRefresh();
 });
 </script>

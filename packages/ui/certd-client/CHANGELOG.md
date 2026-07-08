@@ -3,6 +3,53 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
+
+### Bug Fixes
+
+* 修复企业模式下弹出邮箱绑定提醒的问题 ([8d9dad9](https://github.com/certd/certd/commit/8d9dad9c82f6f2fd3ab3040068946a33f37145b1))
+
+## [1.42.1](https://github.com/certd/certd/compare/v1.42.0...v1.42.1) (2026-07-06)
+
+### Bug Fixes
+
+* **login:** 修复输入法 composing 状态下回车触发提交的问题 ([b74db81](https://github.com/certd/certd/commit/b74db81304bbe68476bbec5ea4307a2264060e92))
+
+### Performance Improvements
+
+* **pipeline:** 将默认历史保留条数从30调整为100 ([d3e4677](https://github.com/certd/certd/commit/d3e4677ea4fac8e7533749d7f4187e410489e536))
+
+# [1.42.0](https://github.com/certd/certd/compare/v1.41.4...v1.42.0) (2026-07-05)
+
+### Performance Improvements
+
+* 【破坏性更新】 证书压缩包不再生成文件存储，而是实时打包下载，证书申请插件不再输出certZip ([7cff1a9](https://github.com/certd/certd/commit/7cff1a98424120585205889874b3ef4956a30583))
+* 优化用户体验，首次访问时弹出邮箱账号绑定用以初始化账号 ([608cc2a](https://github.com/certd/certd/commit/608cc2a81ff0b4872c9fe11ed9c9c0b4b90a12a3))
+* **passkey:** passkey支持多域名rpid ([79f6586](https://github.com/certd/certd/commit/79f65868ca0f5162bbc2f935ce89abc28011d816))
+* **plugin:** 在线插件编辑支持配置第三方依赖和插件依赖 ([635f069](https://github.com/certd/certd/commit/635f069012d4193cfb7cb051c96e28eec1247ca2))
+
+## [1.41.4](https://github.com/certd/certd/compare/v1.41.3...v1.41.4) (2026-06-14)
+
+### Bug Fixes
+
+* 修复设置里面不显示tab页签，导致某些页面需要点击查询按钮才有数据出来的bug ([c1b5a35](https://github.com/certd/certd/commit/c1b5a35f90a7d4b41397717b5c27905bc68e1bfb))
+
+## [1.41.3](https://github.com/certd/certd/compare/v1.41.2...v1.41.3) (2026-06-11)
+
+### Performance Improvements
+
+* 首页夜间模式主图切换为黑色背景 ([15484bc](https://github.com/certd/certd/commit/15484bc119fef7a0ca7f3fdab01d665fde47e688))
+
+## [1.41.2](https://github.com/certd/certd/compare/v1.41.1...v1.41.2) (2026-06-10)
+
+### Bug Fixes
+
+* **cert-plugin:** 修复DNS提供商授权无法回显的bug ([016ae86](https://github.com/certd/certd/commit/016ae865b1d914fe5792e77a08e3ab5358df5f89))
+
+### Performance Improvements
+
+* 新增站点证书监控从DNS解析记录批量导入功能 ([f9541fa](https://github.com/certd/certd/commit/f9541fab701e01ba57af061da322204c894adfb8))
+
 ## [1.41.1](https://github.com/certd/certd/compare/v1.41.0...v1.41.1) (2026-06-05)
 
 ### Performance Improvements

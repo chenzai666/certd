@@ -3,13 +3,27 @@ packages:
   - 'packages/ui/**'
   - 'packages/libs/**'
   - '!**/test/**'
+  - '!packages/libs/libs/lib-huawei'
+  - '!packages/libs/libs/lib-iframe'
+  - '!packages/libs/libs/lib-jdcloud'
+  # - '!packages/libs/libs/lib-k8s' # k8s引用了basic
+  - '!packages/libs/libs/midway-flyway-js'
+
+#  禁止放开这里的注释，不要配置allowBuilds
+# allowBuilds:
+#   aws-crt: set this to true or false
+#   better-sqlite3: set this to true or false
+#   core-js: set this to true or false
+#   cos-js-sdk-v5: set this to true or false
+#   cpu-features: set this to true or false
+#   es5-ext: set this to true or false
+#   esbuild: set this to true or false
+#   ssh2: set this to true or false
+#   unrs-resolver: set this to true or false
+#   vue-demi: set this to true or false
+  
 
 cacheDir: C:/Users/tt/WorkBuddy/2026-06-06-20-59-11/certd/.pnpm-cache
 
 linkWorkspacePackages: deep
-minimumReleaseAgeExclude:
-  - '@certd/commercial-core@1.41.1'
-  - '@certd/plugin-plus@1.41.1'
-  - '@certd/plus-core@1.41.1'
 preferWorkspacePackages: true
-storeDir: C:/Users/tt/WorkBuddy/2026-06-06-20-59-11/certd/.pnpm-store

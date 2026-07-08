@@ -10,7 +10,7 @@ import { INotificationService } from "../notification/index.js";
 import { Registrable } from "../registry/index.js";
 import { IPluginConfigService } from "../service/config.js";
 import { TaskEmitter } from "../service/emit.js";
-import { ICnameProxyService, IEmailService, IServiceGetter, IUrlService } from "../service/index.js";
+import { ICnameProxyService, IEmailService, IRuntimeDepsService, IServiceGetter, IUrlService } from "../service/index.js";
 
 export type PluginRequestHandleReq<T = any> = {
   typeName: string;
@@ -46,6 +46,8 @@ export type PluginDefine = Registrable & {
   default?: any;
   group?: string;
   icon?: string;
+  dependPlugins?: Record<string, string>;
+  dependPackages?: Record<string, string>;
   input?: {
     [key: string]: TaskInputDefine;
   };
@@ -73,6 +75,8 @@ export type ITaskPlugin = {
   onInstance(): Promise<void>;
   execute(): Promise<void | string>;
   onRequest(req: PluginRequestHandleReq<any>): Promise<any>;
+  setCtx(ctx: TaskInstanceContext): Promise<void>;
+  importRuntime?(specifier: string): Promise<any>;
   [key: string]: any;
 };
 
@@ -146,6 +150,14 @@ export abstract class AbstractTaskPlugin implements ITaskPlugin {
   logger!: ILogger;
   http!: HttpClient;
   accessService!: IAccessService;
+  runtimeDepsService!: IRuntimeDepsService;
+
+  async importRuntime(specifier: string) {
+    if (!this.runtimeDepsService) {
+      throw new Error("runtimeDepsService 未初始化");
+    }
+    return await this.runtimeDepsService.importRuntime(specifier, this.logger);
+  }
 
   clearLastStatus() {
     this._result.clearLastStatus = true;
@@ -161,11 +173,17 @@ export abstract class AbstractTaskPlugin implements ITaskPlugin {
     }
   }
 
-  setCtx(ctx: TaskInstanceContext) {
+  async setCtx(ctx: TaskInstanceContext) {
     this.ctx = ctx;
     this.logger = ctx.logger;
     this.accessService = ctx.accessService;
     this.http = ctx.http;
+    if (!this.runtimeDepsService && this.ctx.serviceGetter) {
+      this.runtimeDepsService = await this.ctx.serviceGetter.get("runtimeDepsService");
+    }
+    if (this.runtimeDepsService && this.ctx.define?.name) {
+      await this.runtimeDepsService.ensureRuntimeDependencies({ pluginKeys: `plugin:${this.ctx.define.name}`, logger: this.logger });
+    }
     // 将证书加入secret
     // @ts-ignore
     if (this.cert && this.cert.crt && this.cert.key) {
