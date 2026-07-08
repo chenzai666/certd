@@ -16,8 +16,17 @@ COPY . /workspace/
 # pnpm v11 打包会报错，暂时固定 10.33.4 版本
 RUN npm install -g pnpm@10.33.4
 
-# 安装所有工作区依赖
-RUN pnpm install --frozen-lockfile
+# native addon 编译工具（aws-crt 等需要 cmake/g++/python3）
+RUN if [ -f /etc/alpine-release ]; then \
+        apk add --no-cache python3 make g++ cmake linux-headers; \
+    else \
+        apt-get update && apt-get install -y --no-install-recommends \
+            python3 make g++ cmake && \
+        rm -rf /var/lib/apt/lists/*; \
+    fi
+
+# 安装所有工作区依赖（仓库无 lockfile，直接 install）
+RUN pnpm install
 
 # 构建所有工作区包（除 ui-client，单独处理）
 RUN pnpm -r --filter='!@certd/ui-client' run build
