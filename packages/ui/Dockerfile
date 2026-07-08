@@ -25,6 +25,10 @@ RUN if [ -f /etc/alpine-release ]; then \
         rm -rf /var/lib/apt/lists/*; \
     fi
 
+# pnpm v10 deploy 需要 inject-workspace-packages=true 才能正确打包工作区依赖
+# 在 Docker 构建层写入，不影响实际仓库
+RUN echo "inject-workspace-packages=true" >> /workspace/.npmrc
+
 # 安装所有工作区依赖（仓库无 lockfile，直接 install）
 RUN pnpm install
 
@@ -44,14 +48,14 @@ RUN cd /workspace/packages/ui/certd-server && \
     pnpm run build-only && \
     node export-plugin-yaml.js docoff
 
-# 用 pnpm deploy 打出自包含的生产包（自动解析工作区依赖为真实文件）
-RUN pnpm --filter=@certd/ui-server deploy --prod --legacy /app
+# 用 pnpm deploy 打出自包含的生产包（工作区依赖已注入，无需 --legacy）
+RUN pnpm --filter=@certd/ui-server deploy --prod /app
 
 # 补充 deploy 不会自动包含的运行时文件
-RUN cp -rf /workspace/packages/ui/certd-server/dist      /app/dist
-RUN cp -rf /workspace/packages/ui/certd-server/public    /app/public
-RUN cp -rf /workspace/packages/ui/certd-server/db        /app/db
-RUN cp    /workspace/packages/ui/certd-server/bootstrap.js /app/bootstrap.js
+RUN cp -rf /workspace/packages/ui/certd-server/dist      /app/dist && \
+    cp -rf /workspace/packages/ui/certd-server/public    /app/public && \
+    cp -rf /workspace/packages/ui/certd-server/db        /app/db && \
+    cp    /workspace/packages/ui/certd-server/bootstrap.js /app/bootstrap.js
 
 # ------------------------------------------------------------------
 # 生产镜像
