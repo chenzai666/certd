@@ -43,7 +43,7 @@
   "dependencies": {
     "@certd/acme-client": "^1.42.2",
     "@certd/basic": "^1.42.2",
-    "@certd/commercial-core": "^1.42.2",
+    "@certd/commercial-core": "workspace:*",
     "@certd/cv4pve-api-javascript": "^8.4.2",
     "@certd/jdcloud": "^1.42.2",
     "@certd/lib-huawei": "^1.42.2",
