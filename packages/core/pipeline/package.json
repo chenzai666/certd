@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@certd/basic": "^1.42.2",
-    "@certd/plus-core": "^1.42.2",
+    "@certd/plus-core": "workspace:*",
     "dayjs": "^1.11.7",
     "lodash-es": "^4.17.21",
     "reflect-metadata": "^0.2.2"
