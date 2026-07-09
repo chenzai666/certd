@@ -60,3 +60,5 @@ jobs:
             ${{ secrets.DOCKER_HUB_USERNAME }}/certd:${{ steps.get_certd_version.outputs.result }}
             ghcr.io/${{ github.repository }}:latest
             ghcr.io/${{ github.repository }}:${{ steps.get_certd_version.outputs.result }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max

@@ -24,8 +24,9 @@ RUN if [ -f /etc/alpine-release ]; then \
         rm -rf /var/lib/apt/lists/*; \
     fi
 
-# 安装所有工作区依赖
-RUN pnpm install
+# --mount=type=cache 缓存 pnpm store，跨构建复用已下载的包
+RUN --mount=type=cache,id=pnpm-store-${TARGETARCH},target=/root/.local/share/pnpm/store \
+    pnpm install
 
 # 构建所有库和插件包（ui-client 和 ui-server 单独处理）
 RUN pnpm -r --filter='!@certd/ui-client' --filter='!@certd/ui-server' run build
