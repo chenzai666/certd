@@ -127,5 +127,9 @@ ENV MIDWAY_SERVER_ENV=production
 # 拷贝整个 workspace（包含 node_modules 和所有构建产物）
 COPY --from=builder /workspace/ /workspace/
 
+# 兼容旧版挂载路径 /app/data：将服务器运行时的 ./data 软链到 /app/data
+RUN mkdir -p /app && \
+    ln -sf /app/data /workspace/packages/ui/certd-server/data
+
 WORKDIR /workspace/packages/ui/certd-server
 CMD ["node", "--optimize-for-size", "./bootstrap.js"]
