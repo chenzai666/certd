@@ -1,6 +1,6 @@
 {
   "name": "@certd/plugin-plus",
-  "version": "1.41.1",
+  "version": "1.42.2",
   "description": "Self-hosted edition - plugin plus base classes",
   "private": true,
   "type": "module",
