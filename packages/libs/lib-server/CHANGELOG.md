@@ -3,6 +3,111 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.46.0](https://github.com/certd/certd/compare/v1.45.6...v1.46.0) (2026-10-28)
+
+### Performance Improvements
+
+* 新增IP黑名单与用户访问控制功能 ([3a10e16](https://github.com/certd/certd/commit/3a10e16394cd128514e7ec69380c989a0f30b772))
+
+## [1.45.6](https://github.com/certd/certd/compare/v1.45.5...v1.45.6) (2026-10-28)
+
+### Performance Improvements
+
+* 新增隐藏首页插件列表的设置项 ([abaf374](https://github.com/certd/certd/commit/abaf374a4528143cdd3b0d161644b212eab962f3))
+
+## [1.45.5](https://github.com/certd/certd/compare/v1.45.4...v1.45.5) (2026-10-22)
+
+**Note:** Version bump only for package @certd/lib-server
+
+## [1.45.4](https://github.com/certd/certd/compare/v1.45.3...v1.45.4) (2026-10-22)
+
+**Note:** Version bump only for package @certd/lib-server
+
+## [1.45.3](https://github.com/certd/certd/compare/v1.45.2...v1.45.3) (2026-10-19)
+
+**Note:** Version bump only for package @certd/lib-server
+
+## [1.45.2](https://github.com/certd/certd/compare/v1.45.1...v1.45.2) (2026-10-18)
+
+**Note:** Version bump only for package @certd/lib-server
+
+## [1.45.1](https://github.com/certd/certd/compare/v1.45.0...v1.45.1) (2026-10-14)
+
+### Performance Improvements
+
+* 完善插件翻译 ([d0463ab](https://github.com/certd/certd/commit/d0463abc2607d22aba50ae3acc6584bbed6e3a0e))
+
+# [1.45.0](https://github.com/certd/certd/compare/v1.44.4...v1.45.0) (2026-10-02)
+
+### Features
+
+* **client:** 新增客户端管理功能 ([3dbbe72](https://github.com/certd/certd/commit/3dbbe72fc15c114ca6b5e8ff45cb21f258b80650))
+
+## [1.44.4](https://github.com/certd/certd/compare/v1.44.3...v1.44.4) (2026-09-12)
+
+### Bug Fixes
+
+* 修复证书插件配置无法打开的bug ([5563abb](https://github.com/certd/certd/commit/5563abb13a62140f4dee668ab768cf4ff9371ddb))
+
+## [1.44.3](https://github.com/certd/certd/compare/v1.44.2...v1.44.3) (2026-09-06)
+
+**Note:** Version bump only for package @certd/lib-server
+
+## [1.44.2](https://github.com/certd/certd/compare/v1.44.1...v1.44.2) (2026-09-03)
+
+**Note:** Version bump only for package @certd/lib-server
+
+## [1.44.1](https://github.com/certd/certd/compare/v1.44.0...v1.44.1) (2026-09-02)
+
+**Note:** Version bump only for package @certd/lib-server
+
+# [1.44.0](https://github.com/certd/certd/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+### Features
+
+* 实现自定义ACME证书颁发机构支持 ([97c417b](https://github.com/certd/certd/commit/97c417b1ad64b9a14bee8bfe98a2e789b9278820))
+* 新增证书吊销后置任务与证书状态管理 ([1cc9641](https://github.com/certd/certd/commit/1cc9641f5669710d1e5809995ad395c843855a12))
+* 支持审计日志，操作日志 ([f2855d6](https://github.com/certd/certd/commit/f2855d6dac74c9db71d92f99601e35c360b10666))
+* 支持在线插件下载安装审核等 ([255960d](https://github.com/certd/certd/commit/255960d434eebb3d567a08f737f1642ab417b5d0))
+
+### Performance Improvements
+
+* 新增自定义ACME管理功能，完善证书颁发机构适配 ([2ab23f5](https://github.com/certd/certd/commit/2ab23f50b216e27495fc823d2269ca0ba6366d15))
+* 移除全局反向代理配置，迁移到自定义ACME配置 ([c57110e](https://github.com/certd/certd/commit/c57110e42aada31dd0028b56b5baec1b19722525))
+* **login,settings:** 仅第三方登录开启后，在重启10分钟后将无法使用密码登录 ([1d12ad7](https://github.com/certd/certd/commit/1d12ad73c6ca827d2eb36bda867f9d9fe62dab48))
+
+# [1.43.0](https://github.com/certd/certd/compare/v1.42.6...v1.43.0) (2026-08-14)
+
+### Features
+
+* 优化开放接口证书自动申请功能 ([6339cdf](https://github.com/certd/certd/commit/6339cdffa9f79505dada5617d8c7fcfacc419a2e))
+
+### Performance Improvements
+
+* 统一通知类型常量管理，新增开放接口通知能力 ([edb249c](https://github.com/certd/certd/commit/edb249c2ad3c173dbfd04d8d156f895a6706ffd1))
+
+## [1.42.6](https://github.com/certd/certd/compare/v1.42.5...v1.42.6) (2026-07-18)
+
+### Bug Fixes
+
+* 修复正常批量删除流水线报权限不足的bug ([5b50083](https://github.com/certd/certd/commit/5b500830a122c6c42dab054e57fed509050f94da))
+
+## [1.42.5](https://github.com/certd/certd/compare/v1.42.4...v1.42.5) (2026-07-15)
+
+### Bug Fixes
+
+* 修复上传到cos报runtimeDepsService未初始化的问题 ([167b303](https://github.com/certd/certd/commit/167b303faeca02cc11cf97e4be2a3df914852167))
+
+## [1.42.4](https://github.com/certd/certd/compare/v1.42.3...v1.42.4) (2026-07-11)
+
+### Bug Fixes
+
+* **pipeline:** 重构运行时依赖加载逻辑，修复火山引擎DNS解析报runtimeDepsService未初始化的bug ([ec69b8f](https://github.com/certd/certd/commit/ec69b8f11bfd4b20991aef74a72a47182ca79a9d))
+
+## [1.42.3](https://github.com/certd/certd/compare/v1.42.2...v1.42.3) (2026-07-08)
+
+**Note:** Version bump only for package @certd/lib-server
+
 ## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
 
 **Note:** Version bump only for package @certd/lib-server

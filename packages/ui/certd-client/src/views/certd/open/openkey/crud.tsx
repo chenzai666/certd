@@ -13,10 +13,16 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
   const pageRequest = async (query: UserPageQuery): Promise<UserPageRes> => {
     return await api.GetList(query);
   };
+  // 编辑允许修改备注与权限范围。
+  // keyId/keySecret 属于密钥本体，列表中 keySecret 是脱敏串，误提交会把真实密钥写坏，故不提交。
   const editRequest = async (req: EditReq) => {
     const { form, row } = req;
-    form.id = row.id;
-    const res = await api.UpdateObj(form);
+    const res = await api.UpdateObj({
+      id: row.id,
+      remark: form.remark,
+      scope: form.scope,
+      returnCertPassword: form.returnCertPassword,
+    });
     return res;
   };
   const delRequest = async (req: DelReq) => {
@@ -68,33 +74,38 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
         buttons: {
           view: { show: true },
           copy: { show: false },
-          edit: { show: false },
+          edit: { show: true },
           remove: { show: true },
           gen: {
-            text: t("certd.gen.text"),
+            text: t("certd.open.gen.text"),
             size: "mini",
             icon: "devicon-plain:vitest",
             type: "primary",
             async click({ row }) {
               const apiToken = await api.GetApiToken(row.id);
+              const openApiUrl = `${window.location.origin}/api/v1`;
 
               model.success({
-                title: t("certd.gen.title"),
+                title: t("certd.open.gen.title"),
                 maskClosable: true,
-                okText: t("certd.gen.okText"),
+                okText: t("certd.open.gen.okText"),
                 width: 600,
                 content: () => {
                   return (
                     <div>
                       <div class={"m-10 p-10"}>
-                        {t("certd.gen.contentPart1")}
+                        {t("certd.open.gen.contentPart1")}
                         <a href={OPEN_API_DOC} target={"_blank"}>
-                          {t("certd.gen.openApi")}
+                          {t("certd.open.gen.openApi")}
                         </a>
-                        {t("certd.gen.contentPart2")}
+                        {t("certd.open.gen.contentPart2")}
                       </div>
                       <div class={"m-10 p-10"} style={{ border: "1px solid #333" }}>
                         <fs-copyable model-value={apiToken}></fs-copyable>
+                      </div>
+                      <div class={"m-10 p-10"}>{t("certd.open.gen.apiAddress")}</div>
+                      <div class={"m-10 p-10"} style={{ border: "1px solid #333" }}>
+                        <fs-copyable model-value={openApiUrl}></fs-copyable>
                       </div>
                     </div>
                   );
@@ -165,19 +176,19 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         scope: {
-          title: t("certd.scope"),
+          title: t("certd.open.scope"),
           type: "dict-radio",
           dict: dict({
             data: [
-              { label: t("certd.scopeOpenApiOnly"), value: "open", color: "blue" },
-              { label: t("certd.scopeFullAccount"), value: "user", color: "red" },
+              { label: t("certd.open.scopeOpenApiOnly"), value: "open", color: "blue" },
+              { label: t("certd.open.scopeFullAccount"), value: "user", color: "red" },
             ],
           }),
           form: {
             value: "open",
             show: true,
-            rules: [{ required: true, message: t("certd.required") }],
-            helper: t("certd.scopeHelper"),
+            rules: [{ required: true, message: t("certd.common.required") }],
+            helper: t("certd.open.scopeHelper"),
             component: {
               vModel: "value",
             },
@@ -188,8 +199,40 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             sorter: true,
           },
         },
+        returnCertPassword: {
+          title: t("certd.open.returnCertPassword"),
+          type: "dict-switch",
+          form: {
+            show: true,
+            value: false,
+            helper: t("certd.open.returnCertPasswordHelper"),
+          },
+          dict: dict({
+            data: [
+              { label: t("certd.open.yes"), value: true, color: "green" },
+              { label: t("certd.open.no"), value: false, color: "red" },
+            ],
+          }),
+          column: { width: 140, align: "center" },
+        },
+        remark: {
+          title: t("certd.open.keyRemark"),
+          type: "text",
+          search: {
+            show: true,
+          },
+          column: {
+            width: 200,
+            sorter: true,
+          },
+          form: {
+            show: true,
+            helper: t("certd.open.keyRemarkHelper"),
+            rules: [{ max: 512, message: t("certd.open.keyRemarkMaxChars") }],
+          },
+        },
         projectId: {
-          title: t("certd.fields.projectName"),
+          title: t("certd.common.fields.projectName"),
           type: "dict-select",
           dict: myProjectDict,
           form: {
@@ -205,7 +248,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         createTime: {
-          title: t("certd.fields.createTime"),
+          title: t("certd.common.fields.createTime"),
           type: "datetime",
           search: {
             show: false,

@@ -5,12 +5,12 @@
         <template #dropdownRender="{ menuNode: menu }">
           <template v-if="search">
             <div class="flex w-full" style="padding: 4px 8px">
-              <a-input ref="inputRef" v-model:value="searchKeyRef" class="flex-1" allow-clear :placeholder="t('certd.pluginCommon.searchKeyword')" @keydown.enter="doSearch" />
+              <a-input ref="inputRef" v-model:value="searchKeyRef" class="flex-1" allow-clear :placeholder="t('certd.common.pluginCommon.searchKeyword')" @keydown.enter="doSearch" />
               <a-button class="ml-2" :loading="loading" type="text" @click="doSearch">
                 <template #icon>
                   <search-outlined />
                 </template>
-                {{ t("certd.pluginCommon.search") }}
+                {{ t("certd.common.pluginCommon.search") }}
               </a-button>
             </div>
             <div v-if="hasError" class="helper p-2" :class="{ error: hasError }">
@@ -26,7 +26,7 @@
         </template>
       </a-select>
       <div class="ml-5 flex flex-row no-wrap">
-        <fs-button :loading="loading" :title="t('certd.pluginCommon.refreshOptions')" icon="ion:refresh-outline" @click="refreshOptions"></fs-button>
+        <fs-button :loading="loading" :title="t('certd.common.pluginCommon.refreshOptions')" icon="ion:refresh-outline" @click="refreshOptions"></fs-button>
         <UploadCert v-if="uploadCert" class="ml-5" v-bind="uploadCert" @submit="refreshOptions"></UploadCert>
       </div>
     </div>
@@ -37,7 +37,7 @@
 </template>
 <script setup lang="ts">
 import { ComponentPropsType, doRequest } from "/@/components/plugins/lib";
-import { defineComponent, inject, ref, useAttrs, watch, Ref } from "vue";
+import { defineComponent, inject, ref, useAttrs, watch, Ref, computed } from "vue";
 import { useI18n } from "vue-i18n";
 import { PluginDefine } from "@certd/pipeline";
 import { getInputFromForm } from "./utils";
@@ -71,27 +71,51 @@ const props = defineProps<
     pager?: boolean;
     single?: boolean;
     pageSize?: number;
+    emitImmediate?: boolean;
     uploadCert?: UploadCertProps;
   } & ComponentPropsType
 >();
 const emit = defineEmits<{
   "update:value": any;
+  "selected-change": any;
 }>();
 
 function updateValue(value: any) {
+  debugger;
   if (props.single === true) {
     const last = value?.[value.length - 1];
     emit("update:value", last);
+    emitSelectedChange(last);
     selectRef.value.blur();
   } else {
     emit("update:value", value);
+    emitSelectedChange(value);
   }
-
-  // emit("update:value", value);
 }
 
-const attrs = useAttrs();
+/**
+ * 选中值变化时，通过 selected-change 事件把选中的 option 对象发射出去，
+ * 供字段 mergeScript 里 on: { "selected-change": (scope) => {...} } 联动使用
+ * （如根据选项的 needEAB 显隐其他字段）。单选发射单个 option，多选发射 option 数组。
+ */
+function emitSelectedChange(value: any) {
+  const values = Array.isArray(value) ? value : [value];
+  const options = values.map(v => optionsRef.value.find((item: any) => item.value === v)).filter(Boolean);
+  emit("selected-change", props.single === true ? options[0] : options);
+}
 
+const originalAttrs = useAttrs();
+const attrs = computed(() => {
+  const tags = {
+    mode: "tags",
+    allowClear: true,
+    single: false,
+  };
+  return {
+    ...tags,
+    ...originalAttrs,
+  };
+});
 const getCurrentPluginDefine: any = inject("getCurrentPluginDefine", () => {
   return {};
 });
@@ -112,6 +136,8 @@ const pagerRef: Ref = ref({
   total: 0,
   pageSize: props.pageSize || 50,
 });
+
+let isFirst = true;
 const getOptions = async () => {
   if (loading.value) {
     return;
@@ -162,7 +188,7 @@ const getOptions = async () => {
       {
         onError(err: any) {
           hasError.value = true;
-          message.value = t("certd.pluginCommon.getOptionsError", { message: err.message });
+          message.value = t("certd.common.pluginCommon.getOptionsError", { message: err.message });
           optionsRef.value = [];
         },
         showErrorNotify: false,
@@ -170,9 +196,9 @@ const getOptions = async () => {
     );
     let list = res?.list || res || [];
     if (list.length > 0) {
-      message.value = t("certd.pluginCommon.getDataSuccessSelect");
+      message.value = t("certd.common.pluginCommon.getDataSuccessSelect");
     } else {
-      message.value = t("certd.pluginCommon.getDataSuccessEmpty");
+      message.value = t("certd.common.pluginCommon.getDataSuccessEmpty");
     }
     list = list.map((item: any) => {
       return {
@@ -192,6 +218,15 @@ const getOptions = async () => {
       if (res.total != null) {
         pagerRef.value.total = res.total ?? list.length;
       }
+    }
+
+    if (isFirst) {
+      isFirst = false;
+      if (props.value && props.emitImmediate) {
+        emitSelectedChange(props.value);
+        emit("update:value", props.value);
+      }
+      return;
     }
 
     return res;

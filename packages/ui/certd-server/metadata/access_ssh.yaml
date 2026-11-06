@@ -1,6 +1,9 @@
 name: ssh
 title: 主机登录授权
 desc: ''
+i18n:
+  en-US:
+    title: Ssh Access
 icon: clarity:host-line
 input:
   host:
@@ -104,6 +107,13 @@ input:
           label: GBK
         - value: UTF8
           label: UTF-8
+  jumpHostAccessId:
+    title: 跳板机SSH授权
+    component:
+      name: access-selector
+      type: ssh
+      vModel: modelValue
+    helper: 目标主机不可直连时，选择可访问目标主机的 SSH 授权
   testRequest:
     title: 测试
     component:

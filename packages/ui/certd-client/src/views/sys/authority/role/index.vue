@@ -1,10 +1,10 @@
 <template>
   <fs-page>
     <template #header>
-      <div class="title">{{ t("certd.roleManagement") }}</div>
+      <div class="title">{{ t("certd.sys.authority.roleManagement") }}</div>
     </template>
     <fs-crud ref="crudRef" v-bind="crudBinding" />
-    <a-modal v-model:open="authzDialogVisible" width="860px" :title="t('certd.assignPermissions')" @ok="updatePermission">
+    <a-modal v-model:open="authzDialogVisible" width="860px" :title="t('certd.sys.authority.assignPermissions')" @ok="updatePermission">
       <fs-permission-tree ref="permissionTreeRef" v-model:checked-keys="checkedKeys" :tree="permissionTreeData" :editable="false" checkable :replace-fields="{ key: 'id', label: 'title' }"> </fs-permission-tree>
     </a-modal>
   </fs-page>
@@ -12,7 +12,7 @@
 
 <script lang="ts">
 import { useFs } from "@fast-crud/fast-crud";
-import { message } from "ant-design-vue";
+import { notification } from "ant-design-vue";
 import { defineComponent, ref } from "vue";
 import * as permissionApi from "../permission/api";
 import FsPermissionTree from "../permission/fs-permission-tree.vue";
@@ -72,7 +72,7 @@ function useAuthz() {
     authzClose();
     //await updateChecked(roleId);
 
-    message.success("授权成功");
+    notification.success({ message: "授权成功" });
   }
 
   return {

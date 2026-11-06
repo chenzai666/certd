@@ -1,13 +1,71 @@
+import { DynamicType, FormItemProps, useMerge } from "@fast-crud/fast-crud";
+import { cloneDeep, merge } from "lodash-es";
 import { defineStore } from "pinia";
 import * as api from "./api.plugin";
-import { DynamicType, FormItemProps, useMerge } from "@fast-crud/fast-crud";
+import { initComponentDefine } from "./define";
 import { i18n } from "/src/locales/i18n";
-import { cloneDeep } from "lodash-es";
 interface PluginState {
   group?: PluginGroups;
   originGroup?: PluginGroups;
 }
 
+export function resolvePluginLocale(plugin: any, locale = i18n.global.locale.value) {
+  const resolved = cloneDeep(plugin || {});
+  if (locale === "en-US") {
+    const english = resolved.i18n?.["en-US"] || resolved.metadata?.i18n?.["en-US"];
+    if (english) {
+      const translatedFields = ["title", "desc", "group", "input", "output", "shortcut"];
+      const translated: Record<string, any> = {};
+      for (const field of translatedFields) {
+        if (english[field] !== undefined) {
+          translated[field] = english[field];
+        }
+      }
+      merge(resolved, translated);
+    }
+  }
+  return resolved;
+}
+
+export function fillPluginDefine(plugin: any) {
+  const columns = plugin.input;
+  for (const key in columns) {
+    columns[key] = initComponentDefine(columns[key]);
+  }
+
+  if (plugin.sysSetting?.metadata) {
+    merge(plugin.input, plugin.sysSetting.metadata?.input || {});
+    const keys = Object.keys(plugin.input);
+    for (const key of keys) {
+      //修复旧版本错误引入的key导致报错的问题 【多引入进了一个type=CertApply】
+      const column = plugin.input[key];
+      if (typeof column != "object") {
+        delete plugin.input[key];
+      }
+    }
+    // 应用选项映射
+    for (const key of Object.keys(plugin.input)) {
+      const inputDef = plugin.input[key];
+      if (inputDef.optionsMapping && inputDef.component?.options) {
+        const mapping = inputDef.optionsMapping;
+        for (const opt of inputDef.component.options) {
+          if (mapping[opt.value] !== undefined) {
+            opt.label = mapping[opt.value];
+          }
+        }
+      }
+    }
+  }
+  // if (plugin.sysSetting?.input) {
+  //   // 设置系统默认值, 不能放这里设置
+  //   for (const key in plugin.input) {
+  //     const sysValue = plugin.sysSetting?.input[key];
+  //     if (sysValue != undefined) {
+  //       set(plugin, `input.${key}.value`, sysValue);
+  //     }
+  //   }
+  // }
+}
 export type PluginGroup = {
   key: string;
   title: string;
@@ -28,6 +86,7 @@ export type PluginDefine = {
   output: {
     [key: string]: any;
   };
+  type?: string;
 };
 
 export class PluginGroups {
@@ -35,10 +94,9 @@ export class PluginGroups {
   map!: { [key: string]: PluginDefine };
   t: any;
   mergeSetting?: boolean;
-  constructor(groups: { [key: string]: PluginGroup }, opts?: { mergeSetting?: boolean }) {
+  constructor(groups: { [key: string]: PluginGroup }) {
     this.groups = groups;
     this.t = i18n.global.t;
-    this.mergeSetting = opts?.mergeSetting ?? false;
     this.initGroup(groups);
     this.initMap();
   }
@@ -47,33 +105,20 @@ export class PluginGroups {
     const { merge } = useMerge();
     const all: PluginGroup = {
       key: "all",
-      title: this.t("certd.all"),
+      title: this.t("certd.common.all"),
       order: 0,
       plugins: [],
       icon: "material-symbols:border-all-rounded",
     };
     for (const key in groups) {
-      if (this.mergeSetting) {
-        for (const plugin of groups[key].plugins) {
-          if (plugin.sysSetting) {
-            merge(plugin.input, plugin.sysSetting.metadata?.input || {});
-            // 应用选项映射
-            for (const key of Object.keys(plugin.input)) {
-              const inputDef = plugin.input[key];
-              if (inputDef.optionsMapping && inputDef.component?.options) {
-                const mapping = inputDef.optionsMapping;
-                for (const opt of inputDef.component.options) {
-                  if (mapping[opt.value] !== undefined) {
-                    opt.label = mapping[opt.value];
-                  }
-                }
-              }
-            }
-          }
-        }
+      const localizedPlugins = [];
+      for (const plugin of groups[key].plugins) {
+        const localizedPlugin = resolvePluginLocale(plugin);
+        fillPluginDefine(localizedPlugin);
+        localizedPlugins.push(localizedPlugin);
       }
-
-      all.plugins.push(...groups[key].plugins);
+      groups[key] = { ...groups[key], plugins: localizedPlugins };
+      all.plugins.push(...localizedPlugins);
     }
     this.groups = {
       all,
@@ -157,15 +202,12 @@ export const usePluginStore = defineStore({
   id: "app.plugin",
   state: (): PluginState => ({
     group: null,
-    originGroup: null,
   }),
   actions: {
     async reload() {
       const groups = await api.GetGroups({});
-      this.group = new PluginGroups(groups, { mergeSetting: true });
-      this.originGroup = new PluginGroups(cloneDeep(groups));
+      this.group = new PluginGroups(groups);
       console.log("group", this.group);
-      console.log("originGroup", this.originGroup);
     },
     async init() {
       if (!this.group) {
@@ -189,14 +231,14 @@ export const usePluginStore = defineStore({
       await this.init();
       return this.group.get(name);
     },
-    async getPluginDefineFromOrigin(name: string): Promise<PluginDefine> {
-      await this.init();
-      return this.originGroup.get(name);
-    },
     async getPluginConfig(query: any) {
+      await this.init();
       return await api.GetPluginConfig(query);
     },
     getPluginDefineSync(name: string) {
+      if (!this.group) {
+        return null;
+      }
       return this.group.get(name);
     },
   },

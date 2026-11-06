@@ -1,6 +1,6 @@
 import { http, logger, utils } from "@certd/basic";
 import { UserSuiteService } from "@certd/commercial-core";
-import { AccessService, BaseService, Constants, isEnterprise, NeedSuiteException, NeedVIPException, SysSettingsService } from "@certd/lib-server";
+import { AccessService, BaseService, Constants, isEnterprise, NeedSuiteException, NeedVIPException, NotificationTypes, SysSettingsService } from "@certd/lib-server";
 import { Pager } from "@certd/pipeline";
 import { createDnsProvider, dnsProviderRegistry, DomainParser } from "@certd/plugin-lib";
 import { isComm, isPlus } from "@certd/plus-core";
@@ -98,6 +98,18 @@ export class SiteInfoService extends BaseService<SiteInfoEntity> {
     await this.checkMonitorLimit(data.userId);
 
     data.disabled = false;
+
+    // 批量导入等入口不会传这几个IP检查字段，必须补上明确的布尔默认值，
+    // 否则数据库里存 NULL，编辑弹窗的开关看着是关闭状态却过不了必填校验（issue #803）
+    if (data.ipCheck == null) {
+      data.ipCheck = false;
+    }
+    if (data.ipSyncAuto == null) {
+      data.ipSyncAuto = true;
+    }
+    if (data.ipIgnoreCoherence == null) {
+      data.ipIgnoreCoherence = false;
+    }
 
     const found = await this.repository.findOne({
       where: {
@@ -312,9 +324,26 @@ export class SiteInfoService extends BaseService<SiteInfoEntity> {
     return;
   }
 
+  async checkBatch(ids: number[], userId: number, projectId?: number) {
+    const validIds = this.filterIds(ids);
+    if (validIds.length === 0) {
+      return 0;
+    }
+    const userProjectQuery = this.buildUserProjectQuery(userId, projectId);
+    const sites = await this.repository.find({
+      where: {
+        id: In(validIds),
+        ...userProjectQuery,
+        disabled: false,
+      },
+    });
+    await this.checkList(sites);
+    return sites.length;
+  }
+
   async sendCheckErrorNotify(siteId: number, fromIpCheck = false, setting: UserSiteMonitorSetting) {
     const site = await this.info(siteId);
-    const url = await this.notificationService.getBindUrl("#/certd/monitor/site");
+    const url = await this.notificationService.getBindUrl("#/cert/monitor/site");
     // 发邮件
     await this.notificationService.send(
       {
@@ -326,7 +355,7 @@ export class SiteInfoService extends BaseService<SiteInfoEntity> {
           title: `站点证书${fromIpCheck ? "(IP)" : ""}检查出错<${site.name}>`,
           content: `站点名称： ${site.name} \n站点域名： ${site.domain} \n错误信息：${site.error}`,
           errorMessage: site.error,
-          notificationType: "siteCheckError",
+          notificationType: NotificationTypes.SiteCheckError,
         },
       },
       site.userId
@@ -338,7 +367,7 @@ export class SiteInfoService extends BaseService<SiteInfoEntity> {
     const site = await this.info(siteId);
     const expires = site.certExpiresTime;
     const validDays = dayjs(expires).diff(dayjs(), "day");
-    const url = await this.notificationService.getBindUrl("#/certd/monitor/site");
+    const url = await this.notificationService.getBindUrl("#/cert/monitor/site");
     const content = `站点名称： ${site.name} \n站点域名： ${site.domain} \n证书域名： ${site.certDomains} \n颁发机构： ${site.certProvider} \n过期时间： ${dayjs(site.certExpiresTime).format("YYYY-MM-DD")} \n`;
     if (validDays >= 0 && validDays < tipDays) {
       // 发通知
@@ -352,7 +381,7 @@ export class SiteInfoService extends BaseService<SiteInfoEntity> {
             content,
             url,
             errorMessage: "站点证书即将过期",
-            notificationType: "siteCertExpireRemind",
+            notificationType: NotificationTypes.SiteCertExpireRemind,
           },
         },
         site.userId
@@ -369,7 +398,7 @@ export class SiteInfoService extends BaseService<SiteInfoEntity> {
             content,
             url,
             errorMessage: "站点证书已过期",
-            notificationType: "siteCertExpireRemind",
+            notificationType: NotificationTypes.SiteCertExpireRemind,
           },
         },
         site.userId
@@ -805,11 +834,13 @@ export class SiteInfoService extends BaseService<SiteInfoEntity> {
     });
   }
 
-  async batchDelete(ids: number[], userId: number, projectId?: number): Promise<void> {
+  async batchDelete(ids: number[], userId: number, projectId?: number): Promise<number> {
+    ids = this.filterIds(ids);
     const userProjectQuery = this.buildUserProjectQuery(userId, projectId);
-    await this.repository.delete({
+    const result = await this.repository.delete({
       id: In(ids),
       ...userProjectQuery,
     });
+    return result.affected || 0;
   }
 }

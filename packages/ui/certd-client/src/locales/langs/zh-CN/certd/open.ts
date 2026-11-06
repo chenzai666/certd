@@ -3,6 +3,13 @@ export default {
   scopeOpenApiOnly: "仅开放接口",
   scopeFullAccount: "账户所有权限",
   scopeHelper: "仅开放接口只可以访问开放接口，账户所有权限可以访问所有接口",
+  keyRemark: "密钥用途",
+  keyRemarkHelper: "说明该密钥的用途，便于区分和查找",
+  keyRemarkMaxChars: "最大512个字符",
+  returnCertPassword: "返回证书密码",
+  returnCertPasswordHelper: "开启后，开放接口获取证书时会在响应中返回证书密码，请妥善保管该密钥。",
+  yes: "是",
+  no: "否",
   gen: {
     text: "接口测试",
     title: "x-certd-token",
@@ -10,5 +17,6 @@ export default {
     contentPart1: "测试x-certd-token如下，您可以在3分钟内使用它进行",
     openApi: "开放接口",
     contentPart2: "请求测试",
+    apiAddress: "接口地址",
   },
 };

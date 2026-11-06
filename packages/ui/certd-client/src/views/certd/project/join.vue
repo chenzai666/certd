@@ -2,7 +2,7 @@
   <fs-page class="page-project-join">
     <template #header>
       <div class="title">
-        {{ t("certd.sysResources.projectJoin") }}
+        {{ t("certd.navigation.sysResources.projectJoin") }}
         <span v-if="projectStore.projects.length === 0" class="sub">{{ t("certd.project.noProjectJoined") }}</span>
       </div>
 
@@ -18,12 +18,16 @@
             <div class="project-card-content">
               <div class="project-info">
                 <div class="text-md font-bold title">{{ project.name }}</div>
-                <div class="flex items-center justify-start">管理员： <fs-values-format :model-value="project.adminId" :dict="userDict" color="green"></fs-values-format></div>
-                <p class="text-gray-500 text-sm">创建时间：{{ formatDate(project.createTime) }}</p>
+                <div class="flex items-center justify-start">{{ t("certd.common.fields.adminId") }}： <fs-values-format :model-value="project.adminId" :dict="userDict" color="green"></fs-values-format></div>
+                <p class="text-gray-500 text-sm">{{ t("certd.project.createdAt") }}：{{ formatDate(project.createTime) }}</p>
               </div>
               <div class="flex-col items-start">
-                <div v-if="project.status" class="mt-1 flex items-center justify-start">状态：<fs-values-format :model-value="project.status" :dict="projectMemberStatusDict"></fs-values-format></div>
-                <div v-if="project.permission" class="mt-1 flex items-center justify-start">权限：<fs-values-format :model-value="project.permission" :dict="projectPermissionDict"></fs-values-format></div>
+                <div v-if="project.status" class="mt-1 flex items-center justify-start">
+                  {{ t("certd.project.ent.projectMemberStatus") }}：<fs-values-format :model-value="project.status" :dict="projectMemberStatusDict"></fs-values-format>
+                </div>
+                <div v-if="project.permission" class="mt-1 flex items-center justify-start">
+                  {{ t("certd.project.ent.projectPermission") }}：<fs-values-format :model-value="project.permission" :dict="projectPermissionDict"></fs-values-format>
+                </div>
               </div>
             </div>
             <template #actions>
@@ -50,7 +54,7 @@
 <script lang="ts" setup>
 import { ref, onMounted } from "vue";
 import { useI18n } from "/src/locales";
-import { message, Modal } from "ant-design-vue";
+import { notification, Modal } from "ant-design-vue";
 import { request } from "/src/api/service";
 import { useProjectStore } from "/@/store/project";
 import dayjs from "dayjs";
@@ -77,7 +81,7 @@ function goProjectManager() {
 const router = useRouter();
 function goProjectDetail(projectId: number) {
   // 假设这里调用跳转到项目详情页的API
-  router.push(`/certd/project/detail?projectId=${projectId}`);
+  router.push(`/cert/project/detail?projectId=${projectId}`);
 }
 
 const getSystemProjects = async () => {
@@ -89,7 +93,7 @@ const getSystemProjects = async () => {
     });
     projects.value = response || [];
   } catch (error) {
-    message.error(t("certd.project.fetchFailed"));
+    notification.error({ message: t("certd.project.fetchFailed") });
     console.error("获取项目列表失败:", error);
   }
 };
@@ -105,7 +109,7 @@ const applyToJoin = async (projectId: number) => {
         method: "post",
         data: { projectId },
       });
-      message.success(t("certd.project.applySuccess"));
+      notification.success({ message: t("certd.project.applySuccess") });
       await getSystemProjects();
       // 申请成功后可以刷新页面或跳转到项目列表
     },
@@ -134,7 +138,7 @@ async function leaveProject(projectId: number) {
         method: "post",
         data: { projectId },
       });
-      message.success(t("certd.project.leaveSuccess"));
+      notification.success({ message: t("certd.project.leaveSuccess") });
       // 退出成功后可以刷新页面或跳转到项目列表
       await getSystemProjects();
     },

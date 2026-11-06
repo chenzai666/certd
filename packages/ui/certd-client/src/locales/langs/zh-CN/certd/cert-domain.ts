@@ -1,5 +1,6 @@
 export default {
   domain: {
+    dnsPersistDescription: "当前仅 Google 证书可以申请 DNS 持久验证。",
     domainManager: "域名管理",
     domainDescription: "流水线校验方式选择“自动选择”时此处配置才有用，支持自动导入；注意：这里只需要管理主域名即可，子域名不要填写（子域名托管和免费二级子域名除外）",
     domain: "域名",
@@ -19,6 +20,7 @@ export default {
     subdomainConfirmContent: "检测到{domain}为子域名，只有托管子域名和免费二级子域名才需要在此处维护，否则会导致申请证书失败，请确认是否继续？",
     importFromProvider: "从域名提供商导入",
     importFromResolveRecords: "从解析记录导入",
+    importFromResolveRecordsTooltip: "从域名的解析记录中导入并作为监控站点",
     syncExpirationDate: "同步域名过期时间",
     syncTaskSubmitted: "同步任务已提交",
     syncExpirationProgress: "同步域名过期时间进度",

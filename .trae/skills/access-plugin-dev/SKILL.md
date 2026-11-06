@@ -23,6 +23,8 @@ version: 1.0.0
 
    - 配置插件的唯一标识、标题、图标和描述
    - 继承 `BaseAccess` 类
+   - 插件默认文案使用中文；需要英文时，在注解参数对象中添加同级 `i18n: { "en-US": { ... } }`，不要写成 `metadata.i18n`。`define` 本身就是插件 metadata。
+   - `i18n["en-US"]` 仅配置要翻译的展示字段，如 `title`、`desc`、`input`；输入字段可翻译 `title`、`helper`、组件展示文案和 `optionsMapping`。缺少英文翻译时回退默认中文。
 
 3. **定义授权属性**
 
@@ -392,6 +394,66 @@ export class OAuthDemoAccess extends BaseAccess {
 }
 ```
 
+## 字段动态显隐（mergeScript）
+
+多种鉴权方式共用一个授权时，用 `@AccessInput` 上的 `mergeScript` 按所选方式显隐字段：
+
+```typescript
+@AccessInput({
+  title: '鉴权方式',
+  value: 'apikey',
+  component: {
+    name: 'a-select',
+    vModel: 'value',
+    options: [
+      { label: 'AccessKey签名', value: 'aksk' },
+      { label: 'ApiKey', value: 'apikey' },
+    ],
+  },
+  required: true,
+})
+authType = 'apikey';
+
+@AccessInput({
+  title: 'accessKeyId',
+  component: { name: 'a-input', vModel: 'value' },
+  required: true,
+  mergeScript: `
+    return {
+      show: ctx.compute(({form})=>{
+        return !form.access.authType || form.access.authType === 'aksk';
+      })
+    }
+  `,
+})
+accessKeyId = '';
+```
+
+要点：
+
+- `mergeScript` 返回的对象会深合并进本字段定义，可动态化的属性有 `show`、`required`、`helper`、
+  `component` 下的属性（`options`、`placeholder` 等）以及 `component.on` 事件。
+- **动态判断必须写在 `ctx.compute(({form})=>{ ... })` 回调里**。`mergeScript` 本身在插件类
+  定义阶段就被拼成字符串，那时表单还没打开，用参数在服务端判断字段值没有意义。
+- 授权表单字段值在 `form.access.xxx`（任务表单才是 `form.xxx`）。
+- 历史授权没有新字段，条件里要用 `!form.access.authType || ...` 兜底走旧逻辑，保证老授权还能编辑保存。
+- 联动其他字段用 `component.on` 事件回调，回调参数是 `{ form }`：
+
+  ```typescript
+  mergeScript: `
+    return {
+      component: {
+        on: {
+          selectedChange: (scope) => {
+            const form = scope.form;
+            form.acmeAccountAccessId = null;
+          },
+        },
+      },
+    }
+  `,
+  ```
+
 ## 注意事项
 
 1. **插件命名**：插件名称应简洁明了，反映其功能。
@@ -400,6 +462,7 @@ export class OAuthDemoAccess extends BaseAccess {
 4. **错误处理**：API 调用失败时应抛出明确的错误信息。
 5. **测试方法**：实现 `onTestRequest` 方法，以便用户可以测试授权是否正常。
 6. **统一接口调用**：封装统一的 API 请求方法，避免重复编写错误处理逻辑。
+7. **旧版数据兼容**： 新增注解的插件参数，必须要考虑旧版数据兼容，比如新增一个deployType参数，有两种值：`default`和`custom`，需要在使用时判空，走旧版逻辑。
 
 ## 开发技巧
 

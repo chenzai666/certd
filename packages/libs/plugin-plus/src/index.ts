@@ -79,27 +79,7 @@ export class XinnetClient extends BaseClient {
   }
 }
 
-// ============================================================
-// UniCloudClient stub
-// ============================================================
-export class UniCloudClient extends BaseClient {
-  async login(...args: any[]): Promise<any> {
-    this.logger?.info?.("[UniCloudClient] login");
-    return { token: "self-hosted" };
-  }
-  async getToken(...args: any[]): Promise<any> {
-    return { token: "self-hosted", expiresIn: Date.now() + 86400000 };
-  }
-  async createCert(...args: any[]): Promise<any> {
-    return { success: true, certId: "mock-cert-id" };
-  }
-  async getSpaceList(...args: any[]): Promise<any[]> {
-    return [];
-  }
-  async doRequest(opts: any): Promise<any> {
-    return this.request(opts);
-  }
-}
+export { UniCloudClient } from "./unicloud-client.js";
 
 // ============================================================
 // SynologyClient stub

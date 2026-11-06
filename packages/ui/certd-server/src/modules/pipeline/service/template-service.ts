@@ -1,5 +1,5 @@
 import { Inject, Provide, Scope, ScopeEnum } from "@midwayjs/core";
-import { BaseService, SysSettingsService } from "@certd/lib-server";
+import { BaseService, isEnterprise, SysSettingsService } from "@certd/lib-server";
 import { InjectEntityModel } from "@midwayjs/typeorm";
 import { In, Repository } from "typeorm";
 import { TemplateEntity } from "../entity/template.js";
@@ -87,7 +87,8 @@ export class TemplateService extends BaseService<TemplateEntity> {
     };
   }
 
-  async batchDelete(ids: number[], userId: number, projectId?: number) {
+  async batchDelete(ids: number[], userId: number, projectId?: number): Promise<number> {
+    ids = this.filterIds(ids);
     const where: any = {
       id: In(ids),
     };
@@ -102,14 +103,22 @@ export class TemplateService extends BaseService<TemplateEntity> {
     const pipelineIds = list.map(item => item.pipelineId);
     await this.delete(ids);
     await this.pipelineService.batchDelete(pipelineIds, userId, projectId);
+    return ids.length;
   }
 
   async createPipelineByTemplate(body: PipelineEntity) {
+    delete body.id;
     const templateId = body.templateId;
     const template = await this.info(templateId);
 
-    if (!template && template.userId !== body.userId) {
+    if (!template) {
       throw new Error("模板不存在");
+    }
+    if (template.userId !== body.userId) {
+      throw new Error("您没有权限使用此模版");
+    }
+    if (isEnterprise() && template.projectId !== body.projectId) {
+      throw new Error("您没有权限使此项目模版");
     }
 
     const tempPipeline = await this.pipelineService.info(template.pipelineId);

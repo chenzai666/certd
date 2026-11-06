@@ -11,6 +11,12 @@ import { AliyunClient, AliyunSslClient, CasCertInfo } from "../../../plugin-lib/
   icon: "svg:icon-aliyun",
   group: pluginGroups.aliyun.key,
   desc: "部署证书到阿里云CLB(传统负载均衡)",
+  i18n: {
+    "en-US": {
+      title: "Aliyun-Deploy Certificate to SLB",
+      desc: "Deploy a certificate to Aliyun SLB.",
+    },
+  },
   needPlus: false,
   default: {
     strategy: {
@@ -130,7 +136,7 @@ export class AliyunDeployCertToSLB extends AbstractTaskPlugin {
   async onInstance() {}
 
   async getLBClient(access: AliyunAccess, region: string) {
-    const client = new AliyunClient({ logger: this.logger, importRuntime: access.importRuntime.bind(access) });
+    const client = new AliyunClient({ logger: this.logger });
     const version = "2014-05-15";
     await client.init({
       accessKeyId: access.accessKeyId,

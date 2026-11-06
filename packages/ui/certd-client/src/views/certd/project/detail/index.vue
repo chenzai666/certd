@@ -18,7 +18,7 @@
     </template>
     <fs-crud ref="crudRef" v-bind="crudBinding">
       <template #pagination-left>
-        <a-tooltip :title="t('certd.batchDelete')">
+        <a-tooltip :title="t('certd.common.batchDelete')">
           <fs-button icon="DeleteOutlined" @click="handleBatchDelete"></fs-button>
         </a-tooltip>
       </template>
@@ -31,7 +31,7 @@ import { onMounted, ref } from "vue";
 import { useMounted } from "/@/use/use-mounted";
 import { useFs } from "@fast-crud/fast-crud";
 import createCrudOptions from "./crud";
-import { message, Modal } from "ant-design-vue";
+import { notification, Modal } from "ant-design-vue";
 import { DeleteBatch } from "./api";
 import { useI18n } from "/src/locales";
 import { useRoute, useRouter } from "vue-router";
@@ -97,24 +97,24 @@ const selectedRowKeys = context.selectedRowKeys;
 const handleBatchDelete = () => {
   if (selectedRowKeys.value?.length > 0) {
     Modal.confirm({
-      title: t("certd.confirmTitle"),
-      content: t("certd.confirmDeleteBatch", { count: selectedRowKeys.value.length }),
+      title: t("certd.common.confirmTitle"),
+      content: t("certd.common.confirmDeleteBatch", { count: selectedRowKeys.value.length }),
       async onOk() {
         await DeleteBatch(selectedRowKeys.value);
-        message.info(t("certd.deleteSuccess"));
+        notification.info({ message: t("certd.common.deleteSuccess") });
         crudExpose.doRefresh();
         selectedRowKeys.value = [];
       },
     });
   } else {
-    message.error(t("certd.selectRecordsFirst"));
+    notification.error({ message: t("certd.common.selectRecordsFirst") });
   }
 };
 
 // 页面打开后获取列表数据
 onMounted(async () => {
   if (!projectId) {
-    message.error("您还未选择项目");
+    notification.error({ message: "您还未选择项目" });
     return;
   }
   await loadProjectDetail();

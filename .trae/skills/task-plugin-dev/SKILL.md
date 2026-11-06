@@ -28,6 +28,8 @@ version: 1.0.0
    - 设置插件分组
    - 配置默认策略（如 `SkipWhenSucceed`）
    - 确保类名与插件名称一致
+   - 插件默认文案使用中文；需要英文时，在注解参数对象中添加同级 `i18n: { "en-US": { ... } }`，不要写成 `metadata.i18n`。`define` 本身就是插件 metadata。
+   - `i18n["en-US"]` 仅配置要翻译的展示字段，如 `title`、`desc`、`group`、`input`、`output`；未配置的字段自动回退默认中文。不要翻译插件标识、组件类型、默认值或执行参数。
 
 3. **定义任务输入参数**
 
@@ -281,12 +283,12 @@ export class DemoTest extends AbstractTaskPlugin {
       return {
         value: item.siteName,
         label: item.siteName,
-        domain: item.siteName,
+        domain: item.siteName, //这里必须要包含domain 否则后面分组时候全部分配到未匹配中
       };
     });
     //将站点域名名称根据证书域名进行匹配分组，分成匹配的和不匹配的两组选项，返回给前端，供用户选择
     return {
-      list: optionsUtils.buildGroupOptions(options, this.certDomains),
+      list: optionsUtils.buildGroupOptions(options, this.certDomains), //分组后的列表
       total: siteRes.length,
     };
   }
@@ -641,6 +643,7 @@ new AliyunOSSDeploy();
 4. **日志输出**：使用 `this.logger` 输出日志，而不是 `console`，参数文本化，不要传对象，否则会输出`[object Object]}`。
 5. **错误处理**：执行过程中的错误应被捕获并记录。
 6. **授权获取**：使用 `this.getAccess(accessId)` 获取授权信息。
+7. **旧版数据兼容**： 新增@TaskInput注解的插件参数，必须要考虑旧版数据兼容，比如新增一个deployType参数，有两种值：`default`和`custom`，需要在使用时判空，走旧版逻辑。
 
 ## 部署逻辑注意事项
 

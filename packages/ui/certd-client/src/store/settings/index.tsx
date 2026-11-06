@@ -35,6 +35,7 @@ export interface SettingState {
     version?: string;
     time?: number;
     deltaTime?: number;
+    releaseMode?: string;
   };
   productInfo: {
     notice?: string;
@@ -83,6 +84,7 @@ export const useSettingStore = defineStore({
       managerOtherUserPipeline: false,
       icpNo: env.ICP_NO || "",
       homePageEnabled: true,
+      hideHomePluginList: false,
     },
     installInfo: {
       siteId: "",
@@ -109,6 +111,7 @@ export const useSettingStore = defineStore({
       version: "",
       time: 0,
       deltaTime: 0,
+      releaseMode: "latest",
     },
     productInfo: {
       notice: "",
@@ -170,9 +173,9 @@ export const useSettingStore = defineStore({
     vipLabel(): string {
       const { t } = useI18n();
       const vipLabelMap: any = {
-        free: t("vip.label.free"),
-        plus: t("vip.label.plus"),
-        comm: t("vip.label.comm"),
+        free: t("certd.vip.label.free"),
+        plus: t("certd.vip.label.plus"),
+        comm: t("certd.vip.label.comm"),
       };
       return vipLabelMap[this.plusInfo?.vipType || "free"];
     },
@@ -206,10 +209,10 @@ export const useSettingStore = defineStore({
     checkPlus() {
       if (!this.isPlus) {
         notification.warn({
-          message: $t("vip.needVipTip"),
+          message: $t("certd.vip.needVipTip"),
         });
         mitter.emit("openVipModal");
-        throw new Error($t("vip.needVipTip"));
+        throw new Error($t("certd.vip.needVipTip"));
       }
     },
     async loadSysSettings() {
@@ -229,6 +232,9 @@ export const useSettingStore = defineStore({
       this.app.time = appInfo.time;
       this.app.version = appInfo.version;
       this.app.deltaTime = new Date().getTime() - this.app.time;
+      if (appInfo.releaseMode) {
+        this.app.releaseMode = appInfo.releaseMode;
+      }
     },
     initSiteInfo(siteInfo: SiteInfo) {
       //@ts-ignore
@@ -385,9 +391,18 @@ export const useSettingStore = defineStore({
       this.loadProductInfo();
       this.inited = true;
     },
+    getSiteId() {
+      return this.installInfo?.siteId || "";
+    },
   },
 });
 
 mitter.on("app.login", async () => {
   await useSettingStore().init();
+  try {
+    const { loadPreferencesFromAccount } = await import("/@/vben/layouts/widgets/preferences/account-sync");
+    await loadPreferencesFromAccount();
+  } catch (e) {
+    console.error("加载账号偏好设置失败", e);
+  }
 });

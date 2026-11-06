@@ -1,5 +1,5 @@
 import { HttpClient } from "@certd/basic";
-import { AbstractTaskPlugin, IsTaskPlugin, pluginGroups, RunStrategy, TaskInput } from "@certd/pipeline";
+import { AbstractTaskPlugin, IsTaskPlugin, PageSearch, pluginGroups, RunStrategy, TaskInput } from "@certd/pipeline";
 
 import { CertApplyPluginNames, CertInfo } from "@certd/plugin-cert";
 import { BaotaClient } from "../lib/client.js";
@@ -23,6 +23,18 @@ export type SiteItem = {
     },
   },
   needPlus: false,
+  i18n: {
+    "en-US": {
+      title: "Baota - Deploy Web Site Cert",
+      desc: "Deploy the certificate to the web site.",
+      input: {
+        cert: { title: "Domain Certificate", helper: "Select the certificate output by a previous task." },
+        accessId: { title: "Baota Access", helper: "Baota API credentials." },
+        isDockerSite: { title: "Docker Site", helper: "Whether the site is hosted in Docker." },
+        siteName: { title: "Site Name", helper: "Select or enter the site matching the certificate domains." },
+      },
+    },
+  },
 })
 export class BaotaDeployWebSiteCert extends AbstractTaskPlugin {
   //证书选择，此项必须要有
@@ -72,6 +84,7 @@ export class BaotaDeployWebSiteCert extends AbstractTaskPlugin {
       vModel: "value",
       mode: "tags",
       action: "GetSiteList",
+      search: true,
       watches: ["certDomains", "accessId", "isDockerSite"],
     },
     required: true,
@@ -104,26 +117,37 @@ export class BaotaDeployWebSiteCert extends AbstractTaskPlugin {
     }
 
     const lockKey = `baota-lock-${accessId}`;
-
+    if (this.isDockerSite) {
+      this.logger.info(`当前已勾选docker站点（如果部署失败，请确认站点：${siteNames}， 是否全部为docker站点）`);
+    }
     for (const site of siteNames) {
       // 加锁，防止并发部署证书， 宝塔并发部署会导致nginx的conf错乱
       await this.ctx.utils.locker.execute(lockKey, async () => {
-        this.logger.info(`为站点:${site}设置证书，目前支持宝塔网站站点、docker站点`);
-        if (this.isDockerSite) {
-          const res = await client.doRequest("/mod/docker/com/set_ssl", "", {
-            site_name: site,
-            key: cert.key,
-            csr: cert.crt,
-          });
-          this.logger.info(res?.msg);
-        } else {
-          const res = await client.doRequest("/site", "SetSSL", {
-            type: 0,
-            siteName: site,
-            key: cert.key,
-            csr: cert.crt,
-          });
-          this.logger.info(res?.msg);
+        try {
+          if (this.isDockerSite) {
+            this.logger.info(`为Docker站点:${site} 设置证书`);
+            const res = await client.doRequest("/mod/docker/com/set_ssl", "", {
+              site_name: site,
+              key: cert.key,
+              csr: cert.crt,
+            });
+            this.logger.info(res?.msg);
+          } else {
+            this.logger.info(`为非Docker站点:${site} 设置证书`);
+            const res = await client.doRequest("/site", "SetSSL", {
+              type: 0,
+              siteName: site,
+              key: cert.key,
+              csr: cert.crt,
+            });
+            this.logger.info(res?.msg);
+          }
+        } catch (e: any) {
+          if (e?.message?.includes("没有服务器配置文件")) {
+            this.logger.error(e.message);
+            this.logger.warn(`首先请确认站点 ${site} 是否存在，如果存在，请到宝塔上手动保存一下该站点证书试试`);
+          }
+          throw e;
         }
       });
     }
@@ -175,7 +199,7 @@ export class BaotaDeployWebSiteCert extends AbstractTaskPlugin {
     // this.logger.info(`部署成功：${JSON.stringify(res)}`);
   }
 
-  async onGetSiteList() {
+  async onGetSiteList(data: PageSearch = {}) {
     // if (!isPlus()) {
     //   throw new Error("自动获取站点列表为专业版功能，您可以手动输入站点域名/站点名称进行部署");
     // }
@@ -218,8 +242,17 @@ export class BaotaDeployWebSiteCert extends AbstractTaskPlugin {
     if (!all || all.length === 0) {
       throw new Error("未找到站点，你可以手动输入");
     }
+    const searchKey = data.searchKey?.trim().toLocaleLowerCase();
+    const filteredSites = all
+      .filter(item => {
+        if (!searchKey) {
+          return true;
+        }
+        return item.toLocaleLowerCase().includes(searchKey);
+      })
+      .sort((left, right) => left.localeCompare(right, undefined, { sensitivity: "base" }));
     const options: SiteItem[] = [];
-    for (const item of all) {
+    for (const item of filteredSites) {
       options.push({
         value: item,
         label: item,

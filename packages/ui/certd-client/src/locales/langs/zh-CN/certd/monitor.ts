@@ -1,4 +1,7 @@
+import monitorSite from "./monitor-site";
+
 export default {
+  ...monitorSite,
   certificateRepo: {
     title: "证书仓库",
     sub: "从流水线生成的证书",
@@ -34,6 +37,7 @@ export default {
   columnDisabled: "禁用启用",
   columnRemark: "备注",
   certificateNotGenerated: "证书还未生成，请先运行流水线",
+  deleteConfirmContent: "确定删除该证书吗？删除后无法恢复。请至少一条流水线保留一张证书",
   viewCertificateTitle: "查看证书",
   viewCert: {
     title: "查看证书",
@@ -51,6 +55,16 @@ export default {
   sourceManualUpload: "托管流水线",
   domains: "域名",
   enterDomain: "请输入域名",
+  revoke: {
+    title: "吊销",
+    confirmTitle: "确认吊销证书",
+    confirmContent: "吊销后将向证书颁发机构（CA）提交吊销请求，证书将立即失效且无法恢复，确定继续吗？",
+    confirmOk: "确认吊销",
+    success: "吊销成功",
+    statusActive: "激活",
+    statusInactive: "未激活",
+    statusRevoked: "已吊销",
+  },
   validDays: "有效天数",
   effectiveTime: "生效时间",
   expireTime: "过期时间",

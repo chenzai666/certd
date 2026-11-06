@@ -1,4 +1,7 @@
+import monitorSite from "./monitor-site";
+
 export default {
+  ...monitorSite,
   certificateRepo: {
     title: "Certificate Repository",
     sub: "Certificates generated from pipeline",
@@ -34,6 +37,7 @@ export default {
   columnDisabled: "Enabled/Disabled",
   columnRemark: "Remark",
   certificateNotGenerated: "Certificate not yet generated, please run the pipeline first",
+  deleteConfirmContent: "Are you sure you want to delete this certificate? This cannot be undone. Please ensure at least one pipeline is using this certificate.",
   viewCertificateTitle: "View Certificate",
   viewCert: {
     title: "View Certificate",
@@ -51,6 +55,16 @@ export default {
   sourceManualUpload: "Hosted Pipeline",
   domains: "Domains",
   enterDomain: "Please enter domain",
+  revoke: {
+    title: "Revoke",
+    confirmTitle: "Confirm Revoke Certificate",
+    confirmContent: "A revocation request will be submitted to the Certificate Authority (CA). The certificate will become invalid immediately and cannot be recovered. Continue?",
+    confirmOk: "Revoke",
+    success: "Revoked successfully",
+    statusActive: "Active",
+    statusInactive: "Inactive",
+    statusRevoked: "Revoked",
+  },
   validDays: "Valid Days",
   effectiveTime: "Effective Time",
   expireTime: "Expiration Time",

@@ -3,6 +3,84 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.46.0](https://github.com/certd/certd/compare/v1.45.6...v1.46.0) (2026-10-28)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.45.6](https://github.com/certd/certd/compare/v1.45.5...v1.45.6) (2026-10-28)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.45.5](https://github.com/certd/certd/compare/v1.45.4...v1.45.5) (2026-10-22)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.45.4](https://github.com/certd/certd/compare/v1.45.3...v1.45.4) (2026-10-22)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.45.3](https://github.com/certd/certd/compare/v1.45.2...v1.45.3) (2026-10-19)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.45.2](https://github.com/certd/certd/compare/v1.45.1...v1.45.2) (2026-10-18)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.45.1](https://github.com/certd/certd/compare/v1.45.0...v1.45.1) (2026-10-14)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+# [1.45.0](https://github.com/certd/certd/compare/v1.44.4...v1.45.0) (2026-10-02)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.44.4](https://github.com/certd/certd/compare/v1.44.3...v1.44.4) (2026-09-12)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.44.3](https://github.com/certd/certd/compare/v1.44.2...v1.44.3) (2026-09-06)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.44.2](https://github.com/certd/certd/compare/v1.44.1...v1.44.2) (2026-09-03)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.44.1](https://github.com/certd/certd/compare/v1.44.0...v1.44.1) (2026-09-02)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+# [1.44.0](https://github.com/certd/certd/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+### Features
+
+* 新增证书吊销后置任务与证书状态管理 ([1cc9641](https://github.com/certd/certd/commit/1cc9641f5669710d1e5809995ad395c843855a12))
+
+# [1.43.0](https://github.com/certd/certd/compare/v1.42.6...v1.43.0) (2026-08-14)
+
+### Performance Improvements
+
+* 优化SqliteError: disk I/O error报错修复提示 ([7d22fe3](https://github.com/certd/certd/commit/7d22fe3d7d0de97bae2ceedd051a0c16a1cd90e3))
+
+## [1.42.6](https://github.com/certd/certd/compare/v1.42.5...v1.42.6) (2026-07-18)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.42.5](https://github.com/certd/certd/compare/v1.42.4...v1.42.5) (2026-07-15)
+
+### Performance Improvements
+
+* 给SQLITE_IOERR_WRITE增加友好报错提示，将certd:latest镜像改为certd:slim ([b91c9e4](https://github.com/certd/certd/commit/b91c9e4ea671cb359ef164e27864de1d66cba9d3))
+
+## [1.42.4](https://github.com/certd/certd/compare/v1.42.3...v1.42.4) (2026-07-11)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
+## [1.42.3](https://github.com/certd/certd/compare/v1.42.2...v1.42.3) (2026-07-08)
+
+**Note:** Version bump only for package @certd/midway-flyway-js
+
 ## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
 
 **Note:** Version bump only for package @certd/midway-flyway-js

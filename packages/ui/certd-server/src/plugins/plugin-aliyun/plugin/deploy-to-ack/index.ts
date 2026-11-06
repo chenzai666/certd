@@ -9,6 +9,12 @@ import { AliyunAccess, AliyunClient } from "../../../plugin-lib/aliyun/index.js"
   title: "阿里云-部署到Ack",
   icon: "svg:icon-aliyun",
   desc: "部署到阿里云Ack集群Ingress等通过Secret管理证书的应用",
+  i18n: {
+    "en-US": {
+      title: "Aliyun-Deploy Certificate to ACK",
+      desc: "Deploy a certificate to Alibaba Cloud ACK.",
+    },
+  },
   group: pluginGroups.aliyun.key,
   needPlus: false,
   input: {},
@@ -144,6 +150,17 @@ export class DeployCertToAliyunAckPlugin extends AbstractTaskPlugin {
   })
   createOnNotFound: boolean;
 
+  @TaskInput({
+    title: "调试模式",
+    value: false,
+    component: {
+      name: "a-switch",
+      vModel: "checked",
+    },
+    helper: "是否开启调试模式，开启后将打印更多日志",
+  })
+  debug: boolean;
+
   K8sClient: any;
   async onInstance() {
     const sdk = await import("@certd/lib-k8s");
@@ -157,10 +174,14 @@ export class DeployCertToAliyunAckPlugin extends AbstractTaskPlugin {
     const kubeConfigStr = await this.getKubeConfig(client, clusterId, isPrivateIpAddress);
 
     this.logger.info("kubeconfig已成功获取");
+    if (this.debug) {
+      this.logger.info("kubeconfig:", kubeConfigStr);
+    }
     const k8sClient = new this.K8sClient({
       kubeConfigStr,
       logger: this.logger,
       skipTLSVerify: this.skipTLSVerify,
+      debug: this.debug,
     });
     await this.patchCertSecret({ cert, k8sClient });
 
@@ -184,6 +205,7 @@ export class DeployCertToAliyunAckPlugin extends AbstractTaskPlugin {
         },
       },
     };
+
     const ingressList = await k8sClient.getIngressList({ namespace });
     this.logger.info("ingressList:", ingressList);
     if (!ingressList || !ingressList.items) {
@@ -241,7 +263,7 @@ export class DeployCertToAliyunAckPlugin extends AbstractTaskPlugin {
   }
 
   async getClient(aliyunProvider: any, regionId: string) {
-    const client = new AliyunClient({ logger: this.logger, useROAClient: true, importRuntime: aliyunProvider.importRuntime.bind(aliyunProvider) });
+    const client = new AliyunClient({ logger: this.logger, useROAClient: true });
     await client.init({
       accessKeyId: aliyunProvider.accessKeyId,
       accessKeySecret: aliyunProvider.accessKeySecret,
@@ -266,6 +288,9 @@ export class DeployCertToAliyunAckPlugin extends AbstractTaskPlugin {
 
     try {
       const res = await client.request(httpMethod, uriPath, queries, body, headers, requestOption);
+      if (this.debug) {
+        this.logger.info("res:", res);
+      }
       return res.config;
     } catch (e) {
       console.error("请求出错：", e);

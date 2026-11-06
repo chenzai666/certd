@@ -3,6 +3,112 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.46.0](https://github.com/certd/certd/compare/v1.45.6...v1.46.0) (2026-10-28)
+
+**Note:** Version bump only for package @certd/pipeline
+
+## [1.45.6](https://github.com/certd/certd/compare/v1.45.5...v1.45.6) (2026-10-28)
+
+### Bug Fixes
+
+* 修复子进程调用命令注入风险并重构spawn实现 ([0523c69](https://github.com/certd/certd/commit/0523c69451bb2418718390c334ee4b19180aa676))
+
+## [1.45.5](https://github.com/certd/certd/compare/v1.45.4...v1.45.5) (2026-10-22)
+
+**Note:** Version bump only for package @certd/pipeline
+
+## [1.45.4](https://github.com/certd/certd/compare/v1.45.3...v1.45.4) (2026-10-22)
+
+**Note:** Version bump only for package @certd/pipeline
+
+## [1.45.3](https://github.com/certd/certd/compare/v1.45.2...v1.45.3) (2026-10-19)
+
+**Note:** Version bump only for package @certd/pipeline
+
+## [1.45.2](https://github.com/certd/certd/compare/v1.45.1...v1.45.2) (2026-10-18)
+
+### Performance Improvements
+
+* 支持ikuai部署证书 ([5f83693](https://github.com/certd/certd/commit/5f83693423ec5ccd08d7bb03e4fb8315dbb8b931))
+
+## [1.45.1](https://github.com/certd/certd/compare/v1.45.0...v1.45.1) (2026-10-14)
+
+### Performance Improvements
+
+* 多语言国际化优化，插件支持国际化配置 ([8f1b38a](https://github.com/certd/certd/commit/8f1b38ad7d445473ae71d537ad8e465f2e55ebc7))
+* 开放接口支持返回证书密码，需要在openKey主动开启该设置，客户端部署证书时可以直接获取密码部署 ([3e001b8](https://github.com/certd/certd/commit/3e001b8ba431eb9af8c4ea1b20118bcf5e7ebce4))
+* 完善插件翻译 ([d0463ab](https://github.com/certd/certd/commit/d0463abc2607d22aba50ae3acc6584bbed6e3a0e))
+
+# [1.45.0](https://github.com/certd/certd/compare/v1.44.4...v1.45.0) (2026-10-02)
+
+### Bug Fixes
+
+* 缺失运行时嵌套依赖时添加清除缓存提示 ([2d0b85b](https://github.com/certd/certd/commit/2d0b85b3054fc1aa82b3ab5db34a2a56308f71f2))
+
+## [1.44.4](https://github.com/certd/certd/compare/v1.44.3...v1.44.4) (2026-09-12)
+
+**Note:** Version bump only for package @certd/pipeline
+
+## [1.44.3](https://github.com/certd/certd/compare/v1.44.2...v1.44.3) (2026-09-06)
+
+**Note:** Version bump only for package @certd/pipeline
+
+## [1.44.2](https://github.com/certd/certd/compare/v1.44.1...v1.44.2) (2026-09-03)
+
+**Note:** Version bump only for package @certd/pipeline
+
+## [1.44.1](https://github.com/certd/certd/compare/v1.44.0...v1.44.1) (2026-09-02)
+
+**Note:** Version bump only for package @certd/pipeline
+
+# [1.44.0](https://github.com/certd/certd/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+### Features
+
+* 新增证书吊销后置任务与证书状态管理 ([1cc9641](https://github.com/certd/certd/commit/1cc9641f5669710d1e5809995ad395c843855a12))
+* 支持在线插件下载安装审核等 ([255960d](https://github.com/certd/certd/commit/255960d434eebb3d567a08f737f1642ab417b5d0))
+
+# [1.43.0](https://github.com/certd/certd/compare/v1.42.6...v1.43.0) (2026-08-14)
+
+### Bug Fixes
+
+* **pipeline:** 修复过期/损坏的安装锁导致的依赖安装失败 ([1017a38](https://github.com/certd/certd/commit/1017a38eb48d6778745d4905d9ec4f6067a261d8))
+
+### Features
+
+* **pipeline:** 新增流水线批量编辑、阶段宽度调整功能 ([e5a1844](https://github.com/certd/certd/commit/e5a18448522be88bc504a45a46ad599f3c39ca30))
+
+### Performance Improvements
+
+* 统一通知类型常量管理，新增开放接口通知能力 ([edb249c](https://github.com/certd/certd/commit/edb249c2ad3c173dbfd04d8d156f895a6706ffd1))
+* 优化第三方依赖安装失败日志输出 ([18b2d3a](https://github.com/certd/certd/commit/18b2d3ac2078d0c6636af897f8f66e4eb5ff832c))
+
+## [1.42.6](https://github.com/certd/certd/compare/v1.42.5...v1.42.6) (2026-07-18)
+
+### Performance Improvements
+
+* 优化动态加载依赖镜像地址，多次重试 ([5f53b81](https://github.com/certd/certd/commit/5f53b81c75dd242b4260ac08cae14c6d1a08a883))
+
+## [1.42.5](https://github.com/certd/certd/compare/v1.42.4...v1.42.5) (2026-07-15)
+
+### Bug Fixes
+
+* 修复上传到cos报runtimeDepsService未初始化的问题 ([167b303](https://github.com/certd/certd/commit/167b303faeca02cc11cf97e4be2a3df914852167))
+
+### Performance Improvements
+
+* 优化vke keubconfig获取方式，改成先查询，如果没有再创建临时config ([604fa5b](https://github.com/certd/certd/commit/604fa5be634d099d797bfee5c2b0f26ce0ac8461))
+
+## [1.42.4](https://github.com/certd/certd/compare/v1.42.3...v1.42.4) (2026-07-11)
+
+### Bug Fixes
+
+* **pipeline:** 重构运行时依赖加载逻辑，修复火山引擎DNS解析报runtimeDepsService未初始化的bug ([ec69b8f](https://github.com/certd/certd/commit/ec69b8f11bfd4b20991aef74a72a47182ca79a9d))
+
+## [1.42.3](https://github.com/certd/certd/compare/v1.42.2...v1.42.3) (2026-07-08)
+
+**Note:** Version bump only for package @certd/pipeline
+
 ## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
 
 **Note:** Version bump only for package @certd/pipeline

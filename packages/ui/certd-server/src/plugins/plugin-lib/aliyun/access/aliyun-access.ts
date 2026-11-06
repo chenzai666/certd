@@ -1,10 +1,11 @@
-import { AccessInput, BaseAccess, IsAccess } from "@certd/pipeline";
+﻿import { AccessInput, BaseAccess, IsAccess } from "@certd/pipeline";
 import { AliyunClientV2 } from "../lib/aliyun-client-v2.js";
 import { AliyunSslClient } from "../lib/ssl-client.js";
 @IsAccess({
   name: "aliyun",
   title: "阿里云授权",
   desc: "",
+  i18n: { "en-US": { title: "Aliyun Access", desc: "Configure Aliyun access credentials." } },
   icon: "ant-design:aliyun-outlined",
   order: 0,
 })

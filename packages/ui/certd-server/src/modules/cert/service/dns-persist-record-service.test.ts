@@ -1,7 +1,16 @@
 import assert from "assert";
+import { getDnsPersistIssuer } from "@certd/acme-client";
 import { buildDnsPersistRecordValue, DnsPersistRecordService } from "./dns-persist-record-service.js";
 
 describe("DnsPersistRecordService", () => {
+  it("gets issuer from the ACME directory URL", () => {
+    assert.equal(getDnsPersistIssuer("https://dv.acme-v02.api.pki.goog/directory"), "pki.goog");
+    assert.equal(getDnsPersistIssuer("https://acme-v02.api.letsencrypt.org/directory"), "letsencrypt.org");
+    assert.equal(getDnsPersistIssuer("https://acme.example.co.uk/directory"), "example.co.uk");
+    assert.equal(getDnsPersistIssuer(), "letsencrypt.org");
+    assert.throws(() => getDnsPersistIssuer("not a url"), /Directory URL无效/);
+    assert.throws(() => getDnsPersistIssuer("https://localhost/directory"), /可注册主域名/);
+  });
   it("builds dns-persist-01 record value", () => {
     const value = buildDnsPersistRecordValue({
       accountUri: "https://example.com/acct/1",
@@ -10,6 +19,36 @@ describe("DnsPersistRecordService", () => {
     });
 
     assert.equal(value, "letsencrypt.org; accounturi=https://example.com/acct/1; policy=wildcard; persistUntil=1893456000");
+  });
+
+  it("uses the registrable domain from the ACME directory URL", async () => {
+    const service = new DnsPersistRecordService();
+    (service as any).accessService = {
+      async getAccessById() {
+        return {
+          account: JSON.stringify({
+            accountKey: "private-key",
+            accountUri: "https://pki.goog/acct/12345678",
+            caType: "custom",
+            directoryUrl: "https://dv.acme-v02.api.pki.goog/directory",
+          }),
+        };
+      },
+    };
+
+    const buildRequest = {
+      domain: "example.com",
+      caType: "custom",
+      acmeAccountAccessId: 12,
+      userId: 1,
+    };
+    const acmeAccount = await service.getAcmeAccount(buildRequest);
+
+    assert.equal(acmeAccount.account.issuer, "pki.goog");
+
+    const record = await service.buildRecordByAcmeAccount(buildRequest);
+
+    assert.equal(record.recordValue, "pki.goog; accounturi=https://pki.goog/acct/12345678; policy=wildcard");
   });
 
   it("builds validation host from wildcard domain", async () => {
@@ -68,7 +107,7 @@ describe("DnsPersistRecordService", () => {
     assert.equal(record.accountUri, "https://example.com/acct/1");
     assert.equal(record.hostRecord, "_validation-persist");
     assert.equal(record.mainDomain, "example.com");
-    assert.equal(record.recordValue, "letsencrypt.org; accounturi=https://example.com/acct/1; policy=wildcard");
+    assert.equal(record.recordValue, "example.com; accounturi=https://example.com/acct/1; policy=wildcard");
     assert.equal(record.policy, "wildcard");
     assert.equal(record.status, "pending");
   });
@@ -108,11 +147,8 @@ describe("DnsPersistRecordService", () => {
         param.id = 77;
         saved = { ...param };
       },
-      async findOneBy(where: any) {
-        return where.id === 77 ? saved : null;
-      },
       async findOne() {
-        return null;
+        return saved;
       },
     };
     (service as any).accessService = {
@@ -143,7 +179,7 @@ describe("DnsPersistRecordService", () => {
     assert.equal(record.id, 77);
     assert.equal(record.hostRecord, "_validation-persist");
     assert.equal(record.mainDomain, "example.com");
-    assert.equal(record.recordValue, "letsencrypt.org; accounturi=https://example.com/acct/1; policy=wildcard");
+    assert.equal(record.recordValue, "example.com; accounturi=https://example.com/acct/1; policy=wildcard");
     assert.equal(record.status, "pending");
   });
 
@@ -218,10 +254,10 @@ describe("DnsPersistRecordService", () => {
         saved = { ...saved, ...param };
       },
       async findOne(options: any) {
+        if (options.where.id === 89) {
+          return saved;
+        }
         return options.where.domain === "example.com" && options.where.acmeAccountAccessId === 1 ? saved : null;
-      },
-      async findOneBy(where: any) {
-        return where.id === 89 ? saved : null;
       },
     };
     (service as any).accessService = {
@@ -248,7 +284,7 @@ describe("DnsPersistRecordService", () => {
     assert.equal(record.policy, "wildcard");
     assert.equal(record.status, "pending");
     assert.equal(record.mainDomain, "example.com");
-    assert.equal(record.recordValue, "letsencrypt.org; accounturi=https://example.com/acct/1; policy=wildcard");
+    assert.equal(record.recordValue, "example.com; accounturi=https://example.com/acct/1; policy=wildcard");
     assert.equal(record.recordRes, null);
   });
 
@@ -256,8 +292,8 @@ describe("DnsPersistRecordService", () => {
     const service = new DnsPersistRecordService();
     let deletedIds: any = null;
     (service as any).repository = {
-      async findOneBy(where: any) {
-        return where.id === 90
+      async findOne(options: any) {
+        return options.where.id === 90
           ? {
               id: 90,
               domain: "example.com",
@@ -292,8 +328,8 @@ describe("DnsPersistRecordService", () => {
       status: "pending",
     };
     (service as any).repository = {
-      async findOneBy(where: any) {
-        return where.id === 91 ? saved : null;
+      async findOne(options: any) {
+        return options.where.id === 91 ? saved : null;
       },
       async save(param: any) {
         saved = { ...saved, ...param };

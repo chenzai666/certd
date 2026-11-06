@@ -1,12 +1,11 @@
-import { cache, isDev, randomNumber, simpleNanoId } from "@certd/basic";
-import { AccessService, AccessSysGetter, CodeErrorException, SysSettingsService } from "@certd/lib-server";
+﻿import { cache, isDev, randomNumber, simpleNanoId } from "@certd/basic";
+import { AccessService, AccessSysGetter, CodeErrorException, NotificationTypes, SysSettingsService } from "@certd/lib-server";
 import { Inject, Provide, Scope, ScopeEnum } from "@midwayjs/core";
 import { ISmsService } from "../sms/api.js";
 import { SmsServiceFactory } from "../sms/factory.js";
 import { CaptchaService } from "./captcha-service.js";
 import { EmailService } from "./email-service.js";
 import { CaptchaRequest } from "../../../plugins/plugin-captcha/api.js";
-import { RuntimeDepsService } from "../../runtime-deps/runtime-deps-service.js";
 
 // {data: '<svg.../svg>', text: 'abcd'}
 /**
@@ -24,9 +23,6 @@ export class CodeService {
 
   @Inject()
   captchaService: CaptchaService;
-
-  @Inject()
-  runtimeDepsService: RuntimeDepsService;
 
   async checkCaptcha(body: any, req: CaptchaRequest) {
     return await this.captchaService.doValidate({ form: body, req });
@@ -60,7 +56,6 @@ export class CodeService {
     await sender.setCtx({
       accessService: accessGetter,
       config: smsConfig,
-      runtimeDepsService: this.runtimeDepsService,
     });
     const smsCode = randomNumber(verificationCodeLength);
     await sender.sendSmsCode({
@@ -98,16 +93,16 @@ export class CodeService {
 
     const code = randomNumber(verificationCodeLength);
 
-    const templateData = {
+    const templateData: any = {
       code,
       duration,
       title: "验证码",
       content: `您的验证码是${code}，请勿泄露`,
-      notificationType: "registerCode",
+      notificationType: NotificationTypes.RegisterCode,
     };
     if (opts?.verificationType === "forgotPassword") {
       templateData.title = "找回密码";
-      templateData.notificationType = "forgotPassword";
+      templateData.notificationType = NotificationTypes.ForgotPassword;
     }
     await this.emailService.sendByTemplate({
       type: templateData.notificationType,

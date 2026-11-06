@@ -1,0 +1,76 @@
+name: 上游整合验证
+
+on:
+  pull_request:
+    branches: [v2]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: integration-${{ github.head_ref || github.ref_name }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-test:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+      - uses: docker/setup-buildx-action@v3
+      - name: 检查既有定制保护范围
+        run: node scripts/verify-integration.mjs
+      - name: 构建前后端并执行单元测试
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/ui/Dockerfile
+          target: verification
+          platforms: linux/amd64
+          push: false
+          cache-from: type=gha,scope=integration
+          cache-to: type=gha,mode=max,scope=integration
+      - name: 构建生产镜像
+        uses: docker/build-push-action@v6
+        with:
+          context: .
+          file: packages/ui/Dockerfile
+          platforms: linux/amd64
+          push: false
+          load: true
+          tags: certd-integration:check
+          cache-from: type=gha,scope=integration
+      - name: 检查生产运行环境
+        run: |
+          docker run --rm --entrypoint sh certd-integration:check -ec '
+            pnpm --version
+            openssl version
+            test "$(readlink /workspace/packages/ui/certd-server/data)" = /app/data
+            node -e "Promise.all([import(\"@certd/plus-core\"), import(\"@certd/commercial-core\"), import(\"@certd/plugin-plus\")]).then(([plus]) => { if (!plus.isPlus() || !plus.isComm()) process.exit(1); })"
+          '
+      - name: 验证首次启动和数据卷重启
+        run: |
+          set -eu
+          volume_id=$(docker volume create)
+          container_id=$(docker create --mount "type=volume,src=$volume_id,dst=/app/data" --env certd_koa_hostname=127.0.0.1 certd-integration:check)
+          trap 'docker logs "$container_id" --tail 80; docker rm -fv "$container_id"; docker volume rm "$volume_id"' EXIT
+          docker start "$container_id"
+          for attempt in $(seq 1 90); do
+            if docker exec "$container_id" wget -q -O /dev/null http://127.0.0.1:7001/; then break; fi
+            if [ "$attempt" -eq 90 ]; then exit 1; fi
+            sleep 2
+          done
+          docker exec "$container_id" sh -ec 'test -s /app/data/db.sqlite; printf integration > /app/data/.integration-check'
+          docker stop "$container_id"
+          docker rm "$container_id"
+          container_id=$(docker create --mount "type=volume,src=$volume_id,dst=/app/data" --env certd_koa_hostname=127.0.0.1 certd-integration:check)
+          docker start "$container_id"
+          for attempt in $(seq 1 90); do
+            if docker exec "$container_id" wget -q -O /dev/null http://127.0.0.1:7001/; then break; fi
+            if [ "$attempt" -eq 90 ]; then exit 1; fi
+            sleep 2
+          done
+          docker exec "$container_id" sh -ec 'test "$(cat /app/data/.integration-check)" = integration; test -s /app/data/db.sqlite'

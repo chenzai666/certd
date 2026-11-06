@@ -4,7 +4,7 @@ import { AddReq, ColumnCompositionProps, ColumnProps, compute, CreateCrudOptions
 import { siteInfoApi } from "./api";
 import * as settingApi from "./setting/api";
 import dayjs from "dayjs";
-import { message, Modal, notification } from "ant-design-vue";
+import { Modal, notification } from "ant-design-vue";
 import { useSettingStore } from "/@/store/settings";
 import { mySuiteApi } from "/@/views/certd/suite/mine/api";
 import { mitter } from "/@/utils/util.mitt";
@@ -45,9 +45,9 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
 
   const checkStatusDict = dict({
     data: [
-      { label: t("certd.checkStatus.success"), value: "ok", color: "green" },
-      { label: t("certd.checkStatus.checking"), value: "checking", color: "blue" },
-      { label: t("certd.checkStatus.error"), value: "error", color: "red" },
+      { label: t("certd.monitor.checkStatus.success"), value: "ok", color: "green" },
+      { label: t("certd.monitor.checkStatus.checking"), value: "checking", color: "blue" },
+      { label: t("certd.monitor.checkStatus.error"), value: "error", color: "red" },
     ],
   });
 
@@ -70,17 +70,17 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
   const handleBatchDelete = () => {
     if (selectedRowKeys.value?.length > 0) {
       Modal.confirm({
-        title: t("monitor.confirmTitle"),
-        content: t("monitor.batchDeleteConfirm", { count: selectedRowKeys.value.length }),
+        title: t("certd.monitor.confirmTitle"),
+        content: t("certd.monitor.batchDeleteConfirm", { count: selectedRowKeys.value.length }),
         async onOk() {
           await api.BatchDelObj(selectedRowKeys.value);
-          message.info(t("monitor.deleteSuccess"));
+          notification.info({ message: t("certd.monitor.deleteSuccess") });
           crudExpose.doRefresh();
           selectedRowKeys.value = [];
         },
       });
     } else {
-      message.error(t("monitor.selectRecordsFirst"));
+      notification.error({ message: t("certd.monitor.selectRecordsFirst") });
     }
   };
 
@@ -88,14 +88,31 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
 
   function checkAll() {
     Modal.confirm({
-      title: t("monitor.confirmTitle"), // "确认"
-      content: t("monitor.confirmContent"), // "确认触发检查全部站点证书吗?"
+      title: t("certd.monitor.confirmTitle"), // "确认"
+      content: t("certd.monitor.confirmContent"), // "确认触发检查全部站点证书吗?"
       onOk: async () => {
         await siteInfoApi.CheckAll();
         notification.success({
-          message: t("monitor.checkSubmitted"), // "检查任务已提交"
-          description: t("monitor.pleaseRefresh"), // "请稍后刷新页面查看结果"
+          message: t("certd.monitor.checkSubmitted"), // "检查任务已提交"
+          description: t("certd.monitor.pleaseRefresh"), // "请稍后刷新页面查看结果"
         });
+      },
+    });
+  }
+
+  function checkBatch() {
+    if (selectedRowKeys.value.length === 0) {
+      notification.error({ message: t("certd.monitor.selectRecordsFirst") });
+      return;
+    }
+    Modal.confirm({
+      title: t("certd.monitor.confirmTitle"),
+      content: t("certd.monitor.batchCheckConfirm", { count: selectedRowKeys.value.length }),
+      onOk: async () => {
+        await siteInfoApi.CheckBatch(selectedRowKeys.value);
+        notification.success({ message: t("certd.monitor.checkSubmitted") });
+        selectedRowKeys.value = [];
+        await crudExpose.doRefresh();
       },
     });
   }
@@ -207,7 +224,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
                 // 非plus
                 if (crudBinding.value.data.length >= 1) {
                   notification.error({
-                    message: t("monitor.basicLimitError"),
+                    message: t("certd.monitor.basicLimitError"),
                   });
                   mitter.emit("openVipModal");
                   return;
@@ -221,7 +238,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
                 const max = suiteDetail.monitorCount.max;
                 if (max != -1 && max <= suiteDetail.monitorCount.used) {
                   notification.error({
-                    message: t("monitor.limitExceeded", { max }),
+                    message: t("certd.monitor.limitExceeded", { max }),
                   });
                   return;
                 }
@@ -236,7 +253,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           //导入按钮
           import: {
             show: hasActionPermission("write"),
-            text: t("monitor.bulkImport"),
+            text: t("certd.monitor.bulkImport"),
             type: "primary",
             icon: "ion:cloud-upload-outline",
             async click() {
@@ -251,10 +268,11 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
           importFromProvider: {
             show: hasActionPermission("write"),
-            title: t("certd.domain.importFromResolveRecords"),
-            text: t("certd.domain.importFromResolveRecords"),
+            title: t("certd.certdomain.domain.importFromResolveRecords"),
+            text: t("certd.certdomain.domain.importFromResolveRecords"),
+            tooltip: { title: t("certd.certdomain.domain.importFromResolveRecordsTooltip") },
             type: "primary",
-            needPlus: true,
+            // needPlus: true,
             color: "gold",
             icon: "mingcute:vip-1-line",
             click: async () => {
@@ -267,11 +285,20 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
           checkAll: {
             show: true,
-            text: t("monitor.checkAll"),
+            text: t("certd.monitor.checkAll"),
             type: "primary",
             icon: "ion:play-circle-outline",
             click() {
               checkAll();
+            },
+          },
+          checkBatch: {
+            show: true,
+            text: t("certd.monitor.checkBatch"),
+            type: "primary",
+            icon: "ion:play-forward-outline",
+            click() {
+              checkBatch();
             },
           },
         },
@@ -285,14 +312,14 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             type: "link",
             text: null,
             tooltip: {
-              title: t("monitor.checkNow"),
+              title: t("certd.monitor.checkNow"),
             },
             icon: "ion:play-sharp",
             click: async ({ row }) => {
               await api.DoCheck(row.id);
               await crudExpose.doRefresh();
               notification.success({
-                message: t("monitor.checkSubmittedRefresh"),
+                message: t("certd.monitor.checkSubmittedRefresh"),
               });
             },
           },
@@ -302,7 +329,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             text: null,
             show: compute(({ row }) => row.ipCheck === true),
             tooltip: {
-              title: t("monitor.ipManagement"),
+              title: t("certd.monitor.ipManagement"),
             },
             icon: "entypo:address",
             click: async ({ row }) => {
@@ -337,7 +364,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         name: {
-          title: t("monitor.siteName"),
+          title: t("certd.monitor.siteName"),
           search: {
             show: true,
             col: {
@@ -346,14 +373,14 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
           type: "text",
           form: {
-            rules: [{ required: true, message: t("monitor.enterSiteName") }],
+            rules: [{ required: true, message: t("certd.monitor.enterSiteName") }],
           },
           column: {
             width: 160,
           },
         },
         domain: {
-          title: t("monitor.domain"),
+          title: t("certd.monitor.domain"),
           search: {
             show: true,
             col: {
@@ -363,9 +390,9 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           type: "text",
           form: {
             rules: [
-              { required: true, message: t("monitor.enterDomain") },
+              { required: true, message: t("certd.monitor.enterDomain") },
               // @ts-ignore
-              { type: "domains", message: t("monitor.enterValidDomain") },
+              { type: "domains", message: t("certd.monitor.enterValidDomain") },
             ],
           },
           column: {
@@ -387,14 +414,14 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         httpsPort: {
-          title: t("monitor.httpsPort"),
+          title: t("certd.monitor.httpsPort"),
           search: {
             show: false,
           },
           type: "number",
           form: {
             value: 443,
-            rules: [{ required: true, message: t("monitor.enterPort") }],
+            rules: [{ required: true, message: t("certd.monitor.enterPort") }],
           },
           column: {
             width: 100,
@@ -402,7 +429,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         certInfo: {
-          title: t("monitor.certInfo"),
+          title: t("certd.monitor.certInfo"),
           type: "text",
           form: { show: false },
           column: {
@@ -416,10 +443,10 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
                   return (
                     <div>
                       <div>
-                        {t("monitor.issuer")}: {row.certProvider}
+                        {t("certd.monitor.issuer")}: {row.certProvider}
                       </div>
                       <div>
-                        {t("monitor.certDomains")}: {row.certDomains}
+                        {t("certd.monitor.certDomains")}: {row.certDomains}
                       </div>
                     </div>
                   );
@@ -434,7 +461,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         certDomains: {
-          title: t("monitor.certDomains"),
+          title: t("certd.monitor.certDomains"),
           search: {
             show: true,
             col: {
@@ -459,7 +486,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         certProvider: {
-          title: t("monitor.certProvider"),
+          title: t("certd.monitor.certProvider"),
           search: {
             show: false,
           },
@@ -477,7 +504,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         certStatus: {
-          title: t("monitor.certStatus"),
+          title: t("certd.monitor.certStatus"),
           search: {
             show: true,
             col: {
@@ -487,8 +514,8 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           type: "dict-select",
           dict: dict({
             data: [
-              { label: t("monitor.status.ok"), value: "ok", color: "green" },
-              { label: t("monitor.status.expired"), value: "expired", color: "red" },
+              { label: t("certd.monitor.status.ok"), value: "ok", color: "green" },
+              { label: t("certd.monitor.status.expired"), value: "expired", color: "red" },
             ],
           }),
           form: {
@@ -502,7 +529,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         checkStatus: {
-          title: t("monitor.checkStatus"),
+          title: t("certd.monitor.columnCheckStatus"),
           search: {
             show: true,
             col: {
@@ -528,7 +555,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         certEffectiveTime: {
-          title: t("monitor.certEffectiveTime"),
+          title: t("certd.monitor.certEffectiveTime"),
           search: {
             show: false,
           },
@@ -543,7 +570,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         certExpiresTime: {
-          title: t("monitor.certExpiresTime"),
+          title: t("certd.monitor.certExpiresTime"),
           search: {
             show: false,
           },
@@ -557,7 +584,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         remainingValidity: {
-          title: t("monitor.remainingValidity"),
+          title: t("certd.monitor.remainingValidity"),
           search: {
             show: false,
           },
@@ -590,18 +617,18 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
               const color = leftDays < certValidDays ? "red" : "#389e0d";
               const percent = (leftDays / effectiveDays) * 100;
               // console.log('cellRender', 'effectiveDays', effectiveDays, 'expiresTime', expiresTime, 'applyTime', applyTime, 'percent', percent, row)
-              return <a-progress title={expireDate + t("monitor.expired")} percent={percent} strokeColor={color} format={(percent: number) => `${leftDays}${t("monitor.days")}`} />;
+              return <a-progress title={expireDate + t("certd.monitor.expired")} percent={percent} strokeColor={color} format={(percent: number) => `${leftDays}${t("certd.monitor.days")}`} />;
             },
           },
         },
         ipAddress: {
-          title: t("monitor.ipAddress"),
+          title: t("certd.monitor.ipAddress"),
           search: {
             show: false,
           },
           type: "text",
           form: {
-            helper: t("monitor.ipAddressHelper"),
+            helper: t("certd.monitor.ipAddressHelper"),
           },
           column: {
             width: 150,
@@ -609,7 +636,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         groupId: {
-          title: t("certd.fields.group"),
+          title: t("certd.common.fields.group"),
           type: "dict-select",
           search: {
             show: true,
@@ -638,7 +665,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         remark: {
-          title: t("monitor.remark"),
+          title: t("certd.monitor.remark"),
           search: {
             show: false,
           },
@@ -653,7 +680,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         lastCheckTime: {
-          title: t("monitor.lastCheckTime"),
+          title: t("certd.monitor.lastCheckTime"),
           search: {
             show: false,
           },
@@ -667,7 +694,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         disabled: {
-          title: t("monitor.disabled"),
+          title: t("certd.monitor.disabled"),
           search: {
             show: true,
             col: {
@@ -719,7 +746,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
         //   }
         // },
         ipCheck: {
-          title: t("monitor.ipCheck"),
+          title: t("certd.monitor.ipCheck"),
           type: "dict-switch",
           dict: dict({
             data: [
@@ -728,9 +755,9 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             ],
           }),
           form: {
-            helper: t("monitor.ipCheckHelper"),
+            helper: t("certd.monitor.ipCheckHelper"),
             value: false,
-            rules: [{ required: true, message: t("monitor.selectRequired") }],
+            rules: [{ required: true, message: t("certd.monitor.selectRequired") }],
           },
           column: {
             align: "center",
@@ -743,7 +770,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
                 change({ row, $event }) {
                   Modal.confirm({
                     title: t("common.confirm"),
-                    content: t("monitor.ipCheckConfirm", { status: $event ? t("common.enabled") : t("common.disabled") }),
+                    content: t("certd.monitor.ipCheckConfirm", { status: $event ? t("common.enabled") : t("common.disabled") }),
                     onOk: async () => {
                       await api.IpCheckChange(row.id, $event);
                       await crudExpose.doRefresh();
@@ -761,7 +788,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         } as ColumnCompositionProps,
         ipSyncAuto: {
-          title: t("monitor.ipSyncAuto"),
+          title: t("certd.monitor.ipSyncAuto"),
           type: "dict-switch",
           dict: dict({
             data: [
@@ -782,13 +809,13 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         ipSyncMode: {
-          title: t("monitor.ipSyncMode"),
+          title: t("certd.monitor.ipSyncMode"),
           type: "dict-select",
           dict: dict({
             data: [
-              { label: t("monitor.ipSyncModeAll"), value: "all" },
-              { label: t("monitor.ipSyncModeIPV4Only"), value: "ipv4" },
-              { label: t("monitor.ipSyncModeIPV6Only"), value: "ipv6" },
+              { label: t("certd.monitor.ipSyncModeAll"), value: "all" },
+              { label: t("certd.monitor.ipSyncModeIPV4Only"), value: "ipv4" },
+              { label: t("certd.monitor.ipSyncModeIPV6Only"), value: "ipv6" },
             ],
           }),
           form: {
@@ -796,7 +823,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             show: compute(({ form }) => {
               return form.ipSyncAuto;
             }),
-            helper: t("monitor.ipSyncModeHelper"),
+            helper: t("certd.monitor.ipSyncModeHelper"),
           },
           column: {
             width: 140,
@@ -805,7 +832,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         ipIgnoreCoherence: {
-          title: t("monitor.ipIgnoreCoherence"),
+          title: t("certd.monitor.ipIgnoreCoherence"),
           type: "dict-switch",
           dict: dict({
             data: [
@@ -818,7 +845,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             show: compute(({ form }) => {
               return form.ipCheck;
             }),
-            helper: t("monitor.ipIgnoreCoherenceHelper"),
+            helper: t("certd.monitor.ipIgnoreCoherenceHelper"),
           },
           column: {
             width: 180,
@@ -827,7 +854,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         pipelineId: {
-          title: t("monitor.pipelineId"),
+          title: t("certd.monitor.pipelineId"),
           search: {
             show: false,
           },
@@ -840,7 +867,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         certInfoId: {
-          title: t("monitor.certInfoId"),
+          title: t("certd.monitor.certInfoId"),
           search: {
             show: false,
           },
@@ -853,7 +880,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         error: {
-          title: t("monitor.error"),
+          title: t("certd.monitor.error"),
           search: {
             show: false,
           },
@@ -868,7 +895,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         projectId: {
-          title: t("certd.fields.projectName"),
+          title: t("certd.common.fields.projectName"),
           type: "dict-select",
           dict: myProjectDict,
           form: {

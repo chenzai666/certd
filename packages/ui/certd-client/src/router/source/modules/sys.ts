@@ -8,7 +8,7 @@ function isInviteLevelEnabled() {
 
 export const sysResources = [
   {
-    title: "certd.sysResources.sysRoot",
+    title: "certd.navigation.sysResources.sysRoot",
     name: "SysRoot",
     path: "/sys",
     redirect: "/sys/settings",
@@ -20,7 +20,7 @@ export const sysResources = [
     },
     children: [
       {
-        title: "certd.sysResources.sysConsole",
+        title: "certd.navigation.sysResources.sysConsole",
         name: "SysConsole",
         path: "/sys/console",
         component: "/sys/console/index.vue",
@@ -36,7 +36,7 @@ export const sysResources = [
       },
 
       {
-        title: "certd.sysResources.sysSettings",
+        title: "certd.navigation.sysResources.sysSettings",
         name: "SysSettings",
         path: "/sys/settings",
         component: "/sys/settings/index.vue",
@@ -47,7 +47,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.projectManager",
+        title: "certd.navigation.sysResources.projectManager",
         name: "ProjectManager",
         path: "/sys/enterprise/project",
         component: "/sys/enterprise/project/index.vue",
@@ -60,7 +60,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.projectDetail",
+        title: "certd.navigation.sysResources.projectDetail",
         name: "ProjectDetail",
         path: "/sys/enterprise/project/detail",
         component: "/sys/enterprise/project/detail/index.vue",
@@ -73,7 +73,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.cnameSetting",
+        title: "certd.navigation.sysResources.cnameSetting",
         name: "CnameSetting",
         path: "/sys/cname/provider",
         component: "/sys/cname/provider/index.vue",
@@ -85,7 +85,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.emailSetting",
+        title: "certd.navigation.sysResources.emailSetting",
         name: "EmailSetting",
         path: "/sys/settings/email",
         component: "/sys/settings/email/index.vue",
@@ -96,7 +96,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.siteSetting",
+        title: "certd.navigation.sysResources.siteSetting",
         name: "SiteSetting",
         path: "/sys/site",
         component: "/sys/site/index.vue",
@@ -111,7 +111,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.headerMenus",
+        title: "certd.navigation.sysResources.headerMenus",
         name: "SettingsHeaderMenus",
         path: "/sys/settings/header-menus",
         component: "/sys/settings/header-menus/index.vue",
@@ -127,7 +127,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.sysAccess",
+        title: "certd.navigation.sysResources.sysAccess",
         name: "SysAccessManager",
         path: "/sys/access",
         component: "/sys/access/index.vue",
@@ -143,7 +143,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.sysPlugin",
+        title: "certd.navigation.sysResources.sysPlugin",
         name: "SysPlugin",
         path: "/sys/plugin",
         component: "/sys/plugin/index.vue",
@@ -155,20 +155,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.sysPluginEdit",
-        name: "SysPluginEdit",
-        path: "/sys/plugin/edit",
-        component: "/sys/plugin/edit.vue",
-        meta: {
-          isMenu: false,
-          icon: "ion:extension-puzzle",
-          permission: "sys:settings:view",
-          keepAlive: true,
-          auth: true,
-        },
-      },
-      {
-        title: "certd.sysResources.sysPluginConfig",
+        title: "certd.navigation.sysResources.sysPluginConfig",
         name: "SysPluginConfig",
         path: "/sys/plugin/config",
         component: "/sys/plugin/config-common.vue",
@@ -183,7 +170,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.accountBind",
+        title: "certd.navigation.sysResources.accountBind",
         name: "AccountBind",
         path: "/sys/account",
         component: "/sys/account/index.vue",
@@ -195,7 +182,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.permissionManager",
+        title: "certd.navigation.sysResources.permissionManager",
         name: "PermissionManager",
         path: "/sys/authority/permission",
         component: "/sys/authority/permission/index.vue",
@@ -207,7 +194,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.roleManager",
+        title: "certd.navigation.sysResources.roleManager",
         name: "RoleManager",
         path: "/sys/authority/role",
         component: "/sys/authority/role/index.vue",
@@ -219,7 +206,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.userManager",
+        title: "certd.navigation.sysResources.userManager",
         name: "UserManager",
         path: "/sys/authority/user",
         component: "/sys/authority/user/index.vue",
@@ -231,7 +218,7 @@ export const sysResources = [
         },
       },
       {
-        title: "certd.sysResources.userDataManager",
+        title: "certd.navigation.sysResources.userDataManager",
         name: "UserDataManager",
         path: "/sys/user-data",
         redirect: "/sys/pipeline",
@@ -243,7 +230,7 @@ export const sysResources = [
         },
         children: [
           {
-            title: "certd.sysResources.pipelineManager",
+            title: "certd.navigation.sysResources.pipelineManager",
             name: "SysPipelineManager",
             path: "/sys/pipeline",
             component: "/sys/pipeline/index.vue",
@@ -255,7 +242,7 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.siteMonitorManager",
+            title: "certd.navigation.sysResources.siteMonitorManager",
             name: "SysSiteMonitorManager",
             path: "/sys/monitor/site",
             component: "/sys/monitor/site/index.vue",
@@ -269,7 +256,7 @@ export const sysResources = [
         ],
       },
       {
-        title: "certd.sysResources.suiteManager",
+        title: "certd.navigation.sysResources.suiteManager",
         name: "SuiteManager",
         path: "/sys/suite",
         redirect: "/sys/suite/setting",
@@ -285,7 +272,7 @@ export const sysResources = [
         },
         children: [
           {
-            title: "certd.sysResources.suiteSetting",
+            title: "certd.navigation.sysResources.suiteSetting",
             name: "SuiteSetting",
             path: "/sys/suite/setting",
             component: "/sys/suite/setting/index.vue",
@@ -300,7 +287,7 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.orderManager",
+            title: "certd.navigation.sysResources.orderManager",
             name: "OrderManager",
             path: "/sys/suite/trade",
             component: "/sys/suite/trade/index.vue",
@@ -316,7 +303,7 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.userSuites",
+            title: "certd.navigation.sysResources.userSuites",
             name: "UserSuites",
             path: "/sys/suite/user-suite",
             component: "/sys/suite/user-suite/index.vue",
@@ -331,7 +318,35 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.inviteCommissionSetting",
+            title: "certd.navigation.sysResources.balanceManager",
+            name: "SysWallet",
+            path: "/sys/suite/wallet",
+            component: "/sys/suite/wallet/index.vue",
+            meta: {
+              show: () => {
+                const settingStore = useSettingStore();
+                return settingStore.isComm;
+              },
+              icon: "ion:wallet-outline",
+              permission: "sys:settings:edit",
+              auth: true,
+              keepAlive: true,
+            },
+          },
+          {
+            title: "certd.navigation.sysResources.balanceLog",
+            name: "SysWalletLog",
+            path: "/sys/suite/wallet-log",
+            component: "/sys/suite/wallet/log/index.vue",
+            meta: {
+              isMenu: false,
+              permission: "sys:settings:view",
+              auth: true,
+              keepAlive: false,
+            },
+          },
+          {
+            title: "certd.navigation.sysResources.inviteCommissionSetting",
             name: "SysInviteCommissionSetting",
             path: "/sys/suite/invite/setting",
             component: "/sys/suite/invite/setting.vue",
@@ -347,7 +362,7 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.inviteLevel",
+            title: "certd.navigation.sysResources.inviteLevel",
             name: "SysInviteLevel",
             path: "/sys/suite/invite/level",
             component: "/sys/suite/invite/level.vue",
@@ -362,7 +377,7 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.inviteUserLevel",
+            title: "certd.navigation.sysResources.inviteUserLevel",
             name: "SysInviteUserLevel",
             path: "/sys/suite/invite/user-level",
             component: "/sys/suite/invite/user-level.vue",
@@ -377,7 +392,7 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.inviteWithdraw",
+            title: "certd.navigation.sysResources.inviteWithdraw",
             name: "SysInviteWithdraw",
             path: "/sys/suite/invite/withdraw",
             component: "/sys/suite/invite/withdraw.vue",
@@ -393,7 +408,7 @@ export const sysResources = [
             },
           },
           {
-            title: "certd.sysResources.activationCodeManager",
+            title: "certd.navigation.sysResources.activationCodeManager",
             name: "SysProductActivationCode",
             path: "/sys/suite/activation-code",
             component: "/sys/suite/activation-code/index.vue",
@@ -411,7 +426,23 @@ export const sysResources = [
         ],
       },
       {
-        title: "certd.sysResources.netTest",
+        title: "certd.navigation.sysResources.auditLog",
+        name: "SysAuditLog",
+        path: "/sys/enterprise/audit",
+        component: "/sys/enterprise/audit/index.vue",
+        meta: {
+          icon: "ion:document-text-outline",
+          keepAlive: true,
+          auth: true,
+          isMenu: true,
+          show: () => {
+            const settingStore = useSettingStore();
+            return settingStore.isPlus;
+          },
+        },
+      },
+      {
+        title: "certd.navigation.sysResources.netTest",
         name: "NetTest",
         path: "/sys/nettest",
         component: "/sys/nettest/index.vue",

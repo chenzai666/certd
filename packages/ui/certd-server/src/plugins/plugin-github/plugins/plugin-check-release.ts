@@ -1,4 +1,5 @@
 import { AbstractTaskPlugin, IsTaskPlugin, pluginGroups, RunStrategy, TaskInput, TaskOutput } from "@certd/pipeline";
+import { NotificationTypes } from "@certd/lib-server";
 import { GithubAccess } from "../access.js";
 import { SshClient } from "../../plugin-lib/ssh/ssh.js";
 
@@ -15,6 +16,12 @@ import { SshClient } from "../../plugin-lib/ssh/ssh.js";
     //默认值配置照抄即可
     strategy: {
       runStrategy: RunStrategy.AlwaysRun,
+    },
+  },
+  i18n: {
+    "en-US": {
+      title: "Github-Check Release Version",
+      desc: "Check latest release version and push message.",
     },
   },
 })
@@ -69,9 +76,10 @@ export class GithubCheckRelease extends AbstractTaskPlugin {
   @TaskInput({
     title: "shell脚本命令",
     component: {
-      name: "a-textarea",
+      name: "TemplateTextarea",
       vModel: "value",
       rows: 6,
+      templateType: "githubCheckRelease",
       placeholder: `
 # 拉取最新镜像
 docker pull registry.cn-shenzhen.aliyuncs.com/handsfree/certd:latest
@@ -128,7 +136,7 @@ nohup sh -c '$RESTART_CERT' >/dev/null  2>&1 & echo '10秒后重启' && exit
             title: `${this.repoName} 新版本 ${this.lastVersion} 发布`,
             content: `${body}\n\n > [Certd](https://certd.docmirror.cn)，不止证书自动化，插件解锁无限可能！\n\n`,
             url: `https://github.com/${this.repoName}/releases/tag/${this.lastVersion}`,
-            notificationType: "githubReleaseCheck",
+            notificationType: NotificationTypes.GithubReleaseCheck,
           },
         });
       }

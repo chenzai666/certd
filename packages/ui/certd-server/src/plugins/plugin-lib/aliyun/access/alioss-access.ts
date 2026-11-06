@@ -5,6 +5,7 @@ import { AliyunAccess } from "./aliyun-access.js";
   name: "alioss",
   title: "阿里云OSS授权",
   desc: "包含地域和Bucket",
+  i18n: { "en-US": { title: "Alioss Access", desc: "Configure Alioss access credentials." } },
   icon: "ant-design:aliyun-outlined",
 })
 export class AliossAccess extends BaseAccess {
@@ -101,7 +102,7 @@ export class AliossAccess extends BaseAccess {
 
   async getClient(access: AliyunAccess) {
     // @ts-ignore
-    const OSS = await access.importRuntime("ali-oss");
+    const OSS = await this.importRuntime("ali-oss");
     return new OSS.default({
       accessKeyId: access.accessKeyId,
       accessKeySecret: access.accessKeySecret,

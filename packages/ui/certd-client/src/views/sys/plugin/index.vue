@@ -1,57 +1,244 @@
 <template>
-  <fs-page class="page-cert">
+  <fs-page class="page-sys-plugin">
     <template #header>
       <div class="title">
-        {{ t("certd.pluginManagement") }}
-        <span class="sub">{{ t("certd.pluginBetaWarning") }}</span>
+        {{ t("certd.sys.plugin.pluginManagement") }}
+        <span class="sub">{{ t("certd.sys.plugin.pluginBetaWarning") }}</span>
       </div>
     </template>
-    <fs-crud ref="crudRef" v-bind="crudBinding">
-      <!--      <template #pagination-left>-->
-      <!--        <a-tooltip :title="t('certd.batchDelete')">-->
-      <!--          <fs-button icon="DeleteOutlined" @click="handleBatchDelete"></fs-button>-->
-      <!--        </a-tooltip>-->
-      <!--      </template>-->
+    <a-tabs :active-key="activeSource" class="plugin-source-tabs" @change="changeSource">
+      <a-tab-pane key="store">
+        <template #tab
+          ><span class="plugin-source-tab-label"><fs-icon icon="ion:storefront-outline" />{{ t("certd.sys.plugin.store") }}</span></template
+        >
+      </a-tab-pane>
+      <a-tab-pane key="builtIn">
+        <template #tab
+          ><span class="plugin-source-tab-label"><fs-icon icon="ion:extension-puzzle-outline" />{{ t("certd.sys.plugin.builtIn") }}</span></template
+        >
+      </a-tab-pane>
+    </a-tabs>
+    <fs-crud ref="crudRef" class="plugin-card-crud" v-bind="crudBinding">
+      <a-empty v-if="pluginList.length === 0" class="plugin-card-empty" />
+      <div v-else class="plugin-card-grid">
+        <PluginItemCard v-for="item of pluginList" :key="item.fullName" :source="getPluginCardSource(item)" :plugin="item" show-config :editable="item.editable" @changed="handlePluginChanged" @click="openPluginDetail" />
+      </div>
     </fs-crud>
   </fs-page>
 </template>
 
-<script lang="ts" setup>
+<script lang="tsx" setup>
 import { useFs } from "@fast-crud/fast-crud";
 import createCrudOptions from "./crud";
-import { message, Modal } from "ant-design-vue";
-import { DeleteBatch } from "./api";
+import PluginItemCard from "./components/plugin-item-card.vue";
+import OnlinePluginDetail from "./components/online-plugin-detail.vue";
 import { useI18n } from "/src/locales";
 import { useMounted } from "/@/use/use-mounted";
-
+import { computed, onBeforeUnmount, onMounted, ref } from "vue";
+import { resolvePluginLocale, usePluginStore } from "/@/store/plugin";
+import { useFormDialog } from "/@/use/use-dialog";
+import { notification } from "ant-design-vue";
+import * as api from "./api";
 const { t } = useI18n();
-
+const pluginStore = usePluginStore();
+const { openFormDialog } = useFormDialog();
+const lastSyncTime = ref<number>(0);
+const syncLoading = ref(false);
+const activeSource = ref("store");
+const autoSyncInterval = 3 * 24 * 60 * 60 * 1000;
 defineOptions({
   name: "SysPlugin",
 });
-const { crudBinding, crudRef, crudExpose, context } = useFs({ createCrudOptions });
 
-const selectedRowKeys = context.selectedRowKeys;
-const handleBatchDelete = () => {
-  if (selectedRowKeys.value?.length > 0) {
-    Modal.confirm({
-      title: t("certd.pluginManagement"),
-      content: t("certd.batchDeleteConfirm", { count: selectedRowKeys.value.length }),
-      async onOk() {
-        await DeleteBatch(selectedRowKeys.value);
-        message.info(t("certd.deleteSuccess"));
-        crudExpose.doRefresh();
-        selectedRowKeys.value = [];
-      },
-    });
-  } else {
-    message.error(t("certd.selectRecordFirst"));
+async function syncOnlinePlugins(options?: { showSuccess?: boolean }) {
+  if (syncLoading.value) {
+    return;
   }
-};
+  syncLoading.value = true;
+  try {
+    await api.OnlinePluginSync();
+    const setting = await api.OnlinePluginSetting();
+    lastSyncTime.value = setting.lastSyncTime || Date.now();
+    await pluginStore.reload();
+    crudExpose.doRefresh();
+    if (options?.showSuccess !== false) {
+      notification.success({ message: t("certd.sys.plugin.onlinePluginSyncSuccess") });
+    }
+  } finally {
+    syncLoading.value = false;
+  }
+}
+
+const context = { lastSyncTime, syncLoading, syncOnlinePlugins };
+const { crudBinding, crudRef, crudExpose } = useFs({ createCrudOptions, context });
+function changeSource(source: string) {
+  activeSource.value = source;
+  crudExpose.setSearchFormData({ form: { type: source }, mergeForm: true });
+  crudExpose.doRefresh();
+}
+const pluginList = computed(() => {
+  const rows = crudBinding.value?.data || [];
+  return rows.map((row: any) => {
+    const define = resolvePluginLocale(pluginStore.getPluginDefineSync(row.name));
+    if (!define) {
+      return row;
+    }
+    return {
+      ...row,
+      title: define.title || row.title,
+      desc: define.desc || row.desc,
+      group: define.group || row.group,
+    };
+  });
+});
+
+function getPluginCardSource(row: any) {
+  return row.type === "store" && Number(row.developerId) > 0 ? "market" : "local";
+}
+
+async function openPluginDetail(row: any) {
+  if (row.type !== "store" || !(row.fullName || (row.author && row.name))) {
+    return;
+  }
+  await openFormDialog({
+    title: `插件详情 ${row.title || row.name || row.fullName}`,
+    columns: {},
+    noneForm: true,
+    className: "online-plugin-detail-dialog",
+    wrapper: {
+      width: "min(1540px, calc(100vw - 48px))",
+      destroyOnClose: true,
+      maskClosable: true,
+      footer: null,
+    },
+    body: () => <OnlinePluginDetail plugin={row} onInstalled={handleDetailInstalled} />,
+  });
+}
+
+function handleDependencyDetail(event: Event) {
+  const row = (event as CustomEvent).detail;
+  void openPluginDetail(row);
+}
+
+async function handleDetailInstalled() {
+  crudExpose.doRefresh();
+}
+
+async function handlePluginChanged(payload: { action: string }) {
+  if (payload.action === "install" || payload.action === "uninstall" || payload.action === "remove") {
+    await pluginStore.reload();
+  }
+  crudExpose.doRefresh();
+}
+
+function needAutoSync(time: number) {
+  if (!time) {
+    return true;
+  }
+  return Date.now() - time > autoSyncInterval;
+}
+
+async function autoSyncOnlinePlugins() {
+  const setting = await api.OnlinePluginSetting();
+  lastSyncTime.value = setting.lastSyncTime || 0;
+  if (needAutoSync(lastSyncTime.value)) {
+    await syncOnlinePlugins({ showSuccess: false });
+  }
+}
 
 // 页面打开后获取列表数据
 useMounted(async () => {
-  await crudExpose.doRefresh();
+  await pluginStore.init();
+  autoSyncOnlinePlugins();
+  crudExpose.setSearchFormData({ form: { type: activeSource.value }, mergeForm: true });
+  crudExpose.doRefresh();
+});
+
+onMounted(() => {
+  window.addEventListener("certd:plugin-detail", handleDependencyDetail);
+});
+
+onBeforeUnmount(() => {
+  window.removeEventListener("certd:plugin-detail", handleDependencyDetail);
 });
 </script>
-<style lang="less"></style>
+<style lang="less">
+.page-sys-plugin {
+  .plugin-source-tabs {
+    flex: none;
+    padding: 0 10px;
+
+    .plugin-source-tab-label {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+    }
+
+    .ant-tabs-nav {
+      margin-bottom: 0;
+      .ant-tabs-tab {
+        padding: 10px 4px;
+      }
+    }
+
+    .ant-tabs-content-holder {
+      display: none;
+    }
+  }
+
+  .fs-page-content {
+    display: flex;
+    min-height: 0;
+    flex: 1;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .plugin-card-crud {
+    height: 100%;
+    flex: 1;
+    min-height: 0;
+  }
+
+  .plugin-card-empty {
+    padding: 72px 0;
+  }
+
+  .plugin-card-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    padding: 4px 10px 12px;
+  }
+}
+
+.online-plugin-detail-dialog {
+  .ant-modal-body {
+    padding: 0;
+    overflow: hidden;
+  }
+}
+@media (max-width: 1400px) {
+  .page-sys-plugin {
+    .plugin-card-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (max-width: 1000px) {
+  .page-sys-plugin {
+    .plugin-card-grid {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+  }
+}
+
+@media (max-width: 720px) {
+  .page-sys-plugin {
+    .plugin-card-grid {
+      grid-template-columns: 1fr;
+    }
+  }
+}
+</style>

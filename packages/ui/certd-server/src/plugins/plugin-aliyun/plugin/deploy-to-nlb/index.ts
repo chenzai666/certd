@@ -11,6 +11,12 @@ import { AliyunClientV2 } from "../../../plugin-lib/aliyun/lib/aliyun-client-v2.
   icon: "svg:icon-aliyun",
   group: pluginGroups.aliyun.key,
   desc: "NLB,网络负载均衡,更新监听器的默认证书",
+  i18n: {
+    "en-US": {
+      title: "Aliyun - Deploy Certificate to NLB",
+      desc: "Deploy a certificate to Aliyun NLB.",
+    },
+  },
   needPlus: false,
   default: {
     strategy: {
@@ -117,7 +123,7 @@ export class AliyunDeployCertToNLB extends AbstractTaskPlugin {
   async onInstance() {}
 
   async getLBClient(access: AliyunAccess, region: string) {
-    const client = new AliyunClient({ logger: this.logger, importRuntime: access.importRuntime.bind(access) });
+    const client = new AliyunClient({ logger: this.logger });
 
     const version = "2022-04-30";
     await client.init({

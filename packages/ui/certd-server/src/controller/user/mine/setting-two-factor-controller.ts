@@ -6,6 +6,8 @@ import { merge } from "lodash-es";
 import { TwoFactorService } from "../../../modules/mine/service/two-factor-service.js";
 import { isPlus } from "@certd/plus-core";
 import { ApiTags } from "@midwayjs/swagger";
+import { AuditType } from "../../../modules/sys/enterprise/service/audit-constants.js";
+import { cache, utils } from "@certd/basic";
 
 /**
  */
@@ -18,6 +20,10 @@ export class UserTwoFactorSettingController extends BaseController {
 
   @Inject()
   twoFactorService: TwoFactorService;
+
+  getAuditType(): string {
+    return AuditType.mine.value;
+  }
 
   @Post("/get", { description: Constants.per.authOnly, summary: "获取双因子认证设置" })
   async get() {
@@ -42,6 +48,7 @@ export class UserTwoFactorSettingController extends BaseController {
     }
 
     await this.service.saveSetting(userId, null, setting);
+    this.auditLog({ content: `保存了双因子认证设置 ${setting.authenticator.enabled ? "启用" : "禁用"}` });
     return this.ok({});
   }
 
@@ -62,6 +69,7 @@ export class UserTwoFactorSettingController extends BaseController {
       userId,
       verifyCode: bean.verifyCode,
     });
+    this.auditLog({ content: `保存了验证器设置` });
     return this.ok();
   }
 
@@ -69,6 +77,16 @@ export class UserTwoFactorSettingController extends BaseController {
   async authenticatorOff() {
     const userId = this.getUserId();
     await this.twoFactorService.offAuthenticator(userId);
+    this.auditLog({ content: "关闭了验证器" });
     return this.ok();
+  }
+
+  @Post("/verifySecretAccess", { description: Constants.per.authOnly, summary: "验证查看加密密钥" })
+  async verifySecretAccess(@Body(ALL) bean: { verifyCode: string }) {
+    const userId = this.getUserId();
+    await this.twoFactorService.verifyAuthenticatorCode(userId, bean.verifyCode);
+    const token = utils.id.simpleNanoId(32);
+    cache.set(`secret_access_2fa:${token}`, userId, { ttl: 10 * 60 * 1000 });
+    return this.ok(token);
   }
 }

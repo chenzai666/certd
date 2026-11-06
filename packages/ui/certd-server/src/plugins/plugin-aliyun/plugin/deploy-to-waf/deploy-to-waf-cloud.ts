@@ -10,6 +10,12 @@ import { AliyunClient, AliyunSslClient, CasCertInfo } from "../../../plugin-lib/
   icon: "svg:icon-aliyun",
   group: pluginGroups.aliyun.key,
   desc: "部署证书到阿里云WAF(云产品接入)，CNAME方式接入的请选择另外一个waf插件",
+  i18n: {
+    "en-US": {
+      title: "Aliyun-Deploy Certificate to WAF Cloud",
+      desc: "Deploy a certificate to Aliyun WAF.",
+    },
+  },
   needPlus: false,
   default: {
     strategy: {
@@ -103,7 +109,7 @@ export class AliyunDeployCertToWafCloud extends AbstractTaskPlugin {
   async onInstance() {}
 
   async getWafClient(access: AliyunAccess) {
-    const client = new AliyunClient({ logger: this.logger, importRuntime: access.importRuntime.bind(access) });
+    const client = new AliyunClient({ logger: this.logger });
     await client.init({
       accessKeyId: access.accessKeyId,
       accessKeySecret: access.accessKeySecret,

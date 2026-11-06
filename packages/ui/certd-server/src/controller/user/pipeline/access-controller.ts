@@ -4,6 +4,8 @@ import { AccessService } from "@certd/lib-server";
 import { AuthService } from "../../../modules/sys/authority/service/auth-service.js";
 import { AccessDefine } from "@certd/pipeline";
 import { ApiTags } from "@midwayjs/swagger";
+import { AuditType } from "../../../modules/sys/enterprise/service/audit-constants.js";
+import { cache } from "@certd/basic";
 
 /**
  * 授权
@@ -16,9 +18,12 @@ export class AccessController extends CrudController<AccessService> {
   service: AccessService;
   @Inject()
   authService: AuthService;
-
   getService(): AccessService {
     return this.service;
+  }
+
+  getAuditType(): string {
+    return AuditType.access.value;
   }
 
   @Post("/page", { description: Constants.per.authOnly, summary: "查询授权配置分页列表" })
@@ -58,7 +63,11 @@ export class AccessController extends CrudController<AccessService> {
     const { projectId, userId } = await this.getProjectUserIdWrite();
     bean.userId = userId;
     bean.projectId = projectId;
-    return super.add(bean);
+    const res = await super.add(bean);
+    this.auditLog({
+      content: `新增了授权「${bean.name}」(ID:${res.data}, 类型:${bean.type})`,
+    });
+    return res;
   }
 
   @Post("/update", { description: Constants.per.authOnly, summary: "更新授权配置" })
@@ -66,7 +75,11 @@ export class AccessController extends CrudController<AccessService> {
     await this.checkOwner(this.getService(), bean.id, "write");
     delete bean.userId;
     delete bean.projectId;
-    return super.update(bean);
+    const res = await super.update(bean);
+    this.auditLog({
+      content: `修改了授权「${bean.name}」(ID:${bean.id})`,
+    });
+    return res;
   }
   @Post("/info", { description: Constants.per.authOnly, summary: "查询授权配置详情" })
   async info(@Query("id") id: number) {
@@ -77,7 +90,11 @@ export class AccessController extends CrudController<AccessService> {
   @Post("/delete", { description: Constants.per.authOnly, summary: "删除授权配置" })
   async delete(@Query("id") id: number) {
     await this.checkOwner(this.getService(), id, "write");
-    return super.delete(id);
+    const res = await super.delete(id);
+    this.auditLog({
+      content: `删除了授权(ID:${id})`,
+    });
+    return res;
   }
 
   @Post("/define", { description: Constants.per.authOnly, summary: "查询授权插件定义" })
@@ -87,7 +104,11 @@ export class AccessController extends CrudController<AccessService> {
   }
 
   @Post("/getSecretPlain", { description: Constants.per.authOnly, summary: "获取授权配置明文密钥" })
-  async getSecretPlain(@Body(ALL) body: { id: number; key: string }) {
+  async getSecretPlain(@Body(ALL) body: { id: number; key: string; verifyToken: string }) {
+    const tokenUserId = cache.get(`secret_access_2fa:${body.verifyToken}`);
+    if (tokenUserId !== this.getUserId()) {
+      throw new Error("请先验证 2FA 后再查看加密密钥");
+    }
     const { userId, projectId } = await this.checkOwner(this.getService(), body.id, "read");
     const value = await this.service.getById(body.id, userId, projectId);
     return this.ok(value[body.key]);
@@ -103,16 +124,24 @@ export class AccessController extends CrudController<AccessService> {
     for (const item of list) {
       dict.push({
         value: item.name,
-        label: item.title,
+        label: this.getLocalizedTitle(item),
         icon: item.icon,
       });
     }
     return this.ok(dict);
   }
 
+  private getLocalizedTitle(item: AccessDefine): string {
+    const language = this.ctx.headers["accept-language"];
+    if (language?.startsWith("en-US")) {
+      return item.i18n?.["en-US"]?.title || item.title;
+    }
+    return item.title;
+  }
+
   @Post("/simpleInfo", { description: Constants.per.authOnly, summary: "查询授权配置简单信息" })
   async simpleInfo(@Query("id") id: number) {
-    // await this.authService.checkUserIdButAllowAdmin(this.ctx, this.service, id);
+    await this.authService.checkUserIdButAllowAdmin(this.ctx, this.service, id);
     // await this.checkOwner(this.getService(), id, "read",true);
     const res = await this.service.getSimpleInfo(id);
     return this.ok(res);

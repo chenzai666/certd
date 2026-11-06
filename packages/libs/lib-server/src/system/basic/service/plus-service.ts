@@ -4,6 +4,7 @@ import { cache, http, HttpRequestConfig, logger } from "@certd/basic";
 import { SysInstallInfo, SysLicenseInfo, SysSettingsService } from "../../settings/index.js";
 import { merge } from "lodash-es";
 import fs from "fs";
+import { OnlinePluginClient } from "./online-plugin-client.js";
 @Provide("plusService")
 @Scope(ScopeEnum.Request, { allowDowngrade: true })
 export class PlusService {
@@ -172,5 +173,11 @@ export class PlusService {
       throw new Error(res.message);
     }
     return res.data;
+  }
+
+  async request(config: HttpRequestConfig): Promise<any> {
+    const installInfo = await this.sysSettingsService.getSetting<SysInstallInfo>(SysInstallInfo);
+    const client = new OnlinePluginClient();
+    return await client.request(config, installInfo);
   }
 }

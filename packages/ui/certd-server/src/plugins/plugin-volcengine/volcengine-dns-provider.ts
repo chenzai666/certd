@@ -10,7 +10,13 @@ import { PageSearch } from "@certd/pipeline";
   desc: "火山引擎DNS解析提供商",
   accessType: "volcengine",
   icon: "svg:icon-volcengine",
-  order: 2,
+  order: 1,
+  i18n: {
+    "en-US": {
+      title: "Volcengine DNS Provider",
+      desc: "Volcengine DNS provider.",
+    },
+  },
 })
 export class VolcengineDnsProvider extends AbstractDnsProvider {
   client: VolcengineDnsClient;

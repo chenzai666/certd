@@ -13,6 +13,12 @@ import { AliyunAccess } from "../../../plugin-lib/aliyun/access/index.js";
   icon: "svg:icon-aliyun",
   group: pluginGroups.aliyun.key,
   desc: "部署证书到阿里云函数计算（FC3.0）",
+  i18n: {
+    "en-US": {
+      title: "Aliyun-Deploy Certificate to FC",
+      desc: "Deploy a certificate to Aliyun Function Compute.",
+    },
+  },
   needPlus: false,
   default: {
     strategy: {
@@ -124,10 +130,11 @@ export class AliyunDeployCertToFC extends AbstractTaskPlugin {
 
   async onInstance() {}
 
-  async exec(cmd: string) {
+  async exec(cmd: string, args: string[]) {
     process.env.LANG = "zh_CN.GBK";
     await sp.spawn({
       cmd: cmd,
+      args,
       logger: this.logger,
     });
   }
@@ -137,8 +144,8 @@ export class AliyunDeployCertToFC extends AbstractTaskPlugin {
 
     const client = await this.getClient(access);
 
-    const $Util = await access.importRuntime("@alicloud/tea-util");
-    const $OpenApi = await access.importRuntime("@alicloud/openapi-client");
+    const $Util = await this.importRuntime("@alicloud/tea-util");
+    const $OpenApi = await this.importRuntime("@alicloud/openapi-client");
 
     let privateKey = this.cert.key;
     try {
@@ -151,8 +158,7 @@ export class AliyunDeployCertToFC extends AbstractTaskPlugin {
       const tempPem = `${tempDir}/${keyFileName}.pem`;
       const tempPkcs1Pem = `${tempDir}/${keyFileName}_pkcs1.pem`;
       fs.writeFileSync(tempPem, this.cert.key);
-      const oldPfxCmd = `openssl rsa -in ${tempPem} -traditional -out ${tempPkcs1Pem}`;
-      await this.exec(oldPfxCmd);
+      await this.exec("openssl", ["rsa", "-in", tempPem, "-traditional", "-out", tempPkcs1Pem]);
       const fileBuffer = fs.readFileSync(tempPkcs1Pem);
       privateKey = fileBuffer.toString();
       fs.unlinkSync(tempPem);
@@ -204,7 +210,7 @@ export class AliyunDeployCertToFC extends AbstractTaskPlugin {
   }
 
   async getClient(access: AliyunAccess) {
-    const $OpenApi = await access.importRuntime("@alicloud/openapi-client");
+    const $OpenApi = await this.importRuntime("@alicloud/openapi-client");
     const config = new $OpenApi.Config({
       accessKeyId: access.accessKeyId,
       accessKeySecret: access.accessKeySecret,
@@ -221,8 +227,8 @@ export class AliyunDeployCertToFC extends AbstractTaskPlugin {
     const access = await this.getAccess<AliyunAccess>(this.accessId);
     const client = await this.getClient(access);
 
-    const $OpenApi = await access.importRuntime("@alicloud/openapi-client");
-    const $Util = await access.importRuntime("@alicloud/tea-util");
+    const $OpenApi = await this.importRuntime("@alicloud/openapi-client");
+    const $Util = await this.importRuntime("@alicloud/tea-util");
     const params = new $OpenApi.Params({
       // 接口名称
       action: "ListCustomDomains",

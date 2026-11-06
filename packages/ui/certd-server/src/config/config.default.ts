@@ -100,7 +100,7 @@ const development = {
 
   auth: {
     jwt: {
-      expire: 7 * 24 * 60 * 60, //单位秒
+      expire: 3 * 24 * 60 * 60, //单位秒
     },
   },
   certd: {
@@ -109,9 +109,8 @@ const development = {
   runtimeDeps: {
     enabled: true,
     rootDir: "./data/.runtime-deps",
-    autoInstall: true,
     pnpmCommand: "",
-    installTimeoutMs: 120000,
+    installTimeoutMs: 60000,
     lazyDependencies: pkg.lazyDependencies || {},
     registry: {
       mode: "auto",
@@ -250,6 +249,7 @@ const development = {
     ],
   },
 } as MidwayConfig;
+loadDotEnv(`.env.${env}`);
 loadDotEnv();
 
 mergeConfig(development, "development");

@@ -3,11 +3,18 @@ import { AccessInput, BaseAccess, IsAccess } from "@certd/pipeline";
   name: "ssh",
   title: "主机登录授权",
   desc: "",
+  i18n: { "en-US": { title: "Ssh Access" } },
   icon: "clarity:host-line",
   input: {},
   order: 0,
 })
 export class SshAccess extends BaseAccess {
+  /**
+   * 目标主机不可直连时使用的跳板机配置。
+   * 未配置时保持原有直连行为，兼容已有授权数据。
+   */
+  jumpHost?: SshAccess;
+
   @AccessInput({
     title: "主机地址",
     component: {
@@ -135,6 +142,17 @@ export class SshAccess extends BaseAccess {
     },
   })
   encoding: string;
+
+  @AccessInput({
+    title: "跳板机SSH授权",
+    component: {
+      name: "access-selector",
+      type: "ssh",
+      vModel: "modelValue",
+    },
+    helper: "目标主机不可直连时，选择可访问目标主机的 SSH 授权",
+  })
+  jumpHostAccessId?: number;
 
   @AccessInput({
     title: "测试",

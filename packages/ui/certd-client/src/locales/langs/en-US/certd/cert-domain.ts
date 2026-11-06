@@ -1,5 +1,6 @@
 export default {
   domain: {
+    dnsPersistDescription: "Currently, only Google certificates support DNS persistent validation.",
     domainManager: "Domain Manager",
     domainDescription: "used to auto apply for certificate", //管理域名的校验方式，用于申请证书时自动选择验证方式
     domain: "Domain",
@@ -19,6 +20,7 @@ export default {
     subdomainConfirmContent: "{domain} appears to be a subdomain. Only delegated subdomains and free second-level subdomains need to be maintained here. Otherwise certificate application may fail. Continue?",
     importFromProvider: "Import from Domain Provider",
     importFromResolveRecords: "Import from DNS Records",
+    importFromResolveRecordsTooltip: "Import DNS records as monitoring sites",
     syncExpirationDate: "Sync Domain Expiration Time",
     syncTaskSubmitted: "Sync task submitted",
     syncExpirationProgress: "Sync Domain Expiration Progress",

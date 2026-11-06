@@ -3,6 +3,87 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.46.0](https://github.com/publishlab/node-acme-client/compare/v1.45.6...v1.46.0) (2026-10-28)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.45.6](https://github.com/publishlab/node-acme-client/compare/v1.45.5...v1.45.6) (2026-10-28)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.45.5](https://github.com/publishlab/node-acme-client/compare/v1.45.4...v1.45.5) (2026-10-22)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.45.4](https://github.com/publishlab/node-acme-client/compare/v1.45.3...v1.45.4) (2026-10-22)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.45.3](https://github.com/publishlab/node-acme-client/compare/v1.45.2...v1.45.3) (2026-10-19)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.45.2](https://github.com/publishlab/node-acme-client/compare/v1.45.1...v1.45.2) (2026-10-18)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.45.1](https://github.com/publishlab/node-acme-client/compare/v1.45.0...v1.45.1) (2026-10-14)
+
+**Note:** Version bump only for package @certd/acme-client
+
+# [1.45.0](https://github.com/publishlab/node-acme-client/compare/v1.44.4...v1.45.0) (2026-10-02)
+
+### Bug Fixes
+
+* 支持google persist校验方式 ([97d2b50](https://github.com/publishlab/node-acme-client/commit/97d2b5007409ec79ea864d437c473a2f9b5dfae4))
+
+## [1.44.4](https://github.com/publishlab/node-acme-client/compare/v1.44.3...v1.44.4) (2026-09-12)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.44.3](https://github.com/publishlab/node-acme-client/compare/v1.44.2...v1.44.3) (2026-09-06)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.44.2](https://github.com/publishlab/node-acme-client/compare/v1.44.1...v1.44.2) (2026-09-03)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.44.1](https://github.com/publishlab/node-acme-client/compare/v1.44.0...v1.44.1) (2026-09-02)
+
+**Note:** Version bump only for package @certd/acme-client
+
+# [1.44.0](https://github.com/publishlab/node-acme-client/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+### Features
+
+* 新增证书吊销后置任务与证书状态管理 ([1cc9641](https://github.com/publishlab/node-acme-client/commit/1cc9641f5669710d1e5809995ad395c843855a12))
+
+### Performance Improvements
+
+* 新增证书吊销功能，添加证书状态字段 ([5074572](https://github.com/publishlab/node-acme-client/commit/5074572694383c8e1bf2880e26827987683dc62c))
+* 移除全局反向代理配置，迁移到自定义ACME配置 ([c57110e](https://github.com/publishlab/node-acme-client/commit/c57110e42aada31dd0028b56b5baec1b19722525))
+
+# [1.43.0](https://github.com/publishlab/node-acme-client/compare/v1.42.6...v1.43.0) (2026-08-14)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.42.6](https://github.com/publishlab/node-acme-client/compare/v1.42.5...v1.42.6) (2026-07-18)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.42.5](https://github.com/publishlab/node-acme-client/compare/v1.42.4...v1.42.5) (2026-07-15)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.42.4](https://github.com/publishlab/node-acme-client/compare/v1.42.3...v1.42.4) (2026-07-11)
+
+**Note:** Version bump only for package @certd/acme-client
+
+## [1.42.3](https://github.com/publishlab/node-acme-client/compare/v1.42.2...v1.42.3) (2026-07-08)
+
+**Note:** Version bump only for package @certd/acme-client
+
 ## [1.42.2](https://github.com/publishlab/node-acme-client/compare/v1.42.1...v1.42.2) (2026-07-07)
 
 **Note:** Version bump only for package @certd/acme-client
