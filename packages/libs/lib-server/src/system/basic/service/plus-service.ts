@@ -4,6 +4,7 @@ import { cache, http, HttpRequestConfig, logger } from "@certd/basic";
 import { SysInstallInfo, SysLicenseInfo, SysSettingsService } from "../../settings/index.js";
 import { merge } from "lodash-es";
 import fs from "fs";
+import { OnlinePluginClient } from "./online-plugin-client.js";
 @Provide("plusService")
 @Scope(ScopeEnum.Request, { allowDowngrade: true })
 export class PlusService {
@@ -164,7 +165,7 @@ export class PlusService {
       baseURL: plusRequestService.getBaseURL(),
       method: "post",
       headers: {
-        Authorization: `Bearer ${token}`,
+        Authorization: `Berear ${token}`,
       },
     });
     const res = await http.request(config);
