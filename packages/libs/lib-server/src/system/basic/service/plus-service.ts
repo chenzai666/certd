@@ -175,7 +175,11 @@ export class PlusService {
   }
 
   async request(config: HttpRequestConfig) {
+    if (!config.url) {
+      throw new Error("请求地址不能为空");
+    }
     const plusRequestService = await this.getPlusRequestService();
-    return await plusRequestService.request(config);
+    const requestConfig = { ...config, url: config.url };
+    return await plusRequestService.request(requestConfig);
   }
 }

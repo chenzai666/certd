@@ -9,6 +9,7 @@ FROM --platform=linux/arm64 node:22.23.4-trixie-slim AS base-arm64-slim
 FROM --platform=linux/arm/v7 node:22.23.4-alpine AS base-arm-v7-slim
 
 FROM base-${TARGETARCH}${TARGETVARIANT:+-}${TARGETVARIANT}-${base_type} AS build
+ARG TARGETARCH
 
 WORKDIR /workspace/
 COPY . /workspace/
