@@ -175,12 +175,9 @@ export class PlusService {
     return res.data;
   }
 
-  async request(config: HttpRequestConfig) {
-    if (!config.url) {
-      throw new Error("请求地址不能为空");
-    }
-    const plusRequestService = await this.getPlusRequestService();
-    const requestConfig = { ...config, url: config.url };
-    return await plusRequestService.request(requestConfig);
+  async request(config: HttpRequestConfig): Promise<any> {
+    const installInfo = await this.sysSettingsService.getSetting<SysInstallInfo>(SysInstallInfo);
+    const client = new OnlinePluginClient();
+    return await client.request(config, installInfo);
   }
 }
