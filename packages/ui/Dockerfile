@@ -48,6 +48,7 @@ RUN cd /workspace/packages/ui/certd-server && \
 # CI 使用完整源码和构建产物执行测试；生产层继续从 builder 打包。
 FROM build AS verification
 WORKDIR /workspace
+ENV TZ=Asia/Shanghai
 RUN pnpm --filter @certd/basic run test:unit && \
     pnpm --filter @certd/acme-client run test:unit && \
     pnpm --filter @certd/pipeline run test:unit && \
