@@ -90,7 +90,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
       form: {
         async beforeSubmit({ form }) {
           if (form.challengeType === "cname") {
-            throw new Error(t("certd.domain.cnameManagedInCnamePage"));
+            throw new Error(t("certd.certdomain.domain.cnameManagedInCnamePage"));
           }
           if (form.challengeType === "dns-persist") {
             throw new Error("DNS持久验证记录请在DNS持久验证记录页面管理");
@@ -99,8 +99,8 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             const isSubdomain = await api.IsSubdomain({ domain: form.domain });
             if (isSubdomain && !subdomainConfirmed.value) {
               Modal.confirm({
-                title: t("certd.domain.subdomainConfirmTitle"),
-                content: t("certd.domain.subdomainConfirmContent", { domain: form.domain }),
+                title: t("certd.certdomain.domain.subdomainConfirmTitle"),
+                content: t("certd.certdomain.domain.subdomainConfirmContent", { domain: form.domain }),
                 okText: t("common.confirm"),
                 okType: "danger",
                 onOk: () => {
@@ -123,11 +123,10 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
           import: {
             show: hasActionPermission("write"),
-            title: t("certd.domain.importFromProvider"),
+            title: t("certd.certdomain.domain.importFromProvider"),
             type: "primary",
-            text: t("certd.domain.importFromProvider"),
-            needPlus: true,
-            color: "gold",
+            text: t("certd.certdomain.domain.importFromProvider"),
+            // needPlus: true,
             icon: "mingcute:vip-1-line",
             click: async () => {
               await openDomainImportManageDialog({
@@ -139,10 +138,10 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
           syncExpirationDate: {
             show: hasActionPermission("write"),
-            title: t("certd.domain.syncExpirationDate"),
+            title: t("certd.certdomain.domain.syncExpirationDate"),
             type: "primary",
             icon: "ion:refresh-outline",
-            text: t("certd.domain.syncExpirationDate"),
+            text: t("certd.certdomain.domain.syncExpirationDate"),
             click: async () => {
               try {
                 await api.SyncExpirationStart();
@@ -153,13 +152,13 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
           monitorSettingSave: {
             show: hasActionPermission("write"),
-            title: t("certd.domain.expirationMonitorSetting"),
+            title: t("certd.certdomain.domain.expirationMonitorSetting"),
             type: "primary",
             icon: "ion:save-outline",
-            text: t("certd.domain.expirationMonitorSetting"),
+            text: t("certd.certdomain.domain.expirationMonitorSetting"),
             click: async () => {
               router.push({
-                path: "/certd/cert/domain/setting",
+                path: "/cert/cert/domain/setting",
               });
             },
           },
@@ -179,14 +178,14 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         domain: {
-          title: t("certd.domain.domain"),
+          title: t("certd.certdomain.domain.domain"),
           type: "text",
           search: {
             show: true,
           },
           form: {
             required: true,
-            helper: t("certd.domain.subdomainDnsHelper"),
+            helper: t("certd.certdomain.domain.subdomainDnsHelper"),
           },
           editForm: {
             component: {
@@ -197,15 +196,24 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             sorter: true,
           },
         },
+        remark: {
+          title: t("certd.monitor.columnRemark"),
+          type: "textarea",
+          column: {
+            width: 200,
+            ellipsis: true,
+            tooltip: true,
+          },
+        },
         expirationDate: {
-          title: t("certd.domain.expirationDate"),
+          title: t("certd.certdomain.domain.expirationDate"),
           type: "date",
           form: {
             show: false,
           },
         },
         challengeType: {
-          title: t("certd.domain.challengeType"),
+          title: t("certd.certdomain.domain.challengeType"),
           type: "dict-select",
           dict: Dicts.challengeTypeDict,
           search: {
@@ -216,10 +224,10 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
             valueChange({ value }) {
               if (value === "cname") {
                 Modal.confirm({
-                  title: t("certd.domain.gotoCnameTip"),
+                  title: t("certd.certdomain.domain.gotoCnameTip"),
                   async onOk() {
                     router.push({
-                      path: "/certd/cname/record",
+                      path: "/cert/cname/record",
                     });
                     crudExpose.getFormWrapperRef().close();
                   },
@@ -227,10 +235,10 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
               } else if (value === "dns-persist") {
                 Modal.confirm({
                   title: "请前往DNS持久验证记录页面添加记录",
-                  content: "DNS持久验证需要先配置ACME账号和_validation-persist持久TXT记录，续期时不再增删DNS记录；当前仅 Let's Encrypt 测试环境可以申请。",
+                  content: "DNS持久验证需要先配置ACME账号和_validation-persist持久TXT记录，续期时不再增删DNS记录；当前仅 Google证书 可以申请。",
                   async onOk() {
                     router.push({
-                      path: "/certd/cert/dns-persist",
+                      path: "/cert/cert/dns-persist",
                     });
                     crudExpose.getFormWrapperRef().close();
                   },
@@ -252,7 +260,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
          *   httpUploadRootDir varchar(512),
          */
         dnsProviderType: {
-          title: t("certd.domain.dnsProviderType"),
+          title: t("certd.certdomain.domain.dnsProviderType"),
           type: "dict-select",
           dict: dnsProviderTypeDict,
           form: {
@@ -272,7 +280,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         dnsProviderAccess: {
-          title: t("certd.domain.dnsProviderAccess"),
+          title: t("certd.certdomain.domain.dnsProviderAccess"),
           type: "dict-select",
           dict: accessDict,
           form: {
@@ -297,7 +305,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         httpUploaderType: {
-          title: t("certd.domain.httpUploaderType"),
+          title: t("certd.certdomain.domain.httpUploaderType"),
           type: "dict-select",
           dict: Dicts.uploaderTypeDict,
           form: {
@@ -314,7 +322,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         httpUploaderAccess: {
-          title: t("certd.domain.httpUploaderAccess"),
+          title: t("certd.certdomain.domain.httpUploaderAccess"),
           type: "text",
           form: {
             component: {
@@ -337,7 +345,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         httpUploadRootDir: {
-          title: t("certd.domain.httpUploadRootDir"),
+          title: t("certd.certdomain.domain.httpUploadRootDir"),
           type: "text",
           form: {
             show: compute(({ form }) => {
@@ -353,7 +361,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         challengeSetting: {
-          title: t("certd.domain.challengeSetting"),
+          title: t("certd.certdomain.domain.challengeSetting"),
           type: "text",
           form: { show: false },
           column: {
@@ -375,7 +383,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
                     <fs-values-format modelValue={row.httpUploaderType} dict={httpUploaderTypeDict} color={"auto"}></fs-values-format>
                     <fs-values-format class={"ml-5"} modelValue={row.httpUploaderAccess} dict={accessDict} color={"auto"}></fs-values-format>
                     <a-tag class={"ml-5 flex items-center"}>
-                      {t("certd.domain.path")}: {row.httpUploadRootDir}
+                      {t("certd.certdomain.domain.path")}: {row.httpUploadRootDir}
                     </a-tag>
                   </div>
                 );
@@ -384,7 +392,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         fromType: {
-          title: t("certd.domain.fromType"),
+          title: t("certd.certdomain.domain.fromType"),
           type: "dict-select",
           dict: Dicts.domainFromTypeDict,
           form: {
@@ -398,7 +406,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         disabled: {
-          title: t("certd.domain.disabled"),
+          title: t("certd.certdomain.domain.disabled"),
           type: "dict-switch",
           search: { show: true },
           dict: dict({
@@ -417,7 +425,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         createTime: {
-          title: t("certd.createTime"),
+          title: t("certd.common.createTime"),
           type: "datetime",
           form: {
             show: false,
@@ -429,7 +437,7 @@ export default function ({ crudExpose, context }: CreateCrudOptionsProps): Creat
           },
         },
         updateTime: {
-          title: t("certd.updateTime"),
+          title: t("certd.common.updateTime"),
           type: "datetime",
           form: {
             show: false,

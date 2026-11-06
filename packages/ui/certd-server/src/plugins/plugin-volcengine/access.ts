@@ -11,6 +11,17 @@ import { VolcengineClient } from "./ve-client.js";
   desc: "",
   icon: "svg:icon-volcengine",
   order: 1,
+  i18n: {
+    "en-US": {
+      title: "Volcengine Access",
+      desc: "Volcengine IAM access.",
+      input: {
+        accessKeyId: { title: "Access key ID", helper: "Get credentials from Volcengine IAM" },
+        secretAccessKey: { title: "Secret access key" },
+        testRequest: { title: "Test", helper: "Test whether the credentials are valid" },
+      },
+    },
+  },
 })
 export class VolcengineAccess extends BaseAccess {
   @AccessInput({
@@ -43,7 +54,11 @@ export class VolcengineAccess extends BaseAccess {
   testRequest = true;
 
   async onTestRequest() {
-    await this.getCallerIdentity();
+    const result = await this.getCallerIdentity();
+    this.ctx.logger.info("✅ 密钥有效！");
+    this.ctx.logger.info(`   账户ID: ${result.accountId}`);
+    this.ctx.logger.info(`   ARN: ${result.arn}`);
+    this.ctx.logger.info(`   用户ID: ${result.userId}`);
     return "ok";
   }
 
@@ -60,17 +75,17 @@ export class VolcengineAccess extends BaseAccess {
     });
 
     const result = res.Result || {};
-    this.ctx.logger.info("✅ 密钥有效！");
-    this.ctx.logger.info(`   账户ID: ${result.AccountId}`);
-    this.ctx.logger.info(`   ARN: ${result.Trn}`);
-    this.ctx.logger.info(`   用户ID: ${result.IdentityId}`);
-
     return {
       valid: true,
       accountId: result.AccountId,
       arn: result.Trn,
-      userId: result.IdentityId,
+      userId: parseInt(result.IdentityId),
     };
+  }
+
+  async getUserId() {
+    const { userId } = await this.getCallerIdentity();
+    return userId;
   }
 }
 

@@ -10,6 +10,193 @@ title: 证书申请（JS版）
 icon: ph:certificate
 group: cert
 desc: 免费通配符域名证书申请，支持多个域名打到同一个证书上
+i18n:
+  en-US:
+    title: Request Certificate (JS)
+    desc: >-
+      Request free wildcard certificates and include multiple domains in a
+      single certificate.
+    input:
+      version:
+        title: Version
+      domains:
+        title: Certificate Domains
+        component:
+          placeholder: >-
+            Enter certificate domains or IPs, e.g. foo.com, *.foo.com,
+            *.sub.foo.com, *.bar.com, 123.123.123.123
+        helper: >-
+          1. Multiple domains can be included in one certificate, e.g. foo.com,
+          *.foo.com, *.bar.com.
+
+          2. Do not include subdomains already covered by a wildcard, e.g.
+          www.foo.com is covered by *.foo.com.
+
+          3. A wildcard covers only one level: a certificate for *.foo.com does
+          not cover foo.com or xxx.yyy.foo.com.
+
+          4. Enter a domain, press Space, then enter the next one.
+
+          5. If delegated subdomain hosting is configured, [configure the
+          delegated subdomain first](#/certd/pipeline/subDomain).
+      renewDays:
+        title: Renewal Window (Days)
+        helper: >-
+          Renew the certificate when it expires within this many days. The
+          pipeline does not run automatically by default; schedule it to run
+          daily.
+      forceUpdate:
+        title: Force Renewal
+      challengeType:
+        title: Domain Validation Method
+        optionsMapping:
+          dns: Direct DNS Validation
+          dns-persist: Persistent DNS Validation
+          cname: CNAME Proxy Validation
+          http: HTTP File Validation (required for IP certificates)
+          dnses: Multiple DNS Providers
+          auto: Automatic Matching
+        helper: >-
+          1. Direct DNS: recommended when this system supports your DNS
+          provider.
+
+          2. Persistent DNS: configure an ACME account and a _validation-persist
+          TXT record first; currently supported only for Google certificates.
+
+          3. CNAME proxy: works with any registrar; add the CNAME record on
+          first use and keep it for renewals.
+
+          4. HTTP file: does not support wildcards and requires website file
+          upload; required for IP certificates.
+
+          5. Multiple DNS providers: configure a separate provider or validation
+          method for each domain.
+
+          6. Automatic matching: configure validation methods in Domain
+          Management before use.
+      dnsProviderType:
+        title: DNS Provider
+        helper: >-
+          Select the platform that hosts your domain's DNS. If it is not listed,
+          use CNAME proxy validation.
+      dnsProviderAccess:
+        title: DNS Provider Credentials
+        helper: Select credentials for the DNS provider.
+      domainsVerifyPlan:
+        title: Domain Validation Configuration
+        helper: >-
+          Configure validation records or upload settings for each domain
+          according to the selected validation method.
+      sslProvider:
+        title: Certificate Authority
+        helper: >-
+          Let's Encrypt: easiest to use.
+
+          Google: good compatibility; no proxy required.
+
+          SSL.com: free for the apex domain and www only; a CAA record is
+          required.
+
+          Custom ACME: configured by an administrator in System Settings >
+          Pipeline Settings.
+      googleCommonEabAccessId:
+        title: Google Shared EAB Credentials
+      googleCommonAcmeAccountAccessId:
+        title: Google Shared ACME Account
+      zerosslCommonEabAccessId:
+        title: ZeroSSL Shared EAB Credentials
+      zerosslCommonAcmeAccountAccessId:
+        title: ZeroSSL Shared ACME Account
+      sslcomCommonEabAccessId:
+        title: SSL.com Shared EAB Credentials
+      sslcomCommonAcmeAccountAccessId:
+        title: SSL.com Shared ACME Account
+      litesslCommonEabAccessId:
+        title: litessl Shared EAB Credentials
+      litesslCommonAcmeAccountAccessId:
+        title: litessl Shared ACME Account
+      eabAccessId:
+        title: EAB Credentials
+        helper: >-
+          Some certificate authorities require EAB credentials. See the provider
+          documentation to create them.
+      acmeAccountAccessId:
+        title: ACME Account
+        helper: >-
+          Generate an account locally without external registration: select Add,
+          enter an email, then generate the account.
+      googleAccessId:
+        title: Google Service Account
+        helper: >-
+          For Google, choose either service account credentials or EAB. See the
+          [setup guide](https://certd.docmirror.cn/guide/use/google/). A proxy
+          or an overseas server may be required.
+      privateKeyType:
+        title: Key Algorithm
+        optionsMapping:
+          rsa_2048_pkcs1: RSA 2048 PKCS#1 (Legacy)
+        helper: >-
+          Keep the default unless needed. RSA 2048 PKCS#1 produces a legacy RSA
+          certificate.
+      certProfile:
+        title: Certificate Profile
+        optionsMapping:
+          classic: Classic (classic)
+          tlsserver: TLS Server (tlsserver)
+          shortlived: Short-lived (shortlived)
+        helper: Keep the default unless needed.
+      preferredChain:
+        title: Preferred Certificate Chain
+        helper: Keep the default unless needed.
+      useProxy:
+        title: Use Proxy
+        helper: >-
+          Enable this if the Let's Encrypt or Google ACME endpoint is
+          inaccessible. The system tests connectivity and uses a proxy
+          automatically when needed.
+      reverseProxy:
+        title: Custom Reverse Proxy
+        helper: |-
+          Enter the proxy hostname without http://.
+          Let's Encrypt target: acme-v02.api.letsencrypt.org
+          Google target: dv.acme-v02.api.pki.goog
+      skipLocalVerify:
+        title: Skip Local DNS Validation
+        helper: >-
+          Skipping local validation may speed up requests but can increase the
+          chance of failure.
+      maxCheckRetryCount:
+        title: DNS Propagation Check Retries
+        helper: >-
+          Number of retries for checking validation records. Increase this if
+          your DNS provider propagates changes slowly.
+      waitDnsDiffuseTime:
+        title: DNS Propagation Wait (Seconds)
+        helper: >-
+          Wait for DNS changes to propagate. If local validation fails with
+          CNAME validation, try a longer delay such as 5–10 minutes.
+      certApplyRetryCount:
+        title: Certificate Request Retries
+        helper: >-
+          Wait 30 seconds before retrying a failed request. Set to 0 to disable
+          retries.
+      pfxPassword:
+        title: Certificate Encryption Password
+        helper: >-
+          Choose whether to encrypt PFX and JKS certificates. If omitted, PFX
+          uses an empty password and JKS uses 123456.
+      pfxArgs:
+        title: PFX Conversion Options
+        optionsMapping:
+          '': Latest Windows Server compatibility
+          '-macalg SHA1 -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES': Windows Server 2016 compatibility
+          '-nomac -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES': Windows Server 2008 compatibility
+        helper: Options for compatibility with different Windows Server versions.
+    output:
+      cert:
+        title: Domain Certificate
+      certMd5:
+        title: Certificate MD5
 input:
   domains:
     title: 证书域名
@@ -80,17 +267,17 @@ input:
     helper: >
       1. <b>DNS直接验证</b>：当域名dns解析已被本系统支持时（即下方DNS解析服务商选项中可选），推荐选择此方式
 
-      2. 
+      2.  <b>DNS持久验证</b>：需要先配置ACME账号和_validation-persist持久TXT记录，续期时不再增删DNS记录；当前仅
+      Google证书 可以申请
+
+      3. 
       <b>CNAME代理验证</b>：支持任何注册商的域名，第一次需要手动添加[CNAME记录](#/certd/cname/record)（如果经常申请失败，建议将DNS服务器修改为阿里云/腾讯云的，然后使用DNS直接验证）
 
-      3.  <b>HTTP文件验证</b>：不支持泛域名，需要配置网站文件上传（IP证书必须选它）
+      4.  <b>HTTP文件验证</b>：不支持泛域名，需要配置网站文件上传（IP证书必须选它）
 
-      4.  <b>多DNS提供商</b>：每个域名可以选择独立的DNS提供商
+      5.  <b>多DNS提供商</b>：每个域名可以选择独立的DNS提供商或校验方式
 
-      5.  <b>自动匹配</b>：此处无需选择校验方式，需要在[域名管理](#/certd/cert/domain)中提前配置好校验方式
-
-      6.  <b>DNS持久验证</b>：需要先配置ACME账号和_validation-persist持久TXT记录，续期时不再增删DNS记录；当前仅
-      Let's Encrypt 测试环境可以申请
+      6.  <b>自动匹配</b>：此处无需选择校验方式，需要在[域名管理](#/certd/cert/domain)中提前配置好校验方式
     order: 0
   dnsProviderType:
     title: DNS解析服务商
@@ -180,7 +367,7 @@ input:
                 }else if (form.challengeType === 'dnses'){
                     return '给每个域名单独配置dns提供商'
                 }else if (form.challengeType === 'dns-persist'){
-                    return '请先创建并校验_validation-persist TXT持久记录，校验成功后才能提交流水线；当前仅 Let\'s Encrypt 测试环境可以申请'
+                    return '请先创建并校验_validation-persist TXT持久记录，校验成功后才能提交流水线；当前仅 Let\'s Encrypt 测试环境 可以申请'
                 }
             })
           }
@@ -188,45 +375,40 @@ input:
     order: 0
   sslProvider:
     title: 证书颁发机构
-    value: letsencrypt
     component:
-      name: icon-select
+      name: remote-select
       vModel: value
-      options:
-        - value: letsencrypt
-          label: Let's Encrypt（免费，新手推荐，支持IP证书）
-          icon: simple-icons:letsencrypt
-        - value: google
-          label: Google（免费）
-          icon: flat-color-icons:google
-        - value: zerossl
-          label: ZeroSSL（免费）
-          icon: emojione:digit-zero
-        - value: litessl
-          label: litessl（免费）
-          icon: roentgen:free
-        - value: sslcom
-          label: SSL.com（仅主域名和www免费）
-          icon: la:expeditedssl
-        - value: letsencrypt_staging
-          label: Let's Encrypt测试环境（仅供测试）
-          icon: simple-icons:letsencrypt
+      mode: tags
+      type: plugin
+      typeName: CertApply
+      action: onSslProviderList
+      search: false
+      pager: false
+      single: true
+      watches:
+        - certDomains
+        - accessId
+    value: letsencrypt
+    required: true
     mergeScript: |-
       return {
-            component:{
-              onSelectedChange: ctx.compute(({form})=>{
-                return ($event)=>{
-                  form.acmeAccountAccessId = null
+              component:{
+                on: {
+                  "selectedChange": (scope)=>{
+                    // 切换颁发机构后，清空已选择的ACME账号，避免账号与颁发机构不匹配
+                    let form = scope.form || {};
+                    form = form.input || form.body || form;
+                    form.acmeAccountAccessId = null
+                  }
                 }
-              })
+              }
             }
-          }
-          
+            
     helper: |-
       Let's Encrypt：申请最简单
-      Google：大厂光环，兼容性好，仅首次需要翻墙获取EAB授权，无需翻墙
+      Google：大厂光环，兼容性好，无需配置翻墙代理
       SSL.com：仅主域名和www免费,必须设置CAA记录
-    required: true
+      自定义ACME：管理员可在「系统设置-流水线设置」中配置
     order: 0
   googleCommonEabAccessId:
     title: Google公共EAB授权
@@ -507,6 +689,17 @@ input:
       vModel: value
     maybeNeed: true
     helper: 等待解析生效时长（秒），如果使用CNAME方式校验，本地验证失败，可以尝试延长此时间（比如5-10分钟）
+    order: 0
+  certApplyRetryCount:
+    title: 证书申请失败重试次数
+    value: 1
+    component:
+      name: a-input-number
+      vModel: value
+      min: 0
+      step: 1
+    maybeNeed: true
+    helper: 证书申请失败后，等待30秒再自动重试；0表示不重试
     order: 0
   pfxPassword:
     title: 证书加密密码

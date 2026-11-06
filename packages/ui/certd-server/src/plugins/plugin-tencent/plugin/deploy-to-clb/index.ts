@@ -1,13 +1,45 @@
-import { AbstractTaskPlugin, IsTaskPlugin, pluginGroups, RunStrategy, TaskInput } from "@certd/pipeline";
+import { AbstractTaskPlugin, IsTaskPlugin, PageSearch, pluginGroups, RunStrategy, TaskInput } from "@certd/pipeline";
 import dayjs from "dayjs";
-import { TencentAccess } from "../../../plugin-lib/tencent/index.js";
+import { TencentAccess, TencentSslClient } from "../../../plugin-lib/tencent/index.js";
 import { CertApplyPluginNames, CertInfo } from "@certd/plugin-cert";
+import { CertReader, createRemoteSelectInputDefine } from "@certd/plugin-lib";
+
+const clbRegionOptions = [
+  // { value: "default", label: "就近地域接入（推荐，只支持非金融区）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-guangzhou", label: "华南地区（广州）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-shanghai", label: "华东地区（上海）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-nanjing", label: "华东地区（南京）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-beijing", label: "华北地区（北京）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-chengdu", label: "西南地区（成都）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-chongqing", label: "西南地区（重庆）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-hongkong", label: "港澳台地区（中国香港）", endpoint: "clb.tencentcloudapi.com" },
+  // 台北
+  { value: "ap-taipei", label: "台湾地区（中国台北）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-singapore", label: "亚太东南（新加坡）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-jakarta", label: "亚太东南（雅加达）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-bangkok", label: "亚太东南（曼谷）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-seoul", label: "亚太东北（首尔）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-tokyo", label: "亚太东北（东京）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "na-ashburn", label: "美国东部（弗吉尼亚）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "na-siliconvalley", label: "美国西部（硅谷）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "sa-saopaulo", label: "南美地区（圣保罗）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "eu-frankfurt", label: "欧洲地区（法兰克福）", endpoint: "clb.tencentcloudapi.com" },
+  { value: "ap-shanghai-fsi", label: "华东地区（上海金融）", endpoint: "clb.ap-shanghai-fsi.tencentcloudapi.com" },
+  { value: "ap-shenzhen-fsi", label: "华南地区（深圳金融）", endpoint: "clb.ap-shenzhen-fsi.tencentcloudapi.com" },
+];
+
 @IsTaskPlugin({
   name: "DeployCertToTencentCLB",
   title: "腾讯云-部署到CLB",
   icon: "svg:icon-tencentcloud",
   group: pluginGroups.tencent.key,
   desc: "暂时只支持单向认证证书，暂时只支持通用负载均衡",
+  i18n: {
+    "en-US": {
+      title: "Tencent-Deploy to CLB",
+      desc: "Deploy a certificate to Tencent Cloud CLB.",
+    },
+  },
   dependPlugins: {
     "access:tencent": "*",
   },
@@ -40,62 +72,56 @@ export class DeployCertToTencentCLB extends AbstractTaskPlugin {
   })
   accessId!: string;
 
-  @TaskInput({
-    title: "大区",
-    component: {
-      name: "a-auto-complete",
-      vModel: "value",
-      options: [
-        { value: "ap-guangzhou" },
-        { value: "ap-beijing" },
-        { value: "ap-chengdu" },
-        { value: "ap-chongqing" },
-        { value: "ap-hongkong" },
-        { value: "ap-jakarta" },
-        { value: "ap-mumbai" },
-        { value: "ap-nanjing" },
-        { value: "ap-seoul" },
-        { value: "ap-shanghai" },
-        { value: "ap-shanghai-fsi" },
-        { value: "ap-shenzhen-fsi" },
-        { value: "ap-singapore" },
-        { value: "ap-tokyo" },
-        { value: "eu-frankfurt" },
-        { value: "na-ashburn" },
-        { value: "na-siliconvalley" },
-        { value: "na-toronto" },
-        { value: "sa-saopaulo" },
-        { value: "ap-taipei" },
-      ],
-      helper: "如果列表中没有，您可以手动输入",
-    },
-    required: true,
-  })
+  @TaskInput(
+    createRemoteSelectInputDefine({
+      title: "大区",
+      helper: "请选择CLB地域",
+      action: DeployCertToTencentCLB.prototype.onGetRegionList.name,
+      single: true,
+      pager: false,
+      search: false,
+    })
+  )
   region!: string;
 
-  @TaskInput({
-    title: "负载均衡ID",
-    required: true,
-  })
+  @TaskInput(
+    createRemoteSelectInputDefine({
+      title: "负载均衡ID",
+      helper: "请选择要部署证书的负载均衡",
+      action: DeployCertToTencentCLB.prototype.onGetCLBList.name,
+      watches: ["region"],
+      single: true,
+      pager: false,
+      search: false,
+    })
+  )
   loadBalancerId!: string;
 
-  @TaskInput({
-    title: "监听器ID",
-    required: true,
-  })
+  @TaskInput(
+    createRemoteSelectInputDefine({
+      title: "监听器ID",
+      helper: "请选择要部署证书的HTTPS监听器",
+      action: DeployCertToTencentCLB.prototype.onGetListenerList.name,
+      watches: ["region", "loadBalancerId"],
+      single: true,
+      pager: false,
+      search: false,
+    })
+  )
   listenerId!: string;
 
-  @TaskInput({
-    title: "域名",
-    required: false,
-    component: {
-      name: "a-select",
-      vModel: "value",
-      open: false,
-      mode: "tags",
-    },
-    helper: "如果开启了sni，则此项必须填写，未开启，则不要填写",
-  })
+  @TaskInput(
+    createRemoteSelectInputDefine({
+      title: "域名",
+      helper: "如果开启了SNI，请选择要部署证书的域名；未开启SNI时可以留空",
+      action: DeployCertToTencentCLB.prototype.onGetDomainList.name,
+      watches: ["region", "loadBalancerId", "listenerId"],
+      required: false,
+      single: false,
+      pager: false,
+      search: false,
+    })
+  )
   domain!: string | string[];
 
   @TaskInput({
@@ -114,16 +140,17 @@ export class DeployCertToTencentCLB extends AbstractTaskPlugin {
 
     const accessProvider = (await this.getAccess(this.accessId)) as TencentAccess;
 
-    const region = this.region;
+    const regionOption = clbRegionOptions.find(item => item.value === this.region);
+    const endpoint = regionOption?.endpoint || "clb.tencentcloudapi.com";
     const clientConfig = {
       credential: {
         secretId: accessProvider.secretId,
         secretKey: accessProvider.secretKey,
       },
-      region: region,
+      region: this.region === "default" ? "" : this.region,
       profile: {
         httpProfile: {
-          endpoint: `clb.${accessProvider.intlDomain()}tencentcloudapi.com`,
+          endpoint: accessProvider.buildEndpoint(endpoint),
         },
       },
     };
@@ -131,18 +158,40 @@ export class DeployCertToTencentCLB extends AbstractTaskPlugin {
     return new ClbClient(clientConfig);
   }
 
+  async onGetRegionList(data: PageSearch) {
+    return clbRegionOptions;
+  }
+
   async execute(): Promise<void> {
     const client = this.client;
 
+    if (this.cert == null) {
+      throw new Error("证书不能为空");
+    }
+
+    const access = await this.getAccess<TencentAccess>(this.accessId);
+    let tencentCertId = this.cert as string;
+    if (typeof this.cert !== "string") {
+      const sslClient = new TencentSslClient({
+        access,
+        logger: this.logger,
+      });
+      const certReader = new CertReader(this.cert);
+      tencentCertId = await sslClient.uploadToTencent({
+        certName: certReader.buildCertName(),
+        cert: this.cert,
+      });
+    }
+
     if (!this.domain || this.domain.length === 0) {
-      await this.updateListener(client);
+      await this.updateListener(client, tencentCertId);
     } else {
       const domains = Array.isArray(this.domain) ? this.domain : [this.domain];
       for (const domain of domains) {
         this.logger.info(`开始更新域名证书:${domain},请确保已经开启了sni`);
         // const lastCertId = await this.getCertIdFromProps(client, domain);
 
-        await this.updateByDomainAttr(client, domain);
+        await this.updateByDomainAttr(client, domain, tencentCertId);
 
         // 不要做检查，相同的证书，不会生成新的证书id
         // const checkDeployed = async (wait = 5) => {
@@ -197,16 +246,16 @@ export class DeployCertToTencentCLB extends AbstractTaskPlugin {
     return certId;
   }
 
-  async updateListener(client: any) {
-    const params = this.buildProps();
+  async updateListener(client: any, tencentCertId: string) {
+    const params = this.buildProps(tencentCertId);
     const ret = await client.ModifyListener(params);
     this.checkRet(ret);
     this.logger.info("设置腾讯云CLB证书成功:", ret.RequestId, "->loadBalancerId:", this.loadBalancerId, "listenerId", this.listenerId);
     return ret;
   }
 
-  async updateByDomainAttr(client: any, domain) {
-    const params: any = this.buildProps();
+  async updateByDomainAttr(client: any, domain: any, tencentCertId: string) {
+    const params: any = this.buildProps(tencentCertId);
 
     params.Domain = domain;
     const ret = await client.ModifyDomainAttributes(params);
@@ -235,25 +284,11 @@ export class DeployCertToTencentCLB extends AbstractTaskPlugin {
     }
     return name + "-" + dayjs().format("YYYYMMDD-HHmmss");
   }
-  buildProps() {
-    const certId = this.cert as string;
-    const certInfo = this.cert as CertInfo;
-    if (typeof this.cert === "string") {
-      return {
-        Certificate: {
-          SSLMode: "UNIDIRECTIONAL", // 单向认证
-          CertId: certId,
-        },
-        LoadBalancerId: this.loadBalancerId,
-        ListenerId: this.listenerId,
-      };
-    }
+  buildProps(tencentCertId: string) {
     return {
       Certificate: {
         SSLMode: "UNIDIRECTIONAL", // 单向认证
-        CertName: this.appendTimeSuffix(this.certName || "certd"),
-        CertKey: certInfo.key,
-        CertContent: certInfo.crt,
+        CertId: tencentCertId,
       },
       LoadBalancerId: this.loadBalancerId,
       ListenerId: this.listenerId,
@@ -272,6 +307,27 @@ export class DeployCertToTencentCLB extends AbstractTaskPlugin {
     return ret.LoadBalancerSet;
   }
 
+  async onGetCLBList(data: PageSearch) {
+    if (!this.accessId) {
+      throw new Error("请选择Access提供者");
+    }
+
+    const client = await this.getClient();
+    const list = await this.getCLBList(client);
+    if (!list || list.length === 0) {
+      return [];
+    }
+
+    return list.map((item: any) => {
+      const loadBalancerId = item.LoadBalancerId;
+      const loadBalancerName = item.LoadBalancerName || loadBalancerId;
+      return {
+        value: loadBalancerId,
+        label: `${loadBalancerName}<${loadBalancerId}>`,
+      };
+    });
+  }
+
   async getListenerList(client: any, balancerId: any, listenerIds: any) {
     // HTTPS
     const params = {
@@ -282,6 +338,57 @@ export class DeployCertToTencentCLB extends AbstractTaskPlugin {
     const ret = await client.DescribeListeners(params);
     this.checkRet(ret);
     return ret.Listeners;
+  }
+
+  async onGetListenerList(data: PageSearch) {
+    if (!this.accessId) {
+      throw new Error("请选择Access提供者");
+    }
+    if (!this.loadBalancerId) {
+      throw new Error("请先选择负载均衡");
+    }
+
+    const client = await this.getClient();
+    const list = await this.getListenerList(client, this.loadBalancerId, null);
+    if (!list || list.length === 0) {
+      return [];
+    }
+
+    return list.map((item: any) => {
+      const listenerId = item.ListenerId;
+      const listenerName = item.ListenerName || "HTTPS监听器";
+      const port = item.Port ? `:${item.Port}` : "";
+      return {
+        value: listenerId,
+        label: `${listenerName}${port}<${listenerId}>`,
+      };
+    });
+  }
+
+  async onGetDomainList(data: PageSearch) {
+    if (!this.accessId) {
+      throw new Error("请选择Access提供者");
+    }
+    if (!this.loadBalancerId) {
+      throw new Error("请先选择负载均衡");
+    }
+    if (!this.listenerId) {
+      throw new Error("请先选择监听器");
+    }
+
+    const client = await this.getClient();
+    const listeners = await this.getListenerList(client, this.loadBalancerId, [this.listenerId]);
+    const listener = listeners?.[0];
+    const domains = listener?.Rules?.map((rule: any) => rule.Domain).filter(Boolean) || [];
+    const uniqueDomains = [...new Set(domains)];
+
+    return uniqueDomains.map(domain => {
+      return {
+        value: domain,
+        label: domain,
+        domain,
+      };
+    });
   }
 
   checkRet(ret: any) {

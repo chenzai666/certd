@@ -15,6 +15,18 @@ import { UniCloudClient } from "@certd/plugin-plus";
     },
   },
   needPlus: false,
+  i18n: {
+    "en-US": {
+      title: "Unicloud - Deploy to Space",
+      input: {
+        cert: { title: "Domain Certificate", helper: "Select the certificate output by a previous task." },
+        accessId: { title: "UniCloud Access", helper: "UniCloud access credentials." },
+        spaceId: { title: "Service Space ID", helper: "Enter the spaceId." },
+        provider: { title: "Space Provider", helper: "Select the space provider." },
+        domains: { title: "Space Domain", helper: "Select the space domain." },
+      },
+    },
+  },
 })
 export class UniCloudDeployToSpace extends AbstractTaskPlugin {
   //证书选择，此项必须要有
@@ -79,10 +91,11 @@ export class UniCloudDeployToSpace extends AbstractTaskPlugin {
   @TaskInput({
     title: "空间域名",
     component: {
-      name: "a-select",
+      name: "remote-select",
       vModel: "value",
       mode: "tags",
-      open: false,
+      action: "onGetDomainList",
+      watches: ["accessId", "spaceId", "provider"],
     },
     helper: "空间域名",
   })
@@ -104,8 +117,37 @@ export class UniCloudDeployToSpace extends AbstractTaskPlugin {
         spaceId: this.spaceId,
         cert: this.cert,
       });
+      await this.ctx.utils.sleep(2000);
     }
     this.logger.info("部署成功");
+  }
+
+  async onGetDomainList() {
+    if (!this.accessId) {
+      throw new Error("请选择uniCloud授权");
+    }
+    if (!this.spaceId) {
+      throw new Error("请填写服务空间ID");
+    }
+    if (!this.provider) {
+      throw new Error("请选择空间提供商");
+    }
+
+    const access = await this.getAccess<UniCloudAccess>(this.accessId);
+    const client = new UniCloudClient({
+      access,
+      logger: this.logger,
+      http: this.http,
+    });
+    const domains = await client.getDomainList({
+      provider: this.provider,
+      spaceId: this.spaceId,
+    });
+    return domains.map(item => ({
+      value: item.domain,
+      label: item.domain,
+      domain: item.domain,
+    }));
   }
 }
 new UniCloudDeployToSpace();

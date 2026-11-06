@@ -1,14 +1,14 @@
 ARG base_type=alpine
 
-FROM --platform=linux/amd64 node:22-alpine AS base-amd64-alpine
-FROM --platform=linux/arm64 node:22-alpine AS base-arm64-alpine
-FROM --platform=linux/arm/v7 node:22-alpine AS base-arm-v7-alpine
+FROM --platform=linux/amd64 node:22.23.4-alpine AS base-amd64-alpine
+FROM --platform=linux/arm64 node:22.23.4-alpine AS base-arm64-alpine
+FROM --platform=linux/arm/v7 node:22.23.4-alpine AS base-arm-v7-alpine
 
-FROM --platform=linux/amd64 node:22-trixie-slim AS base-amd64-slim
-FROM --platform=linux/arm64 node:22-trixie-slim AS base-arm64-slim
-FROM --platform=linux/arm/v7 node:22-alpine AS base-arm-v7-slim
+FROM --platform=linux/amd64 node:22.23.4-trixie-slim AS base-amd64-slim
+FROM --platform=linux/arm64 node:22.23.4-trixie-slim AS base-arm64-slim
+FROM --platform=linux/arm/v7 node:22.23.4-alpine AS base-arm-v7-slim
 
-FROM base-${TARGETARCH}${TARGETVARIANT:+-}${TARGETVARIANT}-${base_type} AS builder
+FROM base-${TARGETARCH}${TARGETVARIANT:+-}${TARGETVARIANT}-${base_type} AS build
 
 WORKDIR /workspace/
 COPY . /workspace/
@@ -44,6 +44,16 @@ RUN cd /workspace/packages/ui/certd-server && \
     pnpm run build-only && \
     node export-plugin-yaml.js docoff
 
+# CI 使用完整源码和构建产物执行测试；生产层继续从 builder 打包。
+FROM build AS verification
+WORKDIR /workspace
+RUN pnpm --filter @certd/basic run test:unit && \
+    pnpm --filter @certd/acme-client run test:unit && \
+    pnpm --filter @certd/pipeline run test:unit && \
+    pnpm --filter @certd/lib-server run test:unit && \
+    pnpm --filter @certd/ui-server run test:unit
+
+FROM build AS builder
 # 删除源码和开发工具，缩小最终镜像体积
 RUN find /workspace/packages -name "src" -type d \
         -not -path "*/node_modules/*" \
@@ -124,6 +134,9 @@ RUN ARCH=$(uname -m) && \
 ENV TZ=Asia/Shanghai
 ENV NODE_ENV=production
 ENV MIDWAY_SERVER_ENV=production
+
+# 新版插件首次使用时需要 pnpm 安装已配置的动态依赖。
+RUN npm install -g pnpm@10.33.4
 
 # 拷贝整个 workspace（包含 node_modules 和所有构建产物）
 COPY --from=builder /workspace/ /workspace/

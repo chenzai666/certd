@@ -1,18 +1,51 @@
 import { IsTaskPlugin, pluginGroups, RunStrategy, Step, TaskInput } from "@certd/pipeline";
-import { CertReader } from "@certd/plugin-lib";
+import type { CertReader } from "@certd/plugin-lib";
 import { CertApplyBasePlugin } from "../base.js";
-import fs from "fs";
-import { EabAccess } from "../../../access/index.js";
-import path from "path";
-import JSZip from "jszip";
 import { PrivateKeyType } from "./dns.js";
+import { EabAccess } from "../../../access/index.js";
 
 @IsTaskPlugin({
   name: "CertApplyLego",
   icon: "ph:certificate",
   title: "证书申请（Lego）",
   group: pluginGroups.cert.key,
+  deprecated: "暂时禁用此插件，请使用JS版证书插件生成证书",
   desc: "支持海量DNS解析提供商，推荐使用，一样的免费通配符域名证书申请，支持多个域名打到同一个证书上",
+  i18n: {
+    "en-US": {
+      title: "Request Certificate (Lego)",
+      desc: "Recommended. Supports a wide range of DNS providers and requests free wildcard certificates with multiple domains in one certificate.",
+      input: {
+        domains: {
+          title: "Certificate Domains",
+          component: { placeholder: "Enter certificate domains or IPs, e.g. foo.com, *.foo.com, *.sub.foo.com, *.bar.com, 123.123.123.123" },
+          helper:
+            "1. Multiple domains can be included in one certificate.\n2. Do not include subdomains already covered by a wildcard.\n3. A wildcard covers only one level.\n4. Enter a domain, press Space, then enter the next one.\n5. Configure delegated subdomain hosting before use if applicable.",
+        },
+        renewDays: { title: "Renewal Window (Days)" },
+        forceUpdate: { title: "Force Renewal" },
+        dnsType: { title: "DNS Provider Type", helper: "Select the provider that hosts your domain's DNS. See the [Lego DNS documentation](https://go-acme.github.io/lego/dns/) for the provider name and configuration." },
+        environment: { title: "Environment Variables", helper: "Enter one variable per line, for example appKeyId=xxxxx. See the [Lego DNS documentation](https://go-acme.github.io/lego/dns/) for required variables." },
+        legoEabAccessId: { title: "EAB Credentials", helper: "Select EAB credentials if required by your certificate authority." },
+        customArgs: { title: "Custom Lego Global Options", helper: "Additional Lego global command-line options. See the [Lego CLI documentation](https://go-acme.github.io/lego/usage/cli/options/)." },
+        customCommandOptions: { title: "Custom Lego Run Options", helper: "Additional options for the Lego run command. See the [Lego CLI documentation](https://go-acme.github.io/lego/usage/cli/options/)." },
+        privateKeyType: { title: "Key Algorithm", helper: "Keep the default unless needed." },
+        pfxPassword: { title: "Certificate Encryption Password", helper: "Choose whether to encrypt PFX and JKS certificates. If omitted, PFX uses an empty password and JKS uses 123456." },
+        pfxArgs: {
+          title: "PFX Conversion Options",
+          component: {
+            optionsMapping: {
+              "": "Latest Windows Server compatibility",
+              "-macalg SHA1 -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES": "Windows Server 2016 compatibility",
+              "-nomac -keypbe PBE-SHA1-3DES -certpbe PBE-SHA1-3DES": "Windows Server 2008 compatibility",
+            },
+          },
+          helper: "Options for compatibility with different Windows Server versions.",
+        },
+      },
+      output: { cert: { title: "Domain Certificate" }, certMd5: { title: "Certificate MD5" } },
+    },
+  },
   default: {
     input: {
       renewDays: 20,
@@ -136,109 +169,8 @@ export class CertApplyLegoPlugin extends CertApplyBasePlugin {
   }
   async onInit(): Promise<void> {}
 
-  async doCertApply() {
-    const env: any = {};
-    const env_lines = this.environment.split("\n");
-    for (const line of env_lines) {
-      const [key, value] = line.trim().split("=");
-      env[key] = value.trim();
-    }
-
-    let domainArgs = "";
-    for (const domain of this.domains) {
-      domainArgs += ` -d "${domain}"`;
-    }
-    this.logger.info(`环境变量:${JSON.stringify(env)}`);
-    let eabArgs = "";
-    if (this.eab) {
-      eabArgs = ` --eab --kid "${this.eab.kid}" --hmac "${this.eab.hmacKey}"`;
-    }
-    const keyType = `-k ${this.privateKeyType?.replaceAll("_", "")}`;
-
-    const saveDir = `./data/.lego/pipeline_${this.pipeline.id}/`;
-    const savePathArgs = `--path "${saveDir}"`;
-    const os_type = process.platform === "win32" ? "windows" : "linux";
-    const legoDir = "./tools/lego";
-    const legoPath = path.resolve(legoDir, os_type === "windows" ? "lego.exe" : "lego");
-    if (!fs.existsSync(legoPath)) {
-      //解压缩
-      const arch = process.arch;
-      let platform = "amd64";
-      if (arch === "arm64" || arch === "arm") {
-        platform = "arm64";
-      }
-      const LEGO_VERSION = process.env.LEGO_VERSION;
-      let legoZipFileName = `lego_v${LEGO_VERSION}_windows_${platform}.zip`;
-      if (os_type === "linux") {
-        legoZipFileName = `lego_v${LEGO_VERSION}_linux_${platform}.tar.gz`;
-      }
-      const legoZipFilePath = `${legoDir}/${legoZipFileName}`;
-      if (!fs.existsSync(legoZipFilePath)) {
-        this.logger.info(`lego文件不存在:${legoZipFilePath},准备下载`);
-        const downloadUrl = `https://github.com/go-acme/lego/releases/download/v${LEGO_VERSION}/${legoZipFileName}`;
-        await this.ctx.download(
-          {
-            url: downloadUrl,
-            method: "GET",
-            logRes: false,
-          },
-          legoZipFilePath
-        );
-        this.logger.info("下载lego成功");
-      }
-
-      if (os_type === "linux") {
-        //tar是否存在
-        await this.ctx.utils.sp.spawn({
-          cmd: `tar -zxvf ${legoZipFilePath} -C ${legoDir}/`,
-        });
-        await this.ctx.utils.sp.spawn({
-          cmd: `chmod +x ${legoDir}/*`,
-        });
-        this.logger.info("解压lego成功");
-      } else {
-        const zip = new JSZip();
-        const data = fs.readFileSync(legoZipFilePath);
-        const zipData = await zip.loadAsync(data);
-        const files = Object.keys(zipData.files);
-        for (const file of files) {
-          const content = await zipData.files[file].async("nodebuffer");
-          fs.writeFileSync(`${legoDir}/${file}`, content);
-        }
-        this.logger.info("解压lego成功");
-      }
-    }
-    let serverArgs = "";
-    if (this.acmeServer) {
-      serverArgs = ` --server ${this.acmeServer}`;
-    }
-    const cmds = [`${legoPath} -a --email "${this.email}" --dns ${this.dnsType} ${keyType} ${domainArgs} ${serverArgs} ${eabArgs} ${savePathArgs} ${this.customArgs || ""} run ${this.customCommandOptions || ""}`];
-
-    await this.ctx.utils.sp.spawn({
-      cmd: cmds,
-      logger: this.logger,
-      env,
-    });
-
-    //读取证书文件
-    // example.com.crt
-    // example.com.issuer.crt
-    // example.com.json
-    // example.com.key
-
-    let domain1 = this.domains[0];
-    domain1 = domain1.replaceAll("*", "_");
-    const crtPath = path.resolve(saveDir, "certificates", `${domain1}.crt`);
-    if (fs.existsSync(crtPath) === false) {
-      throw new Error(`证书文件不存在,证书申请失败:${crtPath}`);
-    }
-    const crt = fs.readFileSync(crtPath, "utf8");
-    const keyPath = path.resolve(saveDir, "certificates", `${domain1}.key`);
-    const key = fs.readFileSync(keyPath, "utf8");
-    const csr = "";
-    const cert = { crt, key, csr };
-    const certInfo = this.formatCerts(cert);
-    return new CertReader(certInfo);
+  async doCertApply(): Promise<CertReader> {
+    throw new Error("当前调用Lego存在命令注入风险，暂时禁用Lego插件，请使用JS版证书插件生成证书");
   }
 }
 

@@ -1,6 +1,5 @@
 import { AccessInput, BaseAccess, IsAccess } from "@certd/pipeline";
 import FormData from "form-data";
-import { authenticator } from "otplib";
 
 export interface ProxyHost {
   id: number;
@@ -34,6 +33,12 @@ interface TokenResponse {
   title: "Nginx Proxy Manager 授权",
   desc: "用于登录 Nginx Proxy Manager，并为代理主机证书部署提供授权。",
   icon: "logos:nginx",
+  i18n: {
+    "en-US": {
+      title: "NginxProxyManager Access",
+      desc: "Configure the NginxProxyManager Access integration.",
+    },
+  },
 })
 export class NginxProxyManagerAccess extends BaseAccess {
   @AccessInput({
@@ -274,6 +279,7 @@ export class NginxProxyManagerAccess extends BaseAccess {
 
     let code: string;
     try {
+      const { authenticator } = await this.importRuntime("otplib");
       code = authenticator.generate(this.totpSecret);
     } catch (error) {
       throw this.describeError(error, "Generating TOTP code");

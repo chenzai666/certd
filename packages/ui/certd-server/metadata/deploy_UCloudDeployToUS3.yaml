@@ -8,6 +8,10 @@ desc: 将证书部署到UCloud对象存储(US3)
 icon: svg:icon-ucloud
 group: ucloud
 needPlus: false
+i18n:
+  en-US:
+    title: Ucloud-Deploy to US3 Plugin
+    desc: Integration plugin for UCloudDeployToUS3
 input:
   cert:
     title: 域名证书
@@ -40,6 +44,33 @@ input:
       name: access-selector
       type: ucloud
     required: true
+    order: 0
+  region:
+    title: 地域
+    component:
+      name: remote-select
+      vModel: value
+      mode: tags
+      type: plugin
+      action: onGetRegionList
+      search: false
+      pager: false
+      single: true
+      watches:
+        - certDomains
+        - accessId
+    required: true
+    mergeScript: |2-
+
+                return {
+                  component:{
+                    form: ctx.compute(({form})=>{
+                      return form
+                    })
+                  },
+               }
+              
+    helper: 选择UCloud地域
     order: 0
   bucket:
     title: 存储桶

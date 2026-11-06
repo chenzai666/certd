@@ -2,10 +2,12 @@ import * as api from "/@/views/sys/plugin/api";
 import { dict, useFormWrapper } from "@fast-crud/fast-crud";
 import { useI18n } from "/@/locales";
 import { notification } from "ant-design-vue";
+import { usePluginStore } from "/@/store/plugin";
 
 export function usePluginImport() {
   const { openCrudFormDialog } = useFormWrapper();
   const { t } = useI18n();
+  const pluginStore = usePluginStore();
 
   async function openImportDialog(opts: any) {
     const { crudExpose } = opts;
@@ -14,7 +16,7 @@ export function usePluginImport() {
         crudOptions: {
           columns: {
             content: {
-              title: t("certd.pluginFile"),
+              title: t("certd.sys.plugin.pluginFile"),
               type: "text",
               form: {
                 component: {
@@ -27,21 +29,21 @@ export function usePluginImport() {
                 col: {
                   span: 24,
                 },
-                helper: t("certd.selectPluginFile"),
+                helper: t("certd.sys.plugin.selectPluginFile"),
               },
             },
             override: {
-              title: t("certd.overrideSameName"),
+              title: t("certd.sys.plugin.overrideSameName"),
               type: "dict-switch",
               dict: dict({
                 data: [
                   {
                     value: true,
-                    label: t("certd.override"),
+                    label: t("certd.sys.plugin.override"),
                   },
                   {
                     value: false,
-                    label: t("certd.noOverride"),
+                    label: t("certd.sys.plugin.noOverride"),
                   },
                 ],
               }),
@@ -50,22 +52,24 @@ export function usePluginImport() {
                 col: {
                   span: 24,
                 },
-                helper: t("certd.overrideHelper"),
+                helper: t("certd.sys.plugin.overrideHelper"),
               },
             },
           },
           form: {
             wrapper: {
-              title: t("certd.importPlugin"),
+              title: t("certd.sys.plugin.importPlugin"),
               saveRemind: false,
             },
             afterSubmit() {
-              notification.success({ message: t("certd.operationSuccess") });
+              notification.success({ message: t("certd.common.operationSuccess") });
               crudExpose.doRefresh();
+              pluginStore.clear();
             },
             async doSubmit({ form }: any) {
               return await api.ImportPlugin({
                 ...form,
+                type: "store",
               });
             },
           },

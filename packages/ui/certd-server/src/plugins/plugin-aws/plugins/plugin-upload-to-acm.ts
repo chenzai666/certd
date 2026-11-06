@@ -8,6 +8,12 @@ import { AwsRegions } from "../constants.js";
   name: "AwsUploadToACM",
   title: "AWS-上传证书到ACM",
   desc: "上传证书 AWS ACM",
+  i18n: {
+    "en-US": {
+      title: "AWS-Upload Certificate to ACM",
+      desc: "Upload a certificate to Amazon Certificate Manager.",
+    },
+  },
   icon: "svg:icon-aws",
   group: pluginGroups.aws.key,
   default: {
@@ -65,7 +71,7 @@ export class AwsUploadToACM extends AbstractTaskPlugin {
       region,
       logger: this.logger,
     });
-    this.awsCertARN = await acmClient.importCertificate(cert);
+    this.awsCertARN = await acmClient.withRetry(() => acmClient.importCertificate(cert));
     this.logger.info("证书上传成功,id=", this.awsCertARN);
   }
 }

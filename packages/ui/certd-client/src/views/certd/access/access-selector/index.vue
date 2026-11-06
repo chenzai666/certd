@@ -5,9 +5,9 @@
       <fs-icon class="cd-icon-button" icon="ion:close-circle-outline" @click="clear"></fs-icon>
     </span>
     <span v-else class="mlr-5 text-gray">{{ placeholder }}</span>
-    <a-button class="ml-5" :disabled="disabled" :size="size" @click="chooseForm.open">选择</a-button>
+    <a-button class="ml-5" :disabled="disabled" :size="size" @click="chooseForm.open">{{ t("certd.access.select") }}</a-button>
     <a-form-item-rest v-if="chooseForm.show">
-      <a-modal v-model:open="chooseForm.show" title="选择授权提供者" width="900px" @ok="chooseForm.ok">
+      <a-modal v-model:open="chooseForm.show" :title="t('certd.access.selectProvider')" width="900px" @ok="chooseForm.ok">
         <div style="height: 400px; position: relative">
           <cert-access-modal v-model="selectedId" :type="type" :subtype="subtype" :from="from"></cert-access-modal>
         </div>
@@ -17,12 +17,13 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, reactive, ref, watch, inject, onMounted } from "vue";
+import { defineComponent, reactive, ref, watch, inject, onMounted, Ref } from "vue";
 import CertAccessModal from "./access/index.vue";
 import { createAccessApi } from "../api";
-import { message } from "ant-design-vue";
+import { notification } from "ant-design-vue";
 import { useUserStore } from "/@/store/user";
 import { useProjectStore } from "/@/store/project";
+import { useI18n } from "/@/locales";
 export default defineComponent({
   name: "AccessSelector",
   components: { CertAccessModal },
@@ -62,11 +63,12 @@ export default defineComponent({
   },
   emits: ["update:modelValue", "change", "selectedChange"],
   setup(props, ctx) {
+    const { t } = useI18n();
     const api = createAccessApi(props.from);
 
-    const target = ref({});
+    const target: Ref<any> = ref({});
     const selectedId = ref();
-    async function refreshTarget(value) {
+    async function refreshTarget(value: any) {
       selectedId.value = value;
       if (value > 0) {
         target.value = await api.GetSimpleInfo(value);
@@ -83,19 +85,19 @@ export default defineComponent({
     const userStore = useUserStore();
     const projectStore = useProjectStore();
 
-    async function emitValue(value) {
+    async function emitValue(value: any) {
       const userId = userStore.userInfo.id;
       const isEnterprice = projectStore.isEnterprise;
       if (pipeline?.value) {
         if (isEnterprice) {
           const projectId = projectStore.currentProjectId;
           if (pipeline?.value?.projectId !== projectId) {
-            message.error(`对不起，您不能修改其他项目流水线的授权`);
+            notification.error({ message: `对不起，您不能修改其他项目流水线的授权` });
             return;
           }
         } else {
           if (pipeline?.value && pipeline.value.userId !== userId) {
-            message.error(`对不起，您不能修改他人流水线的授权`);
+            notification.error({ message: `对不起，您不能修改他人流水线的授权` });
             return;
           }
         }
@@ -132,7 +134,7 @@ export default defineComponent({
 
     const providerDefine = ref({});
 
-    async function refreshProviderDefine(type) {
+    async function refreshProviderDefine(type: any) {
       providerDefine.value = await api.GetProviderDefine(type);
     }
     watch(
@@ -162,43 +164,44 @@ export default defineComponent({
       },
     });
 
-    async function selectFirst(clearCurrent = false) {
-      if (!clearCurrent && props.modelValue) {
-        return;
-      }
-      const searchForm = projectStore.getSearchForm();
-      const query: any = {
-        query: {
-          type: props.type,
-          ...searchForm,
-        },
-        page: { page: 1, pageSize: 1 },
-        sort: { prop: "id", order: "ascending" },
-      };
-      if (props.subtype) {
-        query.query.subtype = props.subtype;
-      }
-      const res = await api.GetList(query);
-      const records = res?.records || [];
-      if (records.length > 0) {
-        await emitValue(records[0].id);
-      }
-    }
+    // async function selectFirst(clearCurrent = false) {
+    //   if (!clearCurrent && props.modelValue) {
+    //     return;
+    //   }
+    //   const searchForm = projectStore.getSearchForm();
+    //   const query: any = {
+    //     query: {
+    //       type: props.type,
+    //       ...searchForm,
+    //     },
+    //     page: { page: 1, pageSize: 1 },
+    //     sort: { prop: "id", order: "ascending" },
+    //   };
+    //   if (props.subtype) {
+    //     query.query.subtype = props.subtype;
+    //   }
+    //   const res = await api.GetList(query);
+    //   const records = res?.records || [];
+    //   if (records.length > 0) {
+    //     await emitValue(records[0].id);
+    //   }
+    // }
 
     onMounted(async () => {
-      if (!props.defaultSelect) {
-        return;
-      }
-      await selectFirst();
+      // if (!props.defaultSelect) {
+      //   return;
+      // }
+      // await selectFirst();
     });
 
     return {
+      t,
       clear,
       target,
       selectedId,
       providerDefine,
       chooseForm,
-      selectFirst,
+      // selectFirst,
     };
   },
 });

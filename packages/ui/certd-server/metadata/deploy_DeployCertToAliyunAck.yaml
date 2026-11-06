@@ -6,6 +6,10 @@ name: DeployCertToAliyunAck
 title: 阿里云-部署到Ack
 icon: svg:icon-aliyun
 desc: 部署到阿里云Ack集群Ingress等通过Secret管理证书的应用
+i18n:
+  en-US:
+    title: Aliyun-Deploy Certificate to ACK
+    desc: Deploy a certificate to Alibaba Cloud ACK.
 group: aliyun
 needPlus: false
 input:
@@ -130,6 +134,14 @@ input:
     component:
       name: a-switch
       vModel: checked
+    order: 0
+  debug:
+    title: 调试模式
+    value: false
+    component:
+      name: a-switch
+      vModel: checked
+    helper: 是否开启调试模式，开启后将打印更多日志
     order: 0
 output: {}
 pluginType: deploy

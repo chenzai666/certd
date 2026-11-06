@@ -6,7 +6,7 @@
         <a-tag class="mr-5" color="green">{{ target?.name || modelValue }}</a-tag>
         <fs-icon class="cd-icon-button" icon="ion:close-circle-outline" @click="clear"></fs-icon>
       </span>
-      <span v-else class="mlr-5 text-gray">{{ placeholder || t("certd.addonSelector.placeholder") }}</span>
+      <span v-else class="mlr-5 text-gray">{{ placeholder || t("certd.addon.addonSelector.placeholder") }}</span>
       <fs-table-select
         ref="tableSelectRef"
         class="flex-0"
@@ -32,7 +32,7 @@
         @dialog-closed="doRefresh"
       >
         <template #default="scope">
-          <fs-button class="ml-5" :disabled="disabled" :size="size" type="primary" :text="t('certd.addonSelector.select')" @click="scope.open" />
+          <fs-button class="ml-5" :disabled="disabled" :size="size" type="primary" :text="t('certd.addon.addonSelector.select')" @click="scope.open" />
         </template>
       </fs-table-select>
     </div>
@@ -42,7 +42,7 @@
 <script lang="tsx" setup>
 import { inject, ref, Ref, watch } from "vue";
 import { createAddonApi } from "../api";
-import { message } from "ant-design-vue";
+import { notification } from "ant-design-vue";
 import { dict } from "@fast-crud/fast-crud";
 import createCrudOptions from "../crud";
 import { addonProvide } from "../common";
@@ -137,12 +137,12 @@ async function emitValue(value: any) {
     if (isEnterprice) {
       const projectId = projectStore.currentProjectId;
       if (pipeline?.value?.projectId !== projectId) {
-        message.error(`对不起，您不能修改其他项目流水线的${props.addonType}设置`);
+        notification.error({ message: `对不起，您不能修改其他项目流水线的${props.addonType}设置` });
         return;
       }
     } else {
       if (pipeline?.value && pipeline.value.userId !== userId) {
-        message.error(`对不起，您不能修改他人流水线的${props.addonType}设置`);
+        notification.error({ message: `对不起，您不能修改他人流水线的${props.addonType}设置` });
         return;
       }
     }

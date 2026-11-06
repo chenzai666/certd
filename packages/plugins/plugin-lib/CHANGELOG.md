@@ -3,6 +3,92 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.46.0](https://github.com/certd/certd/compare/v1.45.6...v1.46.0) (2026-10-28)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.45.6](https://github.com/certd/certd/compare/v1.45.5...v1.45.6) (2026-10-28)
+
+### Bug Fixes
+
+* 修复子进程调用命令注入风险并重构spawn实现 ([0523c69](https://github.com/certd/certd/commit/0523c69451bb2418718390c334ee4b19180aa676))
+
+## [1.45.5](https://github.com/certd/certd/compare/v1.45.4...v1.45.5) (2026-10-22)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.45.4](https://github.com/certd/certd/compare/v1.45.3...v1.45.4) (2026-10-22)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.45.3](https://github.com/certd/certd/compare/v1.45.2...v1.45.3) (2026-10-19)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.45.2](https://github.com/certd/certd/compare/v1.45.1...v1.45.2) (2026-10-18)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.45.1](https://github.com/certd/certd/compare/v1.45.0...v1.45.1) (2026-10-14)
+
+### Performance Improvements
+
+* 多语言国际化优化，插件支持国际化配置 ([8f1b38a](https://github.com/certd/certd/commit/8f1b38ad7d445473ae71d537ad8e465f2e55ebc7))
+
+# [1.45.0](https://github.com/certd/certd/compare/v1.44.4...v1.45.0) (2026-10-02)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.44.4](https://github.com/certd/certd/compare/v1.44.3...v1.44.4) (2026-09-12)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.44.3](https://github.com/certd/certd/compare/v1.44.2...v1.44.3) (2026-09-06)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.44.2](https://github.com/certd/certd/compare/v1.44.1...v1.44.2) (2026-09-03)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.44.1](https://github.com/certd/certd/compare/v1.44.0...v1.44.1) (2026-09-02)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+# [1.44.0](https://github.com/certd/certd/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+### Bug Fixes
+
+* 修复证书申请时EAB判断逻辑，已选择Acme账号的情况下不需要EAB ([d87821e](https://github.com/certd/certd/commit/d87821ee02b17136fc925df4547223332bf22823))
+
+### Features
+
+* 新增证书吊销后置任务与证书状态管理 ([1cc9641](https://github.com/certd/certd/commit/1cc9641f5669710d1e5809995ad395c843855a12))
+
+# [1.43.0](https://github.com/certd/certd/compare/v1.42.6...v1.43.0) (2026-08-14)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.42.6](https://github.com/certd/certd/compare/v1.42.5...v1.42.6) (2026-07-18)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
+## [1.42.5](https://github.com/certd/certd/compare/v1.42.4...v1.42.5) (2026-07-15)
+
+### Bug Fixes
+
+* 修复上传到cos报runtimeDepsService未初始化的问题 ([167b303](https://github.com/certd/certd/commit/167b303faeca02cc11cf97e4be2a3df914852167))
+
+## [1.42.4](https://github.com/certd/certd/compare/v1.42.3...v1.42.4) (2026-07-11)
+
+### Bug Fixes
+
+* **pipeline:** 重构运行时依赖加载逻辑，修复火山引擎DNS解析报runtimeDepsService未初始化的bug ([ec69b8f](https://github.com/certd/certd/commit/ec69b8f11bfd4b20991aef74a72a47182ca79a9d))
+
+## [1.42.3](https://github.com/certd/certd/compare/v1.42.2...v1.42.3) (2026-07-08)
+
+**Note:** Version bump only for package @certd/plugin-lib
+
 ## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
 
 **Note:** Version bump only for package @certd/plugin-lib

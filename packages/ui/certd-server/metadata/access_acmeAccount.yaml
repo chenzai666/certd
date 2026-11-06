@@ -1,33 +1,86 @@
 name: acmeAccount
 title: ACME账号
 desc: 用于复用ACME账号私钥和账号地址，证书申请时不再临时创建账号
+i18n:
+  en-US:
+    title: ACME Account
+    desc: >-
+      Reuse an ACME account key and account URL instead of creating a temporary
+      account for each certificate request.
+    input:
+      caType:
+        title: Certificate Authority
+      email:
+        title: Email
+        helper: Enter a valid email address.
+      directoryUrl:
+        title: ACME Directory URL
+        helper: >-
+          For legacy custom ACME only. Manage custom ACME providers in Pipeline
+          Settings.
+      eabKid:
+        title: EAB KID
+        component:
+          placeholder: Required when creating an account with a CA that requires EAB
+        helper: >-
+          EAB credentials are required by some CAs.
+
+          ZeroSSL: Generate EAB credentials in the [ZeroSSL Developer
+          Center](https://app.zerossl.com/developer).
+
+          Google: See the [Google EAB
+          guide](https://certd.docmirror.cn/guide/use/google/).
+
+          SSL.com: Open Account > API Credentials and view the Secret Key and
+          HMAC Key.
+
+          litessl: Create an EAB on the [litessl EAB
+          page](https://freessl.cn/automation/eab-manager).
+      eabHmacKey:
+        title: EAB HMAC Key
+        component:
+          placeholder: Required when creating an account with a CA that requires EAB
+      account:
+        title: Generate ACME Account
+        component:
+          buttonText: Generate ACME Account
+          successMessage: ACME account generated. Save this access configuration.
+        helper: >-
+          Click the button on the right to generate an ACME account. A generated
+          account cannot be changed.
+      editAccount:
+        title: Edit ACME Account
+        helper: >-
+          Allow editing the ACME account. This may affect DNS persistent
+          validation records.
 icon: ph:certificate
 subtype: caType
 input:
   caType:
     title: 颁发机构
     component:
-      name: a-select
-      options:
-        - value: letsencrypt
-          label: Let's Encrypt
-        - value: letsencrypt_staging
-          label: Let's Encrypt测试环境
-        - value: google
-          label: Google
-        - value: zerossl
-          label: ZeroSSL
-        - value: litessl
-          label: litessl
-        - value: sslcom
-          label: SSL.com
+      name: remote-select
+      vModel: value
+      type: access
+      typeName: acmeAccount
+      action: onCaTypeList
+      single: true
+      mode: tags
+      emitImmediate: true
     required: true
     mergeScript: |2-
 
           return {
             component: {
-              disabled: ctx.compute(({form})=> !!form.access?.account)
-            }
+              disabled: ctx.compute(({form})=> !!form.access?.account),
+              on: {
+                "selected-change": (scope)=>{
+                  // 把选中颁发机构的 needEAB 同步到表单隐藏字段，用于控制 EAB 输入框显隐
+                  let form = scope.form || {};
+                  form.access._needEAB = scope.$event?.needEAB
+                }
+              }
+            },
           }
           
   email:
@@ -42,15 +95,15 @@ input:
 
           return {
             component: {
-              disabled: ctx.compute(({form})=> !!form.access?.account)
+              disabled: ctx.compute(({form})=> !!form.access?.account && !form.access?.editAccount)
             }
           }
           
   directoryUrl:
     title: ACME Directory URL
     component:
-      placeholder: 自定义ACME服务端点
-    helper: 自定义ACME时必填，其他颁发机构默认自动使用内置端点
+      placeholder: https://your-ca.example.com/directory
+    helper: 旧版自定义ACME使用，现已由系统「流水线设置」中的自定义ACME配置管理
     required: false
     mergeScript: |2-
 
@@ -68,7 +121,7 @@ input:
       ZeroSSL：请前往[zerossl开发者中心](https://app.zerossl.com/developer),生成 'EAB
       Credentials'
 
-      Google:请查看[google获取eab帮助文档](https://certd.docmirror.cn/guide/use/google/),用过一次后会绑定邮箱，后续复用EAB要用同一个邮箱
+      Google:请查看[google获取eab帮助文档](https://certd.docmirror.cn/guide/use/google/),需要你去翻墙得到EAB填到这里
 
       SSL.com:[SSL.com账号页面](https://secure.ssl.com/account),然后点击api
       credentials链接，然后点击编辑按钮，查看Secret key和HMAC key
@@ -80,11 +133,11 @@ input:
 
           return {
             show: ctx.compute(({form})=>{
-              const caType = form.access?.caType;
-              return ['google','zerossl','sslcom','litessl'].includes(caType);
+              // 按所选颁发机构的 needEAB 配置显隐（由 caType 的 onSelectedChange 同步到 _needEAB）
+              return form.access?._needEAB === true;
             }),
             component: {
-              disabled: ctx.compute(({form})=> !!form.access?.account)
+              disabled: ctx.compute(({form})=> !!form.access?.account && !form.access?.editAccount)
             }
           }
           
@@ -98,11 +151,11 @@ input:
 
           return {
             show: ctx.compute(({form})=>{
-              const caType = form.access?.caType;
-              return ['google','zerossl','sslcom','litessl'].includes(caType);
+              // 按所选颁发机构的 needEAB 配置显隐（由 caType 的 onSelectedChange 同步到 _needEAB）
+              return form.access?._needEAB === true;
             }),
             component: {
-              disabled: ctx.compute(({form})=> !!form.access?.account)
+              disabled: ctx.compute(({form})=> !!form.access?.account && !form.access?.editAccount)
             }
           }
           

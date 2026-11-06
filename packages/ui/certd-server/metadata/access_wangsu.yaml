@@ -2,26 +2,92 @@ name: wangsu
 title: 网宿授权
 desc: ''
 icon: svg:icon-wangsu
+i18n:
+  en-US:
+    title: Wangsu Access
+    desc: Wangsu IAM access.
 input:
+  authType:
+    title: 鉴权方式
+    value: aksk
+    component:
+      name: a-select
+      vModel: value
+      allowClear: false
+      options:
+        - label: AccessKey签名
+          value: aksk
+        - label: ApiKey（CDN Pro必须用这个）
+          value: apikey
+    helper: 网宿接口鉴权方式
+    required: false
   accessKeyId:
     title: accessKeyId
     component:
+      name: a-input
+      vModel: value
       placeholder: accessKeyId
-      component:
-        name: a-input
-        vModel: value
     helper: '[点击前往获取AccessKey](https://console.wangsu.com/account/accessKey?rsr=ws)'
     encrypt: false
     required: true
+    mergeScript: |2-
+
+          return {
+            show: ctx.compute(({form})=>{
+              return !form.access.authType || form.access.authType === 'aksk';
+            })
+          }
+          
   accessKeySecret:
     title: accessKeySecret
     component:
+      name: a-input
+      vModel: value
       placeholder: accessKeySecret
-      component:
-        name: a-input
-        vModel: value
     encrypt: true
     required: true
+    mergeScript: |2-
+
+          return {
+            show: ctx.compute(({form})=>{
+              return !form.access.authType || form.access.authType === 'aksk';
+            })
+          }
+          
+  apiUser:
+    title: API账号名
+    component:
+      name: a-input
+      vModel: value
+      placeholder: API账号名
+    helper: 控制台里的 API 账号名，与 API Key 配套使用
+    encrypt: false
+    required: false
+    mergeScript: |2-
+
+          return {
+            show: ctx.compute(({form})=>{
+              return form.access.authType === 'apikey';
+            })
+          }
+          
+  apiKey:
+    title: API Key
+    component:
+      name: a-input
+      vModel: value
+      placeholder: API Key
+    helper: 控制台里的 API Key，[点击前往获取](https://console.wangsu.com/account/apiManage)
+    encrypt: true
+    required: false
+    mergeScript: |2-
+
+          return {
+            show: ctx.compute(({form})=>{
+              return form.access.authType === 'apikey';
+            })
+          }
+          
   testRequest:
     title: 测试
     component:

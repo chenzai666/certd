@@ -9,7 +9,8 @@ import { ApiTags } from "@midwayjs/swagger";
 
 export type CertGetReq = {
   domains?: string;
-  certId: number;
+  certId?: number;
+  pipelineId?: number;
   autoApply?: boolean;
   autoApplyTemplateId?: number;
   autoApplyParams?: Record<string, any> | string;
@@ -44,11 +45,13 @@ export class OpenCertController extends BaseOpenController {
       userId,
       domains: req.domains,
       certId: req.certId,
+      pipelineId: req.pipelineId,
       autoApply: req.autoApply ?? false,
       autoApplyTemplateId: req.autoApplyTemplateId,
       autoApplyParams: typeof req.autoApplyParams === "string" ? JSON.parse(req.autoApplyParams) : req.autoApplyParams,
       format: req.format,
       projectId,
+      returnCertPassword: openKey.returnCertPassword,
     });
     return this.ok(res);
   }

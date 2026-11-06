@@ -3,6 +3,86 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.46.0](https://github.com/certd/certd/compare/v1.45.6...v1.46.0) (2026-10-28)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.45.6](https://github.com/certd/certd/compare/v1.45.5...v1.45.6) (2026-10-28)
+
+### Bug Fixes
+
+* 修复子进程调用命令注入风险并重构spawn实现 ([0523c69](https://github.com/certd/certd/commit/0523c69451bb2418718390c334ee4b19180aa676))
+
+## [1.45.5](https://github.com/certd/certd/compare/v1.45.4...v1.45.5) (2026-10-22)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.45.4](https://github.com/certd/certd/compare/v1.45.3...v1.45.4) (2026-10-22)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.45.3](https://github.com/certd/certd/compare/v1.45.2...v1.45.3) (2026-10-19)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.45.2](https://github.com/certd/certd/compare/v1.45.1...v1.45.2) (2026-10-18)
+
+### Performance Improvements
+
+* 支持ikuai部署证书 ([5f83693](https://github.com/certd/certd/commit/5f83693423ec5ccd08d7bb03e4fb8315dbb8b931))
+
+## [1.45.1](https://github.com/certd/certd/compare/v1.45.0...v1.45.1) (2026-10-14)
+
+**Note:** Version bump only for package @certd/basic
+
+# [1.45.0](https://github.com/certd/certd/compare/v1.44.4...v1.45.0) (2026-10-02)
+
+### Bug Fixes
+
+* **webhook:** 修复模版转义换行符，避免手动上传的证书报错 ([2735feb](https://github.com/certd/certd/commit/2735feb3302f8308708dafc8b295adcd4b91d7f0))
+
+## [1.44.4](https://github.com/certd/certd/compare/v1.44.3...v1.44.4) (2026-09-12)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.44.3](https://github.com/certd/certd/compare/v1.44.2...v1.44.3) (2026-09-06)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.44.2](https://github.com/certd/certd/compare/v1.44.1...v1.44.2) (2026-09-03)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.44.1](https://github.com/certd/certd/compare/v1.44.0...v1.44.1) (2026-09-02)
+
+**Note:** Version bump only for package @certd/basic
+
+# [1.44.0](https://github.com/certd/certd/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+### Features
+
+* 新增证书吊销后置任务与证书状态管理 ([1cc9641](https://github.com/certd/certd/commit/1cc9641f5669710d1e5809995ad395c843855a12))
+
+# [1.43.0](https://github.com/certd/certd/compare/v1.42.6...v1.43.0) (2026-08-14)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.42.6](https://github.com/certd/certd/compare/v1.42.5...v1.42.6) (2026-07-18)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.42.5](https://github.com/certd/certd/compare/v1.42.4...v1.42.5) (2026-07-15)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.42.4](https://github.com/certd/certd/compare/v1.42.3...v1.42.4) (2026-07-11)
+
+**Note:** Version bump only for package @certd/basic
+
+## [1.42.3](https://github.com/certd/certd/compare/v1.42.2...v1.42.3) (2026-07-08)
+
+**Note:** Version bump only for package @certd/basic
+
 ## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
 
 **Note:** Version bump only for package @certd/basic

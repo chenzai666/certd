@@ -1,44 +1,44 @@
 <template>
-  <a-modal v-model:open="openRef" class="order-modal" :title="$t('certd.order.confirmTitle')" :width="670" @ok="orderCreate">
+  <a-modal v-model:open="openRef" class="order-modal" :title="$t('certd.suite.order.confirmTitle')" :width="670" @ok="orderCreate">
     <div v-if="product" class="order-box">
       <div class="flex-o mt-5">
-        <span class="label">{{ $t("certd.order.package") }}：</span>{{ product.title }}
+        <span class="label">{{ $t("certd.suite.order.package") }}：</span>{{ product.title }}
       </div>
       <div v-if="product.intro" class="flex-o mt-5">
-        <span class="label">{{ $t("certd.order.description") }}：</span>{{ product.intro }}
+        <span class="label">{{ $t("certd.suite.order.description") }}：</span>{{ product.intro }}
       </div>
       <div class="order-spec-row mt-5">
-        <span class="label">{{ $t("certd.order.specifications") }}：</span>
+        <span class="label">{{ $t("certd.suite.order.specifications") }}：</span>
         <div class="spec-grid">
           <div class="spec-item">
-            <div class="spec-name">{{ $t("certd.order.totalDomain") }}</div>
-            <suite-value :model-value="product.content.maxDomainCount" :unit="$t('certd.order.unit.count')" />
+            <div class="spec-name">{{ $t("certd.suite.order.totalDomain") }}</div>
+            <suite-value :model-value="product.content.maxDomainCount" :unit="$t('certd.suite.order.unit.count')" />
           </div>
           <div class="spec-item">
-            <div class="spec-name">{{ $t("certd.order.includedWildcardDomain") }}</div>
-            <suite-value :model-value="product.content.maxWildcardDomainCount" :unit="$t('certd.order.unit.count')" />
+            <div class="spec-name">{{ $t("certd.suite.order.includedWildcardDomain") }}</div>
+            <suite-value :model-value="product.content.maxWildcardDomainCount" :unit="$t('certd.suite.order.unit.count')" />
           </div>
           <div class="spec-item">
-            <div class="spec-name">{{ $t("certd.order.pipeline") }}</div>
-            <suite-value :model-value="product.content.maxPipelineCount" :unit="$t('certd.order.unit.pieces')" />
+            <div class="spec-name">{{ $t("certd.suite.order.pipeline") }}</div>
+            <suite-value :model-value="product.content.maxPipelineCount" :unit="$t('certd.suite.order.unit.pieces')" />
           </div>
           <div class="spec-item">
-            <div class="spec-name">{{ $t("certd.order.deployTimes") }}</div>
-            <suite-value :model-value="product.content.maxDeployCount" :unit="$t('certd.order.unit.times')" />
+            <div class="spec-name">{{ $t("certd.suite.order.deployTimes") }}</div>
+            <suite-value :model-value="product.content.maxDeployCount" :unit="$t('certd.suite.order.unit.times')" />
           </div>
           <div class="spec-item">
-            <div class="spec-name">{{ $t("certd.order.monitorCount") }}</div>
-            <suite-value :model-value="product.content.maxMonitorCount" :unit="$t('certd.order.unit.times')" />
+            <div class="spec-name">{{ $t("certd.suite.order.monitorCount") }}</div>
+            <suite-value :model-value="product.content.maxMonitorCount" :unit="$t('certd.suite.order.unit.times')" />
           </div>
         </div>
       </div>
 
       <div class="flex-o mt-5">
-        <span class="label">{{ $t("certd.order.duration") }}：</span>
+        <span class="label">{{ $t("certd.suite.order.duration") }}：</span>
         <duration-value v-model="formRef.duration"></duration-value>
       </div>
       <div class="flex-o mt-5">
-        <span class="label">{{ $t("certd.order.price") }}：</span>
+        <span class="label">{{ $t("certd.suite.order.price") }}：</span>
         <price-input :edit="false" :model-value="durationSelected.price" zero-text="0元"></price-input>
       </div>
       <div v-if="durationSelected.price > 0 && wallet.availableAmount > 0" class="flex-o mt-5">
@@ -52,9 +52,14 @@
       </div>
 
       <div class="flex-o mt-5">
-        <span class="label">{{ $t("certd.order.paymentMethod") }}：</span>
-        <div v-if="durationSelected.price === 0 || expectedThirdPartyAmount === 0">{{ $t("certd.order.free") }}</div>
+        <span class="label">{{ $t("certd.suite.order.paymentMethod") }}：</span>
+        <div v-if="durationSelected.price === 0 || expectedThirdPartyAmount === 0">0元</div>
+        <div v-else-if="noPaymentMethod">当前仅支持余额支付</div>
         <fs-dict-select v-else v-model:value="formRef.payType" :dict="paymentsDictRef" style="width: 200px"> </fs-dict-select>
+      </div>
+
+      <div v-if="showBalanceInsufficientTip" class="flex-o mt-5">
+        <span class="color-red">余额不足，请联系管理员，充值或设置套餐</span>
       </div>
     </div>
   </a-modal>
@@ -62,6 +67,7 @@
 
 <script setup lang="tsx">
 import { computed, ref } from "vue";
+import { useI18n } from "vue-i18n";
 import { GetPaymentTypes, OrderModalOpenReq, TradeCreate } from "/@/views/certd/suite/api";
 import SuiteValue from "/@/views/sys/suite/product/suite-value.vue";
 import PriceInput from "/@/views/sys/suite/product/price-input.vue";
@@ -79,6 +85,7 @@ const product = ref<any>(null);
 const formRef = ref<any>({});
 const durationSelected = ref<any>(null);
 const wallet = ref<any>({ availableAmount: 0 });
+const { t } = useI18n();
 async function open(opts: OrderModalOpenReq) {
   openRef.value = true;
 
@@ -88,11 +95,16 @@ async function open(opts: OrderModalOpenReq) {
   formRef.value.productId = opts.product.id;
   formRef.value.duration = opts.duration;
   formRef.value.num = opts.num ?? 1;
-  formRef.value.useRebateBalance = false;
+  formRef.value.useRebateBalance = true;
   try {
     wallet.value = await GetWalletSummary();
   } catch (e) {
     wallet.value = { availableAmount: 0 };
+  }
+  try {
+    await paymentsDictRef.loadDict();
+  } catch (e) {
+    // 支付方式加载失败时按无可用支付方式处理
   }
 }
 const paymentsDictRef = dict({
@@ -119,6 +131,23 @@ const expectedThirdPartyAmount = computed(() => {
   return Math.max(0, (durationSelected.value?.price || 0) - expectedRebateAmount.value);
 });
 
+const noPaymentMethod = computed(() => {
+  return paymentsDictRef.data.length === 0;
+});
+
+const balanceInsufficient = computed(() => {
+  const price = durationSelected.value?.price || 0;
+  if (price <= 0) {
+    return false;
+  }
+  const availableAmount = wallet.value?.availableAmount || 0;
+  return availableAmount < price;
+});
+
+const showBalanceInsufficientTip = computed(() => {
+  return noPaymentMethod.value && balanceInsufficient.value;
+});
+
 function amountToYuan(amount: number) {
   return util.amount.toYuan(amount || 0);
 }
@@ -133,7 +162,7 @@ async function orderCreate() {
       payType: "free",
     });
     notification.success({
-      message: "套餐购买成功",
+      message: t("certd.suite.purchaseSuccess"),
     });
     openRef.value = false;
     return;
@@ -155,7 +184,7 @@ async function orderCreate() {
 
   if (paymentReq.paid) {
     notification.success({
-      message: "套餐购买成功",
+      message: t("certd.suite.purchaseSuccess"),
     });
     openRef.value = false;
     return;

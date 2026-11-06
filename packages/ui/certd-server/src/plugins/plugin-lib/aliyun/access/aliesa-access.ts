@@ -6,6 +6,7 @@ import { AliyunAccess } from "./aliyun-access.js";
   name: "aliesa",
   title: "阿里云ESA授权",
   desc: "",
+  i18n: { "en-US": { title: "Aliesa Access", desc: "Configure Aliesa access credentials." } },
   icon: "ant-design:aliyun-outlined",
   order: 0,
 })
@@ -62,7 +63,8 @@ export class AliesaAccess extends BaseAccess {
   }
 
   async getEsaClient() {
-    const access: AliesaAccess = this;
+    // @ts-ignore
+    const access: AliesaAccess = this as any;
     const aliAccess = (await this.ctx.accessService.getById(access.accessId)) as AliyunAccess;
     const endpoint = `esa.${access.region}.aliyuncs.com`;
     return aliAccess.getClient(endpoint);

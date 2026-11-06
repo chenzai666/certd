@@ -1,27 +1,27 @@
 <template>
   <fs-page v-if="pipeline" class="page-pipeline-edit">
     <template #header>
-      <div class="title flex-0">
+      <div class="title flex-1">
         <fs-button class="back" icon="ion:chevron-back-outline" @click="goBack"></fs-button>
         <text-editable v-model="pipeline.title" :hover-show="false" :disabled="!editMode"></text-editable>
       </div>
-      <div class="more flex items-center flex-1 justify-end">
+      <div class="more flex items-center flex-1 md:flex-[2_2_0%] justify-end">
         <div v-if="isCert && pipelineDetail.lastVars?.certExpiresTime" class="flex items-center hidden md:block">
           <a-tag :color="pipelineDetail.lastVars?.certExpiresTime > Date.now() ? 'green' : 'red'">
             <span class="flex">
               <fs-icon icon="ion:time-outline"></fs-icon>
               <span v-if="pipelineDetail.lastVars?.certExpiresTime > Date.now()">
-                证书过期时间：<FsTimeHumanize :model-value="pipelineDetail.lastVars?.certExpiresTime" :options="{ units: ['d'] }" format="YYYY-MM-DD"></FsTimeHumanize>
+                {{ t("certd.pipeline.editor.certExpireTime") }}<FsTimeHumanize :model-value="pipelineDetail.lastVars?.certExpiresTime" :options="{ units: ['d'] }" format="YYYY-MM-DD"></FsTimeHumanize>
               </span>
-              <span v-else> 证书已过期 <FsTimeHumanize :model-value="pipelineDetail.lastVars?.certExpiresTime" :options="{ units: ['d'] }" format="YYYY-MM-DD"></FsTimeHumanize></span>
+              <span v-else> {{ t("certd.pipeline.editor.certExpired") }} <FsTimeHumanize :model-value="pipelineDetail.lastVars?.certExpiresTime" :options="{ units: ['d'] }" format="YYYY-MM-DD"></FsTimeHumanize></span>
             </span>
           </a-tag>
 
-          <a-tag class="mr-5 pointer" color="green" type="primary" text="查看证书" @click="viewCert(pipeline.id)">
-            <span class="flex"><fs-icon icon="ant-design:eye-outlined"></fs-icon> 查看证书</span>
+          <a-tag class="mr-5 pointer" color="green" type="primary" :text="t('certd.pipeline.editor.viewCertificate')" @click="viewCert(pipeline.id)">
+            <span class="flex"><fs-icon icon="ant-design:eye-outlined"></fs-icon> {{ t("certd.pipeline.editor.viewCertificate") }}</span>
           </a-tag>
-          <a-tag class="mr-5 pointer" color="green" type="primary" text="下载证书" @click="downloadCert(pipeline.id)">
-            <span class="flex"> <fs-icon icon="ant-design:download-outlined"></fs-icon> 下载证书 </span>
+          <a-tag class="mr-5 pointer" color="green" type="primary" :text="t('certd.pipeline.editor.downloadCertificate')" @click="downloadCert(pipeline.id)">
+            <span class="flex"> <fs-icon icon="ant-design:download-outlined"></fs-icon> {{ t("certd.pipeline.editor.downloadCertificate") }} </span>
           </a-tag>
         </div>
 
@@ -29,30 +29,32 @@
           <a-tag v-if="nextTriggerTimes" color="blue">
             <span class="flex">
               <fs-icon icon="ion:time-outline"></fs-icon>
-              下次执行时间：{{ nextTriggerTimes }}
+              {{ t("certd.pipeline.editor.nextExecutionTime") }}{{ nextTriggerTimes }}
             </span>
           </a-tag>
           <a-tag v-else-if="nextTriggerTimes === false" color="red">
             <span class="flex">
               <fs-icon icon="ion:caret-forward-circle-outline"></fs-icon>
-              未设置触发源，不会自动执行
+              {{ t("certd.pipeline.editor.noTriggerSource") }}
             </span>
           </a-tag>
           <a-tag v-if="pipelineDetail.validTime > 0 && settingStore.sysPublic.pipelineValidTimeEnabled && settingStore.isPlus" :color="pipelineDetail.validTime > Date.now() ? 'green' : 'red'">
             <span class="flex">
               <fs-icon icon="ion:time-outline"></fs-icon>
-              <span v-if="pipelineDetail.validTime > Date.now()"> 有效期：<FsTimeHumanize :model-value="pipelineDetail.validTime" :options="{ units: ['d'] }" format="YYYY-MM-DD"></FsTimeHumanize> </span>
-              <span v-else> 已过期 </span>
+              <span v-if="pipelineDetail.validTime > Date.now()">
+                {{ t("certd.pipeline.editor.validityPeriod") }}<FsTimeHumanize :model-value="pipelineDetail.validTime" :options="{ units: ['d'] }" format="YYYY-MM-DD"></FsTimeHumanize>
+              </span>
+              <span v-else> {{ t("certd.pipeline.hasExpired") }} </span>
             </span>
           </a-tag>
         </div>
         <div v-if="hasActionPermission('write')" class="basis-40 flex justify-end mr-10">
           <template v-if="editMode">
-            <fs-button type="primary" :loading="saveLoading" @click="save">保存</fs-button>
-            <fs-button class="ml-5" @click="cancel">取消</fs-button>
+            <fs-button type="primary" :loading="saveLoading" @click="save">{{ t("certd.pipeline.editor.save") }}</fs-button>
+            <fs-button class="ml-5" @click="cancel">{{ t("certd.pipeline.editor.cancel") }}</fs-button>
           </template>
           <template v-else>
-            <fs-button icon="ant-design:edit-outlined" type="primary" @click="edit">编辑</fs-button>
+            <fs-button icon="ant-design:edit-outlined" type="primary" @click="edit">{{ t("certd.pipeline.actions.editPipeline") }}</fs-button>
           </template>
         </div>
       </div>
@@ -66,7 +68,7 @@
               <template #header>
                 <div class="stage first-stage">
                   <div class="title">
-                    <text-editable model-value="触发源" :disabled="true" />
+                    <text-editable :model-value="t('certd.pipeline.editor.triggerSource')" :disabled="true" />
                   </div>
                   <div class="tasks">
                     <div class="task-container first-task">
@@ -76,7 +78,7 @@
                       <div class="task">
                         <a-button shape="round" type="primary" @click="run()">
                           <fs-icon icon="ion:play"></fs-icon>
-                          手动触发
+                          {{ t("certd.pipeline.editor.triggerManually") }}
                         </a-button>
                       </div>
                     </div>
@@ -99,7 +101,7 @@
                       <div class="task">
                         <a-button shape="round" type="dashed" @click="triggerAdd">
                           <fs-icon icon="ion:add-circle-outline"></fs-icon>
-                          触发源（定时）
+                          {{ t("certd.pipeline.editor.scheduledTrigger") }}
                         </a-button>
                       </div>
                     </div>
@@ -110,7 +112,7 @@
                       <div class="task">
                         <a-button shape="round" type="dashed" @click="triggerAdd('webhook')">
                           <fs-icon icon="ion:add-circle-outline"></fs-icon>
-                          触发源（Webhook）
+                          {{ t("certd.pipeline.editor.webhookTrigger") }}
                         </a-button>
                       </div>
                     </div>
@@ -119,11 +121,52 @@
               </template>
 
               <template #item="{ element: stage, index }">
-                <div :key="stage.id" class="stage" :class="{ 'last-stage': isLastStage(index), ['stage_' + index]: true }">
+                <div :key="stage.id" class="stage" :class="{ 'last-stage': isLastStage(index), ['stage_' + index]: true }" :style="getStageStyle(stage)">
                   <div class="title" @mousedown.stop>
-                    <text-editable v-model="stage.title" :disabled="!editMode"></text-editable>
+                    <template v-if="isStageBatchEditing(stage.id)">
+                      <div class="stage-batch-actions">
+                        <a-tooltip :title="t('certd.pipeline.editor.selectAllTasks')">
+                          <a-checkbox
+                            :aria-label="`全选${stage.title}中的任务`"
+                            :checked="isAllTasksSelected(stage)"
+                            :indeterminate="isTasksSelectionIndeterminate(stage)"
+                            @click.stop
+                            @change="toggleAllTasks(stage, $event.target.checked)"
+                          />
+                        </a-tooltip>
+                        <!-- <a-tag v-if="getSelectedTaskCount(stage) > 0" color="blue">{{ getSelectedTaskCount(stage) }}</a-tag> -->
+                        <a-tooltip :title="t('certd.pipeline.editor.batchEnableTasks')">
+                          <a-button type="text" size="small" :disabled="getSelectedTaskCount(stage) === 0" @click="batchEnableTasks(stage)">
+                            <fs-icon :class="{ 'text-green-600': getSelectedTaskCount(stage) !== 0 }" icon="ion:power-outline"></fs-icon>
+                          </a-button>
+                        </a-tooltip>
+                        <a-tooltip :title="t('certd.pipeline.editor.batchDisableTasks')">
+                          <a-button type="text" size="small" :disabled="getSelectedTaskCount(stage) === 0" @click="batchDisableTasks(stage)">
+                            <fs-icon icon="ion:stop-circle-outline"></fs-icon>
+                          </a-button>
+                        </a-tooltip>
+                        <a-tooltip :title="t('certd.pipeline.editor.batchDeleteTasks')">
+                          <a-button danger type="text" size="small" :disabled="getSelectedTaskCount(stage) === 0" @click="batchDeleteTasks(stage)">
+                            <fs-icon icon="ion:trash-outline"></fs-icon>
+                          </a-button>
+                        </a-tooltip>
+                        <a-tooltip :title="t('certd.pipeline.editor.exitBatchEditTasks')">
+                          <a-button type="text" size="small" @click="setStageBatchEditing(stage, false)">
+                            <fs-icon icon="ion:close-outline"></fs-icon>
+                          </a-button>
+                        </a-tooltip>
+                      </div>
+                    </template>
+                    <template v-else>
+                      <text-editable v-model="stage.title" :disabled="!editMode" :title="t('certd.pipeline.editor.editStageTitle')"></text-editable>
+                      <a-tooltip v-if="editMode && stage.tasks.length > 0" :title="t('certd.pipeline.editor.batchEditTasks')">
+                        <a-button type="text" size="small" class="stage-batch-edit-button need-plus" @click="setStageBatchEditing(stage, true)">
+                          <fs-icon icon="tdesign:ai-edit-1"></fs-icon>
+                        </a-button>
+                      </a-tooltip>
+                    </template>
                     <div v-plus class="icon-box stage-move-handle">
-                      <fs-icon v-if="editMode" title="拖动排序" icon="ion:move-outline"></fs-icon>
+                      <fs-icon v-if="editMode" :title="t('certd.pipeline.editor.dragSort')" icon="ion:move-outline"></fs-icon>
                     </div>
                   </div>
                   <v-draggable v-model="stage.tasks" item-key="id" class="tasks" group="task" handle=".task-move-handle" :disabled="!settingStore.isPlus" @mousedown.stop>
@@ -135,23 +178,38 @@
                           'validate-error': hasValidateError(task.id),
                         }"
                       >
+                        <a-checkbox
+                          v-if="isStageBatchEditing(stage.id)"
+                          class="task-select"
+                          :aria-label="`选择任务${task.title}`"
+                          :checked="isTaskSelected(stage.id, task.id)"
+                          @click.stop
+                          @change="toggleTaskSelection(stage.id, task.id, $event.target.checked)"
+                        />
                         <div class="line line-left">
                           <div class="flow-line"></div>
-                          <fs-icon v-if="editMode" class="add-stage-btn" title="添加新阶段" icon="ion:add-circle" @click="stageAdd(index)"></fs-icon>
+                          <fs-icon v-if="editMode" class="add-stage-btn" :title="t('certd.pipeline.editor.addStage')" icon="ion:add-circle" @click="stageAdd(index)"></fs-icon>
                         </div>
                         <div class="line line-right">
                           <div class="flow-line"></div>
                         </div>
                         <div class="task">
                           <a-button shape="round" @click="taskEdit(stage, index, task, taskIndex)">
-                            <a-popover title="步骤" :trigger="editMode ? 'none' : 'hover'">
+                            <a-popover :title="t('certd.pipeline.editor.step')" :trigger="editMode ? 'none' : 'hover'">
                               <!--                          :open="true"-->
                               <template #content>
                                 <div v-for="(item, stepIndex) of task.steps" :key="item.id" class="flex-o w-100">
                                   <span class="ellipsis flex-1 step-title" :class="{ disabled: item.disabled, deleted: item.disabled }"> {{ stepIndex + 1 }}. {{ item.title }} </span>
                                   <pi-status-show v-if="!editMode" :status="item.status?.result"></pi-status-show>
-                                  <a-tooltip title="强制重新执行此步骤">
-                                    <fs-icon v-if="!editMode" class="pointer color-blue ml-2" style="font-size: 16px" title="强制重新执行此步骤" icon="icon-park-outline:replay-music" @click="run(item.id)"></fs-icon>
+                                  <a-tooltip :title="t('certd.pipeline.editor.forceRerun')">
+                                    <fs-icon
+                                      v-if="!editMode"
+                                      class="pointer color-blue ml-2"
+                                      style="font-size: 16px"
+                                      :title="t('certd.pipeline.editor.forceRerun')"
+                                      icon="icon-park-outline:replay-music"
+                                      @click="run(item.id)"
+                                    ></fs-icon>
                                   </a-tooltip>
                                 </div>
                               </template>
@@ -162,10 +220,10 @@
                             </a-popover>
                           </a-button>
                           <div class="icon-box action copy">
-                            <fs-icon v-if="editMode" title="复制" icon="ion:copy-outline" @click="taskCopy(stage, index, task)"></fs-icon>
+                            <fs-icon v-if="editMode" :title="t('certd.pipeline.editor.copy')" icon="ion:copy-outline" @click="taskCopy(stage, index, task)"></fs-icon>
                           </div>
                           <div v-plus class="icon-box task-move-handle action drag">
-                            <fs-icon v-if="editMode" title="拖动排序" icon="ion:move-outline"></fs-icon>
+                            <fs-icon v-if="editMode" :title="t('certd.pipeline.editor.dragSort')" icon="ion:move-outline"></fs-icon>
                           </div>
                           <div class="shortcut">
                             <TaskShortcuts :task="task" />
@@ -185,30 +243,55 @@
                           <a-tooltip>
                             <a-button type="dashed" shape="round" @click="taskAdd(stage, index)">
                               <fs-icon class="font-20" icon="ion:add-circle-outline"></fs-icon>
-                              添加任务
+                              {{ t("certd.pipeline.editor.addTask") }}
                             </a-button>
                           </a-tooltip>
                         </div>
                       </div>
                     </template>
                   </v-draggable>
+                  <div v-if="editMode" class="stage-resize-handle" :title="t('certd.pipeline.editor.resizeStage')" @mousedown.stop.prevent="startStageResize(stage, $event)"></div>
                 </div>
               </template>
               <template #footer>
                 <div v-if="editMode" class="stage last-stage">
                   <div class="title">
-                    <text-editable model-value="新阶段" :disabled="true" />
+                    <text-editable :model-value="t('certd.pipeline.editor.addStage')" :disabled="true" />
                   </div>
                   <div class="tasks">
                     <div class="task-container first-task">
                       <div class="line line-left">
                         <div class="flow-line"></div>
-                        <fs-icon class="add-stage-btn" title="添加新阶段" icon="ion:add-circle" @click="stageAdd()"></fs-icon>
+                        <fs-icon class="add-stage-btn" :title="t('certd.pipeline.editor.addStage')" icon="ion:add-circle" @click="stageAdd()"></fs-icon>
                       </div>
                       <div class="task">
                         <a-button shape="round" type="dashed" @click="stageAdd()">
                           <fs-icon icon="ion:add-circle-outline"></fs-icon>
-                          添加任务
+                          {{ t("certd.pipeline.editor.addTask") }}
+                        </a-button>
+                      </div>
+                    </div>
+                    <div class="task-container">
+                      <div class="line line-left">
+                        <div class="flow-line"></div>
+                      </div>
+                      <div class="task">
+                        <a-button shape="round" type="dashed" @click="afterTaskAdd()">
+                          <fs-icon icon="ion:add-circle-outline"></fs-icon>
+                          {{ t("certd.pipeline.editor.addAfterTask") }}
+                        </a-button>
+                      </div>
+                    </div>
+                    <div v-for="(item, ii) of pipeline.afterTasks" :key="ii" class="task-container">
+                      <div class="line line-left">
+                        <div class="flow-line"></div>
+                      </div>
+                      <div class="task">
+                        <a-button shape="round" @click="afterTaskEdit(item, ii as number)">
+                          <div class="flex-o w-100">
+                            <fs-icon icon="ion:flash-outline"></fs-icon>
+                            <span class="ellipsis flex-1 step-title align-left"> 【{{ t("certd.pipeline.editor.afterLabel") }}】 {{ item.title || item.type }} </span>
+                          </div>
                         </a-button>
                       </div>
                     </div>
@@ -219,7 +302,7 @@
                       <div class="task">
                         <a-button shape="round" type="dashed" @click="notificationAdd()">
                           <fs-icon icon="ion:add-circle-outline"></fs-icon>
-                          添加通知
+                          {{ t("certd.pipeline.editor.addNotification") }}
                         </a-button>
                       </div>
                     </div>
@@ -231,7 +314,7 @@
                         <a-button shape="round" @click="notificationEdit(item, ii as number)">
                           <div class="flex-o w-100">
                             <fs-icon icon="ion:notifications"></fs-icon>
-                            <span class="ellipsis flex-1 step-title align-left"> 【通知】 {{ item.title || item.type }} </span>
+                            <span class="ellipsis flex-1 step-title align-left"> 【{{ t("certd.pipeline.editor.notificationLabel") }}】 {{ item.title || item.type }} </span>
                           </div>
                         </a-button>
                       </div>
@@ -240,18 +323,33 @@
                 </div>
                 <div v-else class="stage last-stage">
                   <div class="title">
-                    <text-editable model-value="结束" :disabled="true" />
+                    <text-editable :model-value="t('certd.pipeline.editor.endStage')" :disabled="true" />
                   </div>
-                  <div v-if="pipeline.notifications?.length > 0" class="tasks">
+                  <div v-if="pipeline.notifications?.length > 0 || pipeline.afterTasks?.length > 0" class="tasks">
+                    <div v-for="(item, index) of pipeline.afterTasks" :key="index" class="task-container" :class="{ 'first-task': pipeline.notifications?.length === 0 && index == 0 }">
+                      <div class="line line-left">
+                        <div class="flow-line"></div>
+                      </div>
+                      <div class="task">
+                        <a-button shape="round" :title="item.title || item.type" @click="viewNodeLogs(`afterTask.${item.id}`, t('certd.pipeline.view_after_task_log'), item)">
+                          <div class="flex-o w-100">
+                            <fs-icon icon="ion:flash-outline"></fs-icon>
+                            <span class="ellipsis flex-1 step-title align-left"> 【{{ t("certd.pipeline.editor.afterLabel") }}】 {{ item.title || item.type }} </span>
+                            <pi-status-show v-if="item.status?.result" :status="item.status.result"></pi-status-show>
+                          </div>
+                        </a-button>
+                      </div>
+                    </div>
                     <div v-for="(item, index) of pipeline.notifications" :key="index" class="task-container" :class="{ 'first-task': index == 0 }">
                       <div class="line line-left">
                         <div class="flow-line"></div>
                       </div>
                       <div class="task">
-                        <a-button shape="round" @click="notificationEdit(item, index)">
+                        <a-button shape="round" :title="item.title || item.type" @click="viewNodeLogs(`notification.${item.id}`, t('certd.pipeline.view_notification_log'), item)">
                           <div class="flex-o w-100">
                             <fs-icon icon="ion:notifications"></fs-icon>
-                            <span class="ellipsis flex-1 step-title align-left"> 【通知】 {{ item.title || item.type }} </span>
+                            <span class="ellipsis flex-1 step-title align-left"> 【{{ t("certd.pipeline.editor.notificationLabel") }}】 {{ item.title || item.type }} </span>
+                            <pi-status-show v-if="item.status?.result" :status="item.status.result"></pi-status-show>
                           </div>
                         </a-button>
                       </div>
@@ -265,7 +363,7 @@
                       <div class="task">
                         <a-button shape="round" type="dashed">
                           <fs-icon icon="ion:notifications"></fs-icon>
-                          通知未设置
+                          {{ t("certd.pipeline.editor.notificationNotSet") }}
                         </a-button>
                       </div>
                     </div>
@@ -282,7 +380,7 @@
           <fs-icon v-if="logsCollapse" icon="ion:chevron-back-outline"></fs-icon>
           <fs-icon v-else icon="ion:chevron-forward-outline"></fs-icon>
         </div>
-        <a-page-header title="运行历史" sub-title="点任务可查看日志" class="logs-block" :ghost="false">
+        <a-page-header :title="t('certd.pipeline.editor.history')" :sub-title="t('certd.pipeline.editor.historyHint')" class="logs-block" :ghost="false">
           <a-timeline class="mt-10">
             <template v-for="item of histories" :key="item.id">
               <pi-history-timeline-item
@@ -304,6 +402,7 @@
     <pi-trigger-form ref="triggerFormRef" :edit-mode="editMode"></pi-trigger-form>
     <pi-task-view ref="taskViewRef" @run="run"></pi-task-view>
     <PiNotificationForm ref="notificationFormRef" :edit-mode="editMode"></PiNotificationForm>
+    <PiAfterTaskForm ref="afterTaskFormRef" :edit-mode="editMode"></PiAfterTaskForm>
   </fs-page>
 </template>
 
@@ -314,11 +413,12 @@ import { useRouter } from "vue-router";
 import PiTaskForm from "./component/task-form/index.vue";
 import PiTriggerForm from "./component/trigger-form/index.vue";
 import PiNotificationForm from "./component/notification-form/index.vue";
+import PiAfterTaskForm from "./component/after-task-form/index.vue";
 import PiTaskView from "./component/task-view/index.vue";
 import PiStatusShow from "./component/status-show.vue";
 import VDraggable from "vuedraggable";
 import { cloneDeep, merge, remove } from "lodash-es";
-import { message, Modal, notification } from "ant-design-vue";
+import { Modal, notification } from "ant-design-vue";
 import { nanoid } from "nanoid";
 import { PipelineDetail, PipelineOptions, RunHistory } from "./type";
 import type { Runnable, Stage } from "@certd/pipeline";
@@ -335,6 +435,7 @@ import { useI18n } from "/@/locales";
 import TriggerIcon from "./component/trigger-icon.vue";
 import { useCrudPermission } from "/@/plugin/permission";
 import { onBeforeRouteLeave } from "vue-router";
+import { disableTasks, enableTasks, getStageWidth, removeSelectedItems, setStageWidth } from "./component/batch-actions";
 export default defineComponent({
   name: "PipelineEdit",
   // eslint-disable-next-line vue/no-unused-components
@@ -346,6 +447,7 @@ export default defineComponent({
     PiTaskView,
     PiStatusShow,
     PiNotificationForm,
+    PiAfterTaskForm,
     VDraggable,
     TaskShortcuts,
     TriggerIcon,
@@ -375,7 +477,7 @@ export default defineComponent({
     onBeforeRouteLeave((to, from) => {
       const newPipelineStr = JSON.stringify(pipeline.value || {});
       if (props.editMode && pipelineOriginStr.value && pipelineOriginStr.value !== newPipelineStr) {
-        const answer = window.confirm("流水线还未保存，确定要离开吗？");
+        const answer = window.confirm(t("certd.pipeline.editor.unsavedLeave"));
         if (!answer) {
           return false; // 返回 false 即可阻止本次路由跳转
         }
@@ -540,10 +642,11 @@ export default defineComponent({
         pipelineDetail.value = detail;
         currentPipeline.value = merge(
           {
-            title: "新管道流程",
+            title: t("certd.pipeline.editor.newPipeline"),
             stages: [],
             triggers: [],
             notifications: [],
+            afterTasks: [],
           },
           detail.pipeline
         );
@@ -572,11 +675,113 @@ export default defineComponent({
       const taskFormRef: Ref<any> = ref(null);
       const currentStageIndex = ref(0);
       const currentTaskIndex = ref(0);
+      const selectedTaskIds = ref<Record<string, string[]>>({});
+      const batchEditingStageIds = ref<Record<string, boolean>>({});
       provide("currentStageIndex", currentStageIndex);
       provide("currentTaskIndex", currentTaskIndex);
 
+      const getSelectedTaskIds = (stage: any) => {
+        const taskIds = new Set(stage.tasks.map((task: any) => task.id));
+        return (selectedTaskIds.value[stage.id] || []).filter(taskId => taskIds.has(taskId));
+      };
+
+      const getSelectedTaskCount = (stage: any) => {
+        return getSelectedTaskIds(stage).length;
+      };
+
+      const isTaskSelected = (stageId: string, taskId: string) => {
+        return (selectedTaskIds.value[stageId] || []).includes(taskId);
+      };
+
+      const toggleTaskSelection = (stageId: string, taskId: string, selected: boolean) => {
+        const taskIds = new Set(selectedTaskIds.value[stageId] || []);
+        if (selected) {
+          taskIds.add(taskId);
+        } else {
+          taskIds.delete(taskId);
+        }
+        selectedTaskIds.value[stageId] = [...taskIds];
+      };
+
+      const isAllTasksSelected = (stage: any) => {
+        return stage.tasks.length > 0 && getSelectedTaskCount(stage) === stage.tasks.length;
+      };
+
+      const isTasksSelectionIndeterminate = (stage: any) => {
+        const selectedCount = getSelectedTaskCount(stage);
+        return selectedCount > 0 && selectedCount < stage.tasks.length;
+      };
+
+      const toggleAllTasks = (stage: any, selected: boolean) => {
+        selectedTaskIds.value[stage.id] = selected ? stage.tasks.map((task: any) => task.id) : [];
+      };
+
+      const clearTaskSelection = (stageId: string) => {
+        selectedTaskIds.value[stageId] = [];
+      };
+
+      const isStageBatchEditing = (stageId: string) => {
+        return batchEditingStageIds.value[stageId] === true;
+      };
+
+      const setStageBatchEditing = (stage: any, enabled: boolean) => {
+        if (enabled) {
+          // 批量编辑任务为专业版功能，非专业版用户点击后弹出升级提示并中断
+          settingStore.checkPlus();
+        }
+        batchEditingStageIds.value[stage.id] = enabled;
+        if (!enabled) {
+          clearTaskSelection(stage.id);
+        }
+      };
+
+      const clearTaskBatchEditing = () => {
+        selectedTaskIds.value = {};
+        batchEditingStageIds.value = {};
+      };
+
+      watch(
+        () => props.editMode,
+        editMode => {
+          if (!editMode) {
+            clearTaskBatchEditing();
+          }
+        }
+      );
+
+      const batchEnableTasks = (stage: any) => {
+        const selectedIds = new Set(getSelectedTaskIds(stage));
+        stage.tasks = enableTasks(stage.tasks, selectedIds);
+        clearTaskSelection(stage.id);
+      };
+
+      const batchDisableTasks = (stage: any) => {
+        const selectedIds = new Set(getSelectedTaskIds(stage));
+        stage.tasks = disableTasks(stage.tasks, selectedIds);
+        clearTaskSelection(stage.id);
+      };
+
+      const batchDeleteTasks = (stage: any) => {
+        const selectedIds = new Set(getSelectedTaskIds(stage));
+        const selectedCount = selectedIds.size;
+        if (selectedCount === 0) {
+          return;
+        }
+
+        Modal.confirm({
+          title: t("certd.pipeline.editor.confirmTitle"),
+          content: t("certd.pipeline.editor.confirmDeleteSelectedTasks", { count: selectedCount }),
+          onOk() {
+            stage.tasks = removeSelectedItems(stage.tasks, selectedIds);
+            clearTaskSelection(stage.id);
+            if (stage.tasks.length === 0) {
+              remove(pipeline.value.stages, (item: Runnable) => item.id === stage.id);
+            }
+          },
+        });
+      };
+
       function useTaskView() {
-        const taskViewRef: Ref<any> = ref(null);
         const taskViewOpen = (task: any) => {
           taskViewRef.value.open(task);
         };
@@ -638,25 +843,73 @@ export default defineComponent({
         }
       };
 
-      return { taskAdd, taskEdit, taskCopy, taskFormRef, ...taskView };
+      return {
+        taskAdd,
+        taskEdit,
+        taskCopy,
+        taskFormRef,
+        isStageBatchEditing,
+        setStageBatchEditing,
+        isTaskSelected,
+        getSelectedTaskCount,
+        isAllTasksSelected,
+        isTasksSelectionIndeterminate,
+        toggleTaskSelection,
+        toggleAllTasks,
+        batchEnableTasks,
+        batchDisableTasks,
+        batchDeleteTasks,
+        ...taskView,
+      };
     }
 
     function useStage(useTaskRet: any) {
+      let clearStageResize: (() => void) | null = null;
+
       const stageAdd = (stageIndex = pipeline.value.stages.length) => {
         const stage: any = {
           id: nanoid(),
-          title: "新阶段",
+          title: t("certd.pipeline.editor.newStage"),
           tasks: [],
           status: null,
         };
         //stage: any, stageIndex: number, onSuccess
         useTaskRet.taskAdd(stage, stageIndex, () => {
           let task = stage.tasks[0] as any;
-          stage.title = task.title + "阶段";
+          stage.title = task.title + t("certd.pipeline.editor.stageSuffix");
           //插入阶段
           pipeline.value.stages.splice(stageIndex, 0, stage);
         });
       };
+
+      const getStageStyle = (stage: any) => {
+        return { width: `${getStageWidth(stage)}px` };
+      };
+
+      const startStageResize = (stage: any, event: MouseEvent) => {
+        clearStageResize?.();
+
+        const startX = event.clientX;
+        const startWidth = getStageWidth(stage);
+        const onMouseMove = (moveEvent: MouseEvent) => {
+          setStageWidth(stage, startWidth + moveEvent.clientX - startX);
+        };
+        const onMouseUp = () => {
+          clearStageResize?.();
+        };
+
+        clearStageResize = () => {
+          document.removeEventListener("mousemove", onMouseMove);
+          document.removeEventListener("mouseup", onMouseUp);
+          clearStageResize = null;
+        };
+        document.addEventListener("mousemove", onMouseMove);
+        document.addEventListener("mouseup", onMouseUp);
+      };
+
+      onUnmounted(() => {
+        clearStageResize?.();
+      });
 
       function isLastStage(index: number) {
         return false;
@@ -665,6 +918,8 @@ export default defineComponent({
       return {
         stageAdd,
         isLastStage,
+        getStageStyle,
+        startStageResize,
       };
     }
 
@@ -700,6 +955,20 @@ export default defineComponent({
       };
     }
 
+    // 任务日志弹窗引用（任务/后置任务/通知日志查看共用）
+    const taskViewRef: Ref<any> = ref(null);
+
+    // 查看后置任务/通知的运行日志（复用任务日志弹窗，按节点id读取运行历史日志）
+    function viewNodeLogs(nodeId: string, title: string, node: any) {
+      if (taskViewRef.value) {
+        taskViewRef.value.taskViewOpenNode({
+          id: nodeId,
+          title,
+          status: node?.status,
+        });
+      }
+    }
+
     function useNotification() {
       const notificationFormRef = ref();
       const notificationAdd = () => {
@@ -725,13 +994,14 @@ export default defineComponent({
             }
           });
         } else {
-          notificationFormRef.value.notificationView(notification, (type: string, value: any) => {});
+          // 非编辑模式：查看通知发送日志
+          viewNodeLogs(`notification.${notification.id}`, t("certd.pipeline.view_notification_log"), notification);
         }
       };
       const notificationDelete = (notification: any, index: any) => {
         Modal.confirm({
-          title: t("certd.confirm"),
-          content: t("certd.confirm_delete_trigger"),
+          title: t("certd.common.confirm"),
+          content: t("certd.pipeline.confirm_delete_trigger"),
           async onOk() {
             pipeline.value.notifications.splice(index, 1);
           },
@@ -745,14 +1015,60 @@ export default defineComponent({
       };
     }
 
+    function useAfterTask() {
+      const afterTaskFormRef = ref();
+      const afterTaskAdd = () => {
+        afterTaskFormRef.value.afterTaskAdd((type: string, value: any) => {
+          if (type === "save") {
+            if (pipeline.value.afterTasks == null) {
+              pipeline.value.afterTasks = [];
+            }
+            pipeline.value.afterTasks.push(value);
+          }
+        });
+      };
+      const afterTaskEdit = (afterTask: any, index: any) => {
+        if (afterTaskFormRef.value == null) {
+          return;
+        }
+        if (props.editMode) {
+          afterTaskFormRef.value.afterTaskEdit(afterTask, (type: string, value: any) => {
+            if (type === "delete") {
+              pipeline.value.afterTasks.splice(index, 1);
+            } else if (type === "save") {
+              pipeline.value.afterTasks[index] = value;
+            }
+          });
+        } else {
+          // 非编辑模式：查看后置任务执行日志
+          viewNodeLogs(`afterTask.${afterTask.id}`, t("certd.pipeline.view_after_task_log"), afterTask);
+        }
+      };
+      const afterTaskDelete = (afterTask: any, index: any) => {
+        Modal.confirm({
+          title: t("certd.common.confirm"),
+          content: t("certd.pipeline.after_task_delete_confirm"),
+          async onOk() {
+            pipeline.value.afterTasks.splice(index, 1);
+          },
+        });
+      };
+      return {
+        afterTaskAdd,
+        afterTaskEdit,
+        afterTaskDelete,
+        afterTaskFormRef,
+      };
+    }
+
     function useActions() {
       const saveLoading = ref();
       const run = async (stepId?: string) => {
         if (props.editMode) {
           const res = await new Promise((resolve, reject) => {
             Modal.confirm({
-              title: "需要保存才能运行管道",
-              content: "是否先保存",
+              title: t("certd.pipeline.editor.saveBeforeRunTitle"),
+              content: t("certd.pipeline.editor.saveBeforeRunContent"),
               onOk() {
                 save();
                 resolve(true);
@@ -767,16 +1083,16 @@ export default defineComponent({
           }
         }
         if (!props.options.doTrigger) {
-          message.warn("暂不支持运行");
+          notification.warning({ message: t("certd.pipeline.editor.runUnsupported") });
           return;
         }
         if (pipeline.value.stages == null || pipeline.value.stages.length === 0) {
-          message.warn("请先添加阶段和任务");
+          notification.warning({ message: t("certd.pipeline.editor.addStageAndTask") });
           return;
         }
         Modal.confirm({
-          title: "确认",
-          content: `确定要手动触发运行吗？`,
+          title: t("certd.pipeline.editor.confirmTitle"),
+          content: t("certd.pipeline.editor.confirmManualRun"),
           async onOk() {
             //@ts-ignore
             await changeCurrentHistory(null);
@@ -789,7 +1105,7 @@ export default defineComponent({
             }
 
             await props.options.doTrigger({ pipelineId: pipeline.value.id, stepId: stepId });
-            notification.success({ message: "管道已经开始运行" });
+            notification.success({ message: t("certd.pipeline.play.pipelineStarted") });
           },
         });
       };
@@ -837,7 +1153,7 @@ export default defineComponent({
               const paramName = arr[2];
               if (!stepIds.includes(stepId)) {
                 hasError = true;
-                const message = `${step.title}的前置输出步骤${paramName}不存在或已被禁用`;
+                const message = t("certd.pipeline.editor.prerequisiteMissing", { step: step.title, param: paramName });
                 errorIndex++;
                 addValidateError(task.id, {
                   message,
@@ -1022,6 +1338,7 @@ export default defineComponent({
 
     const { hasActionPermission } = useCrudPermission({ permission: { isProjectPermission: true } });
     return {
+      t,
       isCert,
       pipeline,
       currentHistory,
@@ -1036,7 +1353,9 @@ export default defineComponent({
       ...actions,
       ...useHistory(),
       ...useNotification(),
+      ...useAfterTask(),
       ...useScroll(),
+      viewNodeLogs,
       nextTriggerTimes,
       viewCert,
       downloadCert,
@@ -1112,7 +1431,12 @@ export default defineComponent({
       height: 100%;
 
       .stage {
+        --stage-selection-center: 38px;
         width: 300px;
+        min-width: 260px;
+        max-width: 720px;
+        flex: 0 0 auto;
+        position: relative;
         border-right: 1px solid #c7c7c7;
 
         .is-add {
@@ -1125,13 +1449,46 @@ export default defineComponent({
         }
 
         .title {
+          box-sizing: border-box;
+          min-height: 72px;
           padding: 20px;
           color: gray;
           display: flex;
+          align-items: center;
+
+          .stage-batch-edit-button {
+            margin-left: auto;
+          }
 
           .stage-move-handle {
             cursor: move;
             margin-left: 4px;
+          }
+        }
+
+        .stage-batch-actions {
+          display: flex;
+          align-items: center;
+          gap: 8px;
+          flex: 1;
+          margin-left: calc(var(--stage-selection-center) - 28px);
+
+          .ant-tag {
+            margin-right: 0;
+          }
+        }
+
+        .stage-resize-handle {
+          position: absolute;
+          top: 0;
+          right: -4px;
+          z-index: 20;
+          width: 8px;
+          height: 100%;
+          cursor: col-resize;
+
+          &:hover {
+            border-right: 2px solid #1677ff;
           }
         }
 
@@ -1258,6 +1615,8 @@ export default defineComponent({
               flex-direction: column;
               justify-content: center;
               align-items: center;
+              width: calc(100% - 100px);
+              min-width: 160px;
               height: 100%;
               z-index: 2;
 
@@ -1293,7 +1652,7 @@ export default defineComponent({
               }
 
               .ant-btn {
-                width: 200px;
+                width: 100%;
               }
 
               position: relative;
@@ -1303,6 +1662,14 @@ export default defineComponent({
                 bottom: -10px;
                 left: 20px;
               }
+            }
+
+            .task-select {
+              position: absolute;
+              top: 50%;
+              left: calc(var(--stage-selection-center) - 8px);
+              z-index: 3;
+              transform: translateY(-50%);
             }
           }
         }

@@ -30,6 +30,8 @@ version: 1.0.0
    - 指定对应的云平台的 access 类型名称
    - 设置排序值（可选）
    - 继承 `AbstractDnsProvider` 类
+   - 插件默认文案使用中文；需要英文时，在注解参数对象中添加同级 `i18n: { "en-US": { ... } }`，不要写成 `metadata.i18n`。`define` 本身就是插件 metadata。
+   - `i18n["en-US"]` 仅配置要翻译的展示字段，如 `title`、`desc`、`input`；输入字段可翻译 `title`、`helper`、组件展示文案和 `optionsMapping`。缺少英文翻译时回退默认中文。
 
 4. **实现 onInstance 方法**
 
@@ -454,3 +456,4 @@ new TencentDnsProvider();
 3. **记录结构**：定义适合对应云平台的记录数据结构，至少包含 id 字段用于删除记录。
 4. **日志输出**：使用 `this.logger` 输出日志，而不是 `console`，参数文本化，不要传对象，否则会输出`[object Object]}`。
 5. **错误处理**：API 调用失败时应抛出明确的错误信息。
+6. **旧版数据兼容**： 新增插件参数，必须要考虑旧版数据兼容，比如新增一个deployType参数，有两种值：`default`和`custom`，需要在使用时判空，走旧版逻辑。

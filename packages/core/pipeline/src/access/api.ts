@@ -3,7 +3,7 @@ import { FormItemProps } from "../dt/index.js";
 import { HttpClient, ILogger, utils } from "@certd/basic";
 import * as _ from "lodash-es";
 import { PluginRequestHandleReq } from "../plugin/index.js";
-import { IRuntimeDepsService, IServiceGetter } from "../service/index.js";
+import { IServiceGetter, getRuntimeDepsService } from "../service/index.js";
 
 // export type AccessRequestHandleReqInput<T = any> = {
 //   id?: number;
@@ -19,6 +19,7 @@ export type AccessInputDefine = FormItemProps & {
   encrypt?: boolean;
 };
 export type AccessDefine = Registrable & {
+  i18n?: Record<string, any>;
   icon?: string;
   subtype?: string;
   dependPlugins?: Record<string, string>;
@@ -48,23 +49,15 @@ export type AccessContext = {
 
 export abstract class BaseAccess implements IAccess {
   ctx!: AccessContext;
-  runtimeDepsService?: IRuntimeDepsService;
+  logger!: ILogger;
 
   async importRuntime(specifier: string) {
-    if (!this.runtimeDepsService) {
-      throw new Error("runtimeDepsService 未初始化");
-    }
-    return await this.runtimeDepsService.importRuntime(specifier, this.ctx.logger);
+    return await getRuntimeDepsService().importRuntime(specifier, this.ctx.logger);
   }
 
   async setCtx(ctx: AccessContext) {
     this.ctx = ctx;
-    if (!this.runtimeDepsService && this.ctx.serviceGetter) {
-      this.runtimeDepsService = await this.ctx.serviceGetter.get("runtimeDepsService");
-    }
-    if (this.runtimeDepsService && this.ctx.define?.name) {
-      await this.runtimeDepsService.ensureRuntimeDependencies({ pluginKeys: `access:${this.ctx.define.name}`, logger: this.ctx.logger });
-    }
+    this.logger = ctx.logger;
   }
 
   async onRequest(req: AccessRequestHandleReq) {

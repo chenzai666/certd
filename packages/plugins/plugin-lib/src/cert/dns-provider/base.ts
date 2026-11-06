@@ -1,5 +1,5 @@
 import { HttpClient, ILogger } from "@certd/basic";
-import { IAccessService, IRuntimeDepsService, PageRes, PageSearch } from "@certd/pipeline";
+import { IAccessService, PageRes, PageSearch, getRuntimeDepsService } from "@certd/pipeline";
 import punycode from "punycode.js";
 import { CreateRecordOptions, DnsProviderContext, DnsProviderDefine, DnsResolveRecord, DomainRecord, IDnsProvider, RemoveRecordOptions } from "./api.js";
 import { dnsProviderRegistry } from "./registry.js";
@@ -7,13 +7,9 @@ export abstract class AbstractDnsProvider<T = any> implements IDnsProvider<T> {
   ctx!: DnsProviderContext;
   http!: HttpClient;
   logger!: ILogger;
-  runtimeDepsService?: IRuntimeDepsService;
 
   async importRuntime(specifier: string) {
-    if (!this.runtimeDepsService) {
-      throw new Error("runtimeDepsService 未初始化");
-    }
-    return await this.runtimeDepsService.importRuntime(specifier, this.logger);
+    return await getRuntimeDepsService().importRuntime(specifier, this.logger);
   }
 
   usePunyCode(): boolean {
@@ -42,12 +38,6 @@ export abstract class AbstractDnsProvider<T = any> implements IDnsProvider<T> {
     this.ctx = ctx;
     this.logger = ctx.logger;
     this.http = ctx.http;
-    if (!this.runtimeDepsService && this.ctx.serviceGetter) {
-      this.runtimeDepsService = await this.ctx.serviceGetter.get("runtimeDepsService");
-    }
-    if (this.runtimeDepsService && this.ctx.define?.name) {
-      await this.runtimeDepsService.ensureRuntimeDependencies({ pluginKeys: `dnsProvider:${this.ctx.define.name}`, logger: this.logger });
-    }
   }
 
   async parseDomain(fullDomain: string) {

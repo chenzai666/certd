@@ -12,6 +12,7 @@ import { SshClient } from "../../plugin-lib/ssh/ssh.js";
 @IsTaskPlugin({
   name: "HostDeployToIIS",
   title: "IIS-部署到IIS站点",
+  i18n: { "en-US": { title: "IIS - Deploy to IIS Site", desc: "Deploy a certificate to an IIS site." } },
   icon: "devicon:windows8",
   group: pluginGroups.host.key,
   default: {
@@ -130,41 +131,61 @@ export class HostDeployToIIS extends AbstractPlusTaskPlugin {
 
     /**
      *
-     * SiteName HttpsBindings
-     * -------- -------------
-     * first    *:443:first.handfree.work
-     */
+
+    -------result start--------
+Default Web Site | *:14431:handfree.work
+Default Web Site | *:2443:*.handfree.work
+-------result end--------
+    */
     // 解析获取网站名称
-    const siteOptions = [];
+    const sites = new Map<string, string[]>();
     let start = false;
     const lines = res.split("\n");
-    lines.map((item: any) => {
+    for (let item of lines) {
       if (item.includes("-------result start--------")) {
         start = true;
-        return;
+        continue;
       }
       if (item.includes("-------result end--------")) {
         start = false;
-        return;
+        continue;
       }
       if (!start) {
-        return;
+        continue;
       }
       item = item.trim();
       if (item === "" || !item.includes(" | ")) {
-        return;
+        continue;
       }
       const [name, value] = item.split(" | ");
       const siteName = name.trim();
-      let domain = value;
-      if (value.includes(":")) {
-        domain = value.split(":")[2].trim();
+      if (value === "No HTTPS bindings") {
+        continue;
       }
-      siteOptions.push({
-        label: `${siteName}<${domain}>`,
+      const domain = value.split(":").slice(2).join(":").trim();
+      if (!domain) {
+        continue;
+      }
+      const domains = sites.get(siteName) ?? [];
+      if (!domains.includes(domain)) {
+        domains.push(domain);
+      }
+      sites.set(siteName, domains);
+    }
+
+    const siteOptions = Array.from(sites, ([siteName, domains]) => {
+      const extraDomainCount = domains.length - 1;
+      let label = `${siteName}<${domains[0]}`;
+      if (extraDomainCount > 0) {
+        label += `+${extraDomainCount}`;
+      }
+      label += ">";
+      return {
+        label,
         value: siteName,
-        domain: domain,
-      });
+        domain: domains,
+        domains,
+      };
     });
 
     return utils.options.buildGroupOptions(siteOptions, this.certDomains);
@@ -243,36 +264,19 @@ try{
   # 导入 WebAdministration 模块
   Import-Module WebAdministration
   
-  # 获取所有 IIS 站点
-  $sites = Get-IISSite
-  
-  # 创建一个列表用于存储结果
-  $result = @()
-  
-  # 遍历每个站点
-  foreach ($site in $sites) {
-      # 获取该站点的所有绑定
-      $bindings = Get-WebBinding -Name $site.Name
-  
-      # 筛选出 HTTPS 绑定
-      $httpsBindings = $bindings | Where-Object { $_.protocol -eq "https" }
-      
-      # 将站点名称和 HTTPS 绑定信息添加到结果
-      $result += [PSCustomObject]@{
-          SiteName = $site.Name
-          HttpsBindings = if ($httpsBindings) {
-              $httpsBindings | ForEach-Object { $_.bindingInformation }
-          } else {
-              "No HTTPS bindings"
-          }
-      }
-  }
-  
-  # 显示结果
-  $result | Format-Table -AutoSize
+  # Get-Website 来自 WebAdministration，兼容不提供 Get-IISSite 的旧版 IIS。
+  $sites = Get-Website
+
   Write-Output "-------result start--------"
-  foreach ($item in $result) {
-      Write-Output  "$($item.SiteName) | $($item.HttpsBindings)"
+  foreach ($site in $sites) {
+      $bindings = Get-WebBinding -Name $site.Name -Protocol https
+      if ($bindings) {
+          foreach ($binding in $bindings) {
+              Write-Output "$($site.Name) | $($binding.bindingInformation)"
+          }
+      } else {
+          Write-Output "$($site.Name) | No HTTPS bindings"
+      }
   }
   Write-Output "-------result end--------"
 } catch {

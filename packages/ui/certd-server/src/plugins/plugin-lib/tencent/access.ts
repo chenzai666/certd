@@ -3,6 +3,7 @@ import { IsAccess, AccessInput, BaseAccess } from "@certd/pipeline";
 const tencentAccessDefine: any = {
   name: "tencent",
   title: "腾讯云",
+  i18n: { "en-US": { title: "Tencent Cloud Access" } },
   icon: "svg:icon-tencentcloud",
   order: 0,
   dependPackages: {
@@ -86,7 +87,8 @@ export class TencentAccess extends BaseAccess {
   }
 
   buildEndpoint(endpoint: string) {
-    return `${this.intlDomain()}${endpoint}`;
+    // 改成  xxx.intl.tencentcloudapi.com
+    return `${endpoint.replace("tencentcloudapi.com", "")}${this.intlDomain()}tencentcloudapi.com`;
   }
 
   async getCallerIdentity() {
@@ -109,7 +111,7 @@ export class TencentAccess extends BaseAccess {
   }
 
   async getStsClient() {
-    const sdk = await (this as any).importRuntime("tencentcloud-sdk-nodejs/tencentcloud/services/sts/v20180813/index.js");
+    const sdk = await this.importRuntime("tencentcloud-sdk-nodejs/tencentcloud/services/sts/v20180813/index.js");
     const StsClient = sdk.v20180813.Client;
 
     const clientConfig = {

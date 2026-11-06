@@ -9,6 +9,7 @@ import { CertApplyPluginNames } from "@certd/plugin-cert";
   icon: "line-md:uploading-loop",
   group: pluginGroups.host.key,
   desc: "上传证书到主机覆盖原来的证书文件，然后自动执行部署脚本命令使证书生效",
+  i18n: { "en-US": { title: "Host - Deploy Certificate to SSH Host", desc: "Upload certificates to an SSH host and run a deployment script to activate them." } },
   order: 1,
   default: {
     strategy: {
@@ -228,9 +229,10 @@ export class UploadCertToHostPlugin extends AbstractTaskPlugin {
   @TaskInput({
     title: "前置命令",
     component: {
-      name: "a-textarea",
+      name: "TemplateTextarea",
       vModel: "value",
       rows: 3,
+      templateType: "uploadToHost-scriptPre",
       placeholder: "mkdir /app/ssl",
     },
     helper: "上传前执行脚本命令，做上传前的准备工作",
@@ -241,9 +243,10 @@ export class UploadCertToHostPlugin extends AbstractTaskPlugin {
   @TaskInput({
     title: "后置命令",
     component: {
-      name: "a-textarea",
+      name: "TemplateTextarea",
       vModel: "value",
       rows: 5,
+      templateType: "uploadToHost-script",
       placeholder: "systemctl restart nginx ",
     },
     helper: "上传后执行脚本命令，让证书生效（比如重启nginx），不填则不执行\n注意：sudo需要配置免密，不要使用-i这种交互式命令\n注意：如果目标主机是windows，且终端是cmd，系统会自动将多行命令通过“&&”连接成一行",

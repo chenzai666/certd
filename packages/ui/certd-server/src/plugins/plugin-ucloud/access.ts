@@ -10,6 +10,18 @@ import { CertInfo, CertReader } from "@certd/plugin-cert";
   title: "UCloud授权",
   icon: "svg:icon-ucloud",
   desc: "优刻得授权",
+  i18n: {
+    "en-US": {
+      title: "Ucloud-Access",
+      desc: "Access for Ucloud API",
+      input: {
+        projectId: { title: "Project ID", helper: "Get the project ID from UCloud project management" },
+        publicKey: { title: "Public key", helper: "Get it from UCloud API management" },
+        privateKey: { title: "Private key" },
+        testRequest: { title: "Test", helper: "Test whether the API is available" },
+      },
+    },
+  },
 })
 export class UCloudAccess extends BaseAccess {
   /**
@@ -196,9 +208,9 @@ export class UCloudAccess extends BaseAccess {
     return resp;
   }
 
-  async invoke(req: { Action: string; [key: string]: any }) {
+  async invoke(req: { Action: string; region?: string; [key: string]: any }) {
     const { Request } = await this.importRuntime("@ucloud-sdks/ucloud-sdk-js");
-    const client = await this.getClient();
+    const client = await this.getClient(req.region);
     const resp = await client.invoke(
       new Request({
         ...req,

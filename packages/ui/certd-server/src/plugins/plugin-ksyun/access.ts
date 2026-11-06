@@ -9,6 +9,12 @@ import { CertInfo } from "@certd/plugin-cert";
   title: "金山云授权",
   desc: "",
   icon: "svg:icon-ksyun",
+  i18n: {
+    "en-US": {
+      title: "Ksyun Access",
+      desc: "Configure Ksyun access credentials.",
+    },
+  },
 })
 export class KsyunAccess extends BaseAccess {
   @AccessInput({
@@ -84,7 +90,6 @@ export class KsyunAccess extends BaseAccess {
     this.ctx.logger.info(res);
     return res;
   }
-
   async getCert(opts: { client: KsyunClient; certId: string }) {
     const res = await opts.client.doRequest({
       action: "GetCertificates",
@@ -108,9 +113,9 @@ export class KsyunAccess extends BaseAccess {
       accessKeyId: this.accessKeyId,
       secretAccessKey: this.accessKeySecret,
       region: "cn-beijing-6",
-      service: "cdn",
       endpoint: "cdn.api.ksyun.com",
       logger: this.ctx.logger,
+      service: "cdn",
       http: this.ctx.http,
     });
   }

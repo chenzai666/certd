@@ -1,12 +1,12 @@
 <template>
   <fs-page>
     <template #header>
-      <div class="title">{{ t("certd.permissionManagement") }}</div>
+      <div class="title">{{ t("certd.sys.authority.permissionManagement") }}</div>
     </template>
     <fs-crud ref="crudRef" v-bind="crudBinding">
       <a-button v-permission="'1sys:auth:per:add'" style="margin-left: 20px" @click="addHandle({})">
         <fs-icon :icon="ui.icons.add"></fs-icon>
-        {{ t("certd.adda") }}
+        {{ t("certd.sys.authority.adda") }}
       </a-button>
       <fs-permission-tree class="permission-tree mt-10" :tree="crudBinding.data" :checkable="false" :actions="permission" @add="addHandle" @edit="editHandle" @remove="removeHandle"></fs-permission-tree>
     </fs-crud>
@@ -14,7 +14,7 @@
 </template>
 
 <script lang="ts">
-import { defineComponent, ref} from "vue";
+import { defineComponent, ref } from "vue";
 import createCrudOptions from "./crud.js";
 import FsPermissionTree from "./fs-permission-tree.vue";
 import { usePermission } from "/src/plugin/permission";

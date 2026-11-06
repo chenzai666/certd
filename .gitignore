@@ -40,3 +40,7 @@ pnpm-lock.yaml
 /popularize/reports/
 output/
 .uploads/
+.certd-plugin-history/
+.tmp
+.plugin-dev/
+.tmp_chunks/

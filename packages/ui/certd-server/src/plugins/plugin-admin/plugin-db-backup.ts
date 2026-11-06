@@ -17,6 +17,7 @@ const defaultFilePrefix = "db_backup";
   title: "数据库备份",
   icon: "lucide:database-backup",
   desc: "【仅管理员可用】仅支持备份SQLite数据库",
+  i18n: { "en-US": { title: "Database Backup", desc: "[Administrators only] Back up the SQLite database." } },
   group: pluginGroups.admin.key,
   showRunStrategy: true,
   default: {
@@ -160,6 +161,13 @@ export class DBBackupPlugin extends AbstractPlusTaskPlugin {
   async execute(): Promise<void> {
     this.checkAdmin();
 
+    if (!/^[A-Za-z0-9._-]+$/.test(this.filePrefix || defaultFilePrefix)) {
+      throw new Error("备份文件前缀格式无效");
+    }
+    if (this.retainDays != null && (!Number.isInteger(Number(this.retainDays)) || Number(this.retainDays) < 0)) {
+      throw new Error("保留天数必须是非负整数");
+    }
+
     this.logger.info("开始备份数据库");
 
     let dbPath = process.env.certd_typeorm_dataSource_default_database;
@@ -291,7 +299,8 @@ export class DBBackupPlugin extends AbstractPlusTaskPlugin {
         throw new Error("删除过期文件暂不支持windows系统");
         // script = `forfiles /p ${backupDir} /s /d -${this.retainDays} /c "cmd /c del @path"`;
       } else {
-        script = [`cd ${backupDir}`, "echo 备份目录", "pwd", `find . -type f -mtime +${this.retainDays} -name '${this.filePrefix}*' -exec rm -f {} \\;`];
+        const quoteShell = (value: string) => `'${value.replaceAll("'", "'\\''")}'`;
+        script = [`cd -- ${quoteShell(backupDir)}`, "echo 备份目录", "pwd", `find . -type f -mtime +${Number(this.retainDays)} -name ${quoteShell(`${this.filePrefix}_*.zip`)} -exec rm -f {} \\;`];
       }
 
       await sshClient.exec({

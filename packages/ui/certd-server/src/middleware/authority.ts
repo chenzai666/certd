@@ -1,11 +1,12 @@
 import { Init, Inject, MidwayWebRouterService, Provide, Scope, ScopeEnum } from "@midwayjs/core";
 import { IMidwayKoaContext, IWebMiddleware, NextFunction } from "@midwayjs/koa";
 import jwt from "jsonwebtoken";
-import { Constants, SysPrivateSettings, SysSettingsService } from "@certd/lib-server";
+import { Constants, isEnterprise, SysPrivateSettings, SysSettingsService } from "@certd/lib-server";
 import { logger } from "@certd/basic";
 import { AuthService } from "../modules/sys/authority/service/auth-service.js";
 import { OpenKeyService } from "../modules/open/service/open-key-service.js";
 import { RoleService } from "../modules/sys/authority/service/role-service.js";
+import { UserService } from "../modules/sys/authority/service/user-service.js";
 
 /**
  * 权限校验
@@ -19,6 +20,8 @@ export class AuthorityMiddleware implements IWebMiddleware {
   authService: AuthService;
   @Inject()
   roleService: RoleService;
+  @Inject()
+  userService: UserService;
   @Inject()
   openKeyService: OpenKeyService;
   @Inject()
@@ -40,6 +43,8 @@ export class AuthorityMiddleware implements IWebMiddleware {
         await next();
         return;
       }
+      ctx.auditRouteInfo = routeInfo;
+      this.extractProjectId(ctx);
       let permission = routeInfo.description || "";
       permission = permission.trim().split(" ")[0];
       if (permission == null || permission === "") {
@@ -60,6 +65,17 @@ export class AuthorityMiddleware implements IWebMiddleware {
         } catch (err) {
           logger.error("token verify error: ", err);
           return this.notAuth(ctx);
+        }
+        const tokenUser = ctx.user as { id?: number };
+        if (tokenUser?.id == null) {
+          return this.notAuth(ctx);
+        }
+        const user = await this.userService.findOne({ id: tokenUser.id });
+        if (!user || user.status === 0) {
+          return this.notAuth(ctx, "用户不存在或已被禁用");
+        }
+        if (!this.isScopedTokenPathAllowed(ctx)) {
+          return this.notScoped(ctx);
         }
       } else {
         if (permission === Constants.per.guestOptionalAuth) {
@@ -109,6 +125,45 @@ export class AuthorityMiddleware implements IWebMiddleware {
     return;
   }
 
+  private notScoped(ctx: IMidwayKoaContext) {
+    ctx.status = 403;
+    ctx.body = Constants.res.permission;
+    return;
+  }
+
+  private isScopedTokenPathAllowed(ctx: IMidwayKoaContext) {
+    const user = ctx.user as { scoped?: unknown } | undefined;
+    if (!user || !("scoped" in user)) {
+      return true;
+    }
+    if (!Array.isArray(user.scoped) || user.scoped.length === 0) {
+      return false;
+    }
+
+    const requestPath = ctx.path.replace(/^\/+|\/+$/g, "");
+    return user.scoped.some(scope => {
+      if (typeof scope !== "string") {
+        return false;
+      }
+      const normalizedScope = scope.trim().replace(/^\/+|\/+$/g, "");
+      if (!/^[a-zA-Z0-9_-]+(?:\/[a-zA-Z0-9_-]+)*$/.test(normalizedScope)) {
+        return false;
+      }
+      const scopedPrefix = `api/scoped/${normalizedScope}`;
+      return requestPath === scopedPrefix || requestPath.startsWith(`${scopedPrefix}/`);
+    });
+  }
+
+  private extractProjectId(ctx: IMidwayKoaContext) {
+    const headerVal = ctx.headers["project-id"] as string;
+    const queryVal = (ctx.request as any)?.query?.projectId;
+    const bodyVal = (ctx.request as any)?.body?.projectId;
+    const raw = headerVal || queryVal || bodyVal;
+    if (raw != null && raw !== "") {
+      ctx.projectId = parseInt(String(raw), 10) || 0;
+    }
+  }
+
   private getTokenFromRequest(ctx: IMidwayKoaContext) {
     let token = ctx.get("Authorization") || "";
     token = token.replace("Bearer ", "").trim();
@@ -139,11 +194,18 @@ export class AuthorityMiddleware implements IWebMiddleware {
     if (!openKey) {
       return null;
     }
-
     //校验 openKey
     const openKeyRes = await this.openKeyService.verifyOpenKey(openKey);
-    let roles = [1];
-    if (!openKeyRes.projectId || openKeyRes.projectId <= 0) {
+    let roles = [];
+    if (isEnterprise()) {
+      if (!openKeyRes.projectId || openKeyRes.projectId <= 0) {
+        throw new Error("projectId不能为空");
+      }
+      roles = [3];
+    } else {
+      if (openKeyRes.projectId != null) {
+        throw new Error("对不起，您无权进行此操作");
+      }
       roles = await this.roleService.getRoleIdsByUserId(openKeyRes.userId);
     }
     ctx.user = { id: openKeyRes.userId, roles, projectId: openKeyRes.projectId };

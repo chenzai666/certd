@@ -6,6 +6,7 @@ import { SshClient } from "../../../plugin-lib/ssh/index.js";
   icon: "tabler:brand-powershell",
   group: pluginGroups.host.key,
   desc: "可以执行重启nginx等操作让证书生效",
+  i18n: { "en-US": { title: "Host - Execute Remote Script", desc: "Execute commands such as restarting Nginx to activate certificates." } },
   input: {},
   showRunStrategy: true,
   default: {
@@ -29,9 +30,10 @@ export class HostShellExecutePlugin extends AbstractTaskPlugin {
   @TaskInput({
     title: "shell脚本命令",
     component: {
-      name: "a-textarea",
+      name: "TemplateTextarea",
       vModel: "value",
       rows: 6,
+      templateType: "hostShellExecute",
       placeholder: "systemctl restart nginx",
     },
     helper: "注意：如果目标主机是windows，且终端是cmd，系统会自动将多行命令通过“&&”连接成一行",

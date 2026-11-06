@@ -3,6 +3,226 @@
 All notable changes to this project will be documented in this file.
 See [Conventional Commits](https://conventionalcommits.org) for commit guidelines.
 
+# [1.46.0](https://github.com/certd/certd/compare/v1.45.6...v1.46.0) (2026-10-28)
+
+### Features
+
+* 增加查看加密密钥的2FA二次验证 ([a32a9f9](https://github.com/certd/certd/commit/a32a9f98bedb6f3990cba13a4882f201f7b451ef))
+
+### Performance Improvements
+
+* 新增IP黑名单与用户访问控制功能 ([3a10e16](https://github.com/certd/certd/commit/3a10e16394cd128514e7ec69380c989a0f30b772))
+
+## [1.45.6](https://github.com/certd/certd/compare/v1.45.5...v1.45.6) (2026-10-28)
+
+### Bug Fixes
+
+* 禁止删除审计日志，仅保留删除90天前的日志 ([178f9b1](https://github.com/certd/certd/commit/178f9b1e902a6acf8a794bfcd5ee51e955fd09ea))
+* 临时禁用存在XSS注入风险的Lego证书插件 ([bec2f11](https://github.com/certd/certd/commit/bec2f11ecae779718d1c7cdf1eae398c6a783671))
+* 权限中间件验证禁用用户的token，不允许继续访问 ([aeeb90b](https://github.com/certd/certd/commit/aeeb90b66d70c7bec1204b0432035bee26f6c7f6))
+* 缩短JWT过期时间并重启后自动更新密钥 ([afe102a](https://github.com/certd/certd/commit/afe102a3361dd82be2c2aeae0268fff55f3b7a9a))
+* 修复 IIS 部署插件的网站解析逻辑 ([8291097](https://github.com/certd/certd/commit/8291097d635d69d226320992cbd2124c083b99d3))
+* 修复子进程调用命令注入风险并重构spawn实现 ([0523c69](https://github.com/certd/certd/commit/0523c69451bb2418718390c334ee4b19180aa676))
+* **iis-deploy:** 兼容旧版 IIS 移除冗余代码简化输出逻辑 ([afc0626](https://github.com/certd/certd/commit/afc06268ff7f6a0978c1ee7a1a4e9addbde188d2))
+* **tencent:** 腾讯云删除即将过期证书失败时不再误报成功 ([#820](https://github.com/certd/certd/issues/820)) [@aomsir](https://github.com/aomsir) ([b99e78f](https://github.com/certd/certd/commit/b99e78f2459a353439e8dec4e4fab90e2d5c8b48))
+
+### Performance Improvements
+
+* 重构审计日志模块，迁移权限至sys:settings相关接口 ([c726428](https://github.com/certd/certd/commit/c72642819f93b65a19d1b6aa7da8043048fa8d58))
+* **cert:** 添加证书删除确认提示与删除逻辑 ([e90cfaf](https://github.com/certd/certd/commit/e90cfafb285cece924817bb9a2ffa262a5de55f3))
+
+## [1.45.5](https://github.com/certd/certd/compare/v1.45.4...v1.45.5) (2026-10-22)
+
+### Bug Fixes
+
+* 非企业模式下禁止API密钥指定项目ID并校验权限【安全加强】 ([f50651e](https://github.com/certd/certd/commit/f50651ef91813b529b8498ddefe0f66b8b7946da))
+* **authority:** 修复权限校验时角色值错误的问题 ([5326d7d](https://github.com/certd/certd/commit/5326d7dff3967974d70090b45f8580a155c1a032))
+
+## [1.45.4](https://github.com/certd/certd/compare/v1.45.3...v1.45.4) (2026-10-22)
+
+### Bug Fixes
+
+* **pipeline:** 修复定时触发器cron归一化截取位置错误导致日期字段被吃掉的问题 ([#813](https://github.com/certd/certd/issues/813)) ([7ac9101](https://github.com/certd/certd/commit/7ac9101266f2821fb13ff68ea6d36969c9485675))
+
+## [1.45.3](https://github.com/certd/certd/compare/v1.45.2...v1.45.3) (2026-10-19)
+
+**Note:** Version bump only for package @certd/ui-server
+
+## [1.45.2](https://github.com/certd/certd/compare/v1.45.1...v1.45.2) (2026-10-18)
+
+### Bug Fixes
+
+* 修复腾讯云CLB部署证书逻辑 ([a67d5bc](https://github.com/certd/certd/commit/a67d5bca2dd12e157e45ec1b8abff54efcbdfa84))
+
+### Performance Improvements
+
+* 新增更新金山云KCM SLB证书插件 ([62751be](https://github.com/certd/certd/commit/62751bee7a5e00245bb4dd840a5f4ea35565616a))
+* 支持ikuai部署证书 ([5f83693](https://github.com/certd/certd/commit/5f83693423ec5ccd08d7bb03e4fb8315dbb8b931))
+* **baota:** 宝塔站点全自动部署插件支持部署docker站点 ([61ef971](https://github.com/certd/certd/commit/61ef971518eeccbc31b09c06ec1b48589929d6bb))
+
+## [1.45.1](https://github.com/certd/certd/compare/v1.45.0...v1.45.1) (2026-10-14)
+
+### Bug Fixes
+
+* 修复批量修改证书申请参数，无法选择证书颁发机构的bug ([9d9ae64](https://github.com/certd/certd/commit/9d9ae64aff76a09d64a5be04968ff0cc3ad097a4))
+* **aliyun-cert:** 阿里云订阅证书增加申请请求接口 ([949a69f](https://github.com/certd/certd/commit/949a69f0dcf929980363fc2b3d772edae696dcaf))
+
+### Performance Improvements
+
+* 多语言国际化优化，插件支持国际化配置 ([8f1b38a](https://github.com/certd/certd/commit/8f1b38ad7d445473ae71d537ad8e465f2e55ebc7))
+* 开放接口支持返回证书密码，需要在openKey主动开启该设置，客户端部署证书时可以直接获取密码部署 ([3e001b8](https://github.com/certd/certd/commit/3e001b8ba431eb9af8c4ea1b20118bcf5e7ebce4))
+* 完善插件翻译 ([d0463ab](https://github.com/certd/certd/commit/d0463abc2607d22aba50ae3acc6584bbed6e3a0e))
+* 证书申请成功通知支持批量修改 ([22715a4](https://github.com/certd/certd/commit/22715a430e24a6132482cadb6b217acc283f270c))
+
+# [1.45.0](https://github.com/certd/certd/compare/v1.44.4...v1.45.0) (2026-10-02)
+
+### Bug Fixes
+
+* [BUG]使用天翼云CDN部署证书时无法匹配域名 ([bb1f232](https://github.com/certd/certd/commit/bb1f232f415c522851dede979f5d609dda844fd3))
+* 支持google persist校验方式 ([97d2b50](https://github.com/certd/certd/commit/97d2b5007409ec79ea864d437c473a2f9b5dfae4))
+* **config:** 修复环境变量加载逻辑并更新配置文件 ([07f0d3b](https://github.com/certd/certd/commit/07f0d3b4d626628a0e3dfc7e5c52e8c4a98bad47))
+* **ctyun-cdn:** 修复天翼云CDN部署插件的域名选择问题 ([ea7d14c](https://github.com/certd/certd/commit/ea7d14c289b8720781bf101bfef59eac7bb03765))
+* **webhook:** 修复模版转义换行符，避免手动上传的证书报错 ([2735feb](https://github.com/certd/certd/commit/2735feb3302f8308708dafc8b295adcd4b91d7f0))
+
+### Features
+
+* **client:** 新增客户端管理功能 ([3dbbe72](https://github.com/certd/certd/commit/3dbbe72fc15c114ca6b5e8ff45cb21f258b80650))
+
+### Performance Improvements
+
+* 宝塔站点列表支持搜索和排序 ([4420472](https://github.com/certd/certd/commit/4420472f8fac272d30fb8ccb1cc2ee9763989001))
+* 网宿插件双鉴权支持 ([241b2e5](https://github.com/certd/certd/commit/241b2e55848471e61b5d2be0c87a7dc9a0d29557))
+* **monitor:** 站点证书监控支持手动选中触发检查 ([f60e63f](https://github.com/certd/certd/commit/f60e63fbaf00460d5050cd7705bd75d57dec202d))
+* **open-api:** openkey增加用途备注 ([bbeaf61](https://github.com/certd/certd/commit/bbeaf617d19750515f6eca51863e74e23bc1de50))
+* **tencent clb:** 修改所有CLB地域的endpoint为就近接入 ([c427735](https://github.com/certd/certd/commit/c4277350bcc8cf034cf4e76db2a6daa1842bc5d7))
+
+## [1.44.4](https://github.com/certd/certd/compare/v1.44.3...v1.44.4) (2026-09-12)
+
+### Performance Improvements
+
+* 新增余额管理，管理员充值功能 ([bded368](https://github.com/certd/certd/commit/bded368cbb8974b6937ae260e448c25fae5c33ad))
+* **acme-account-access:** AcmeAccount授权允许修改eab，重新生成account ([6a649aa](https://github.com/certd/certd/commit/6a649aaca083ccd3b517f7d676a58220aa33b37d))
+
+## [1.44.3](https://github.com/certd/certd/compare/v1.44.2...v1.44.3) (2026-09-06)
+
+### Bug Fixes
+
+* **plugin-service:** 修复同步自己开发的云端插件不显示已安装状态问题 ([dac94b6](https://github.com/certd/certd/commit/dac94b64f0ceb7176e2cf07ce220be0aa5ed98d2))
+* **plugin:** 修复插件配置保存与加载的相关问题 ([bd94334](https://github.com/certd/certd/commit/bd9433478a43d5d64ce6370386d0fe0aaff07d2e))
+
+### Performance Improvements
+
+* **plugin:** add Fastly custom TLS certificates integration ([#797](https://github.com/certd/certd/issues/797)) [@szhu25](https://github.com/szhu25) ([2a2e963](https://github.com/certd/certd/commit/2a2e963914c4dfc192cbe0a4bbb9c115e626da01))
+
+## [1.44.2](https://github.com/certd/certd/compare/v1.44.1...v1.44.2) (2026-09-03)
+
+### Bug Fixes
+
+* 修复插件市场插件安装无效的bug ([15d2bd8](https://github.com/certd/certd/commit/15d2bd8484a9ddd142bf4ef03d839c74405f9e6d))
+* preserve Route53 TXT record values ([#791](https://github.com/certd/certd/issues/791)) ([f5430a8](https://github.com/certd/certd/commit/f5430a8925cf6cf4e16c75f2358fbd78437e6705))
+
+## [1.44.1](https://github.com/certd/certd/compare/v1.44.0...v1.44.1) (2026-09-02)
+
+### Bug Fixes
+
+* 修复编辑证书申请任务导致清空ACME账号的bug ([d67379f](https://github.com/certd/certd/commit/d67379f29725bbd6dcdefe97d101023c7fd11f03))
+* 修复大量问题 ([f911e06](https://github.com/certd/certd/commit/f911e06a698d568ae228880ec89b7e25fdd1305b))
+* 修复旧流水线保存时清空证书仓库证书内容的bug ([f58f2f3](https://github.com/certd/certd/commit/f58f2f3cd603c37e55ac5868fdd2ca99aa937e44))
+* **pipeline-controller:** 处理非编辑场景下保留id的问题 ([6606f32](https://github.com/certd/certd/commit/6606f3267868e3aadaca0092ef4c83198312553c))
+* **pipeline:** 修正流水线保存时的ID判断逻辑并增加参数校验 ([6af12d4](https://github.com/certd/certd/commit/6af12d49fce1144943dc37ba574b3c9356998dcd))
+
+### Performance Improvements
+
+* **dashboard:** 新增仪表盘站点监控和域名管理的统计卡片 ([9842a24](https://github.com/certd/certd/commit/9842a24a50a841f710ee7c8050a38e3334c58394))
+
+# [1.44.0](https://github.com/certd/certd/compare/v1.43.0...v1.44.0) (2026-08-28)
+
+### Bug Fixes
+
+* 修复证书申请时EAB判断逻辑，已选择Acme账号的情况下不需要EAB ([d87821e](https://github.com/certd/certd/commit/d87821ee02b17136fc925df4547223332bf22823))
+* **pipeline:** 校验定时触发器cron表达式，拦截2月31号等无效日期 ([#785](https://github.com/certd/certd/issues/785)) [@yukaidi1220](https://github.com/yukaidi1220) ([f8e492d](https://github.com/certd/certd/commit/f8e492d6cb49257e56bbd06b28fd6eb32c923c28))
+* **ssh:** 修复 keyboard-interactive 认证可能抛类型错误的问题 ([5e867c8](https://github.com/certd/certd/commit/5e867c86c30eb43f1e5aeee8c22d47596e173a8c))
+* **tencent access:** 修复腾讯云国际站接口endpoint拼接问题 ([f614872](https://github.com/certd/certd/commit/f61487284f79d3f5a72c9f7eee04999a93728326))
+
+### Features
+
+* 实现自定义ACME证书颁发机构支持 ([97c417b](https://github.com/certd/certd/commit/97c417b1ad64b9a14bee8bfe98a2e789b9278820))
+* 新增证书吊销后置任务与证书状态管理 ([1cc9641](https://github.com/certd/certd/commit/1cc9641f5669710d1e5809995ad395c843855a12))
+* 新增AI插件开发全流程能力 ([6f9dffe](https://github.com/certd/certd/commit/6f9dffe6e59cc125bd394d7db6086d66a9c71e49))
+* 支持审计日志，操作日志 ([f2855d6](https://github.com/certd/certd/commit/f2855d6dac74c9db71d92f99601e35c360b10666))
+* 支持在线插件下载安装审核等 ([255960d](https://github.com/certd/certd/commit/255960d434eebb3d567a08f737f1642ab417b5d0))
+
+### Performance Improvements
+
+*  新增AI插件开发受限令牌与隔离API ([3a9069f](https://github.com/certd/certd/commit/3a9069f6e6242940229fd63c686f7e445408dbbb))
+* 新增官方客户端Certd Client的多语言配置与页面入口 ([fbfe125](https://github.com/certd/certd/commit/fbfe1256a5c8be6dfb2fbae7e6130eb5f6c6d946))
+* 新增证书吊销功能，添加证书状态字段 ([5074572](https://github.com/certd/certd/commit/5074572694383c8e1bf2880e26827987683dc62c))
+* 新增自定义ACME管理功能，完善证书颁发机构适配 ([2ab23f5](https://github.com/certd/certd/commit/2ab23f50b216e27495fc823d2269ca0ba6366d15))
+* 移除全局反向代理配置，迁移到自定义ACME配置 ([c57110e](https://github.com/certd/certd/commit/c57110e42aada31dd0028b56b5baec1b19722525))
+* 在线插件支持通知类型 ([c0f194f](https://github.com/certd/certd/commit/c0f194f4438bd7ca3f52f63ca088543abde7428c))
+* 增加稳定版，预览版区分，预览版是最新版，稳定版在预览版验证稳定后，再将预览版转为稳定版 ([1574090](https://github.com/certd/certd/commit/15740904e5e97ee767c39e4401dbc1d645795c38))
+* 支持AI开发在线插件 ([eae7edb](https://github.com/certd/certd/commit/eae7edbda0fd7357163f33fb4084fcba21396f5f))
+* **domain:** 域名管理增加remark字段 ([e4041ea](https://github.com/certd/certd/commit/e4041eabece1bab2c1c4b955129cf7a7fe7302d0))
+* **login,settings:** 仅第三方登录开启后，在重启10分钟后将无法使用密码登录 ([1d12ad7](https://github.com/certd/certd/commit/1d12ad73c6ca827d2eb36bda867f9d9fe62dab48))
+* **plugin:** 插件安装支持检测依赖 ([e79660c](https://github.com/certd/certd/commit/e79660c5d17ed4049508a00a359950a54470332f))
+* **plugin:** 新增插件评分展示、排序与个人插件筛选功能 ([7ab5029](https://github.com/certd/certd/commit/7ab502991e0c001777b268b9f159311ef5e000a0))
+* **server:** response优化为gzip压缩 ([f38522c](https://github.com/certd/certd/commit/f38522ca0b2185f7f35538f53cb51dcf86d0bfc8))
+* **tencent-clb:** 重构腾讯云CLB部署插件的地域选择组件，改为远程下拉选择器 ([30d4fc8](https://github.com/certd/certd/commit/30d4fc84a9e940d1d07e1f25856eb6fa13da9ba1))
+
+# [1.43.0](https://github.com/certd/certd/compare/v1.42.6...v1.43.0) (2026-08-14)
+
+### Bug Fixes
+
+* 优化火山引擎dcdn，单个单个部署，规避超时问题 ([cf008b9](https://github.com/certd/certd/commit/cf008b9cff54542dc551fb159578dbd49006229c))
+* **unicloud:** 修复unicloud登录接口改版后请求失败的问题 ([18583f6](https://github.com/certd/certd/commit/18583f6ce025fa8d365fad5a8c9c6020f3bcfbae))
+
+### Features
+
+* 优化开放接口证书自动申请功能 ([6339cdf](https://github.com/certd/certd/commit/6339cdffa9f79505dada5617d8c7fcfacc419a2e))
+* **pipeline:** 新增流水线批量编辑、阶段宽度调整功能 ([e5a1844](https://github.com/certd/certd/commit/e5a18448522be88bc504a45a46ad599f3c39ca30))
+* **ssh:** ssh连接支持跳板机 ([2cb4e55](https://github.com/certd/certd/commit/2cb4e551fa7616f587a2d907f9b513f7df3a9957))
+
+### Performance Improvements
+
+* 部署到京东云CDN支持设置跳转类型 ([e992192](https://github.com/certd/certd/commit/e9921928df011c2435af73b68ebc3d773f13c16a))
+* 统一通知类型常量管理，新增开放接口通知能力 ([edb249c](https://github.com/certd/certd/commit/edb249c2ad3c173dbfd04d8d156f895a6706ffd1))
+* 优化宝塔报错提示 ([1cfa766](https://github.com/certd/certd/commit/1cfa76683b40da9e9198552f2226419d4afa86a3))
+* 证书成功通知增加有效期显示 ([f1b6704](https://github.com/certd/certd/commit/f1b67049d16ebcabe6d6d9b6cb53a8a2b7a9265c))
+* **cert-plugin:** 证书申请支持失败重试 ([0ddb1f6](https://github.com/certd/certd/commit/0ddb1f69d2a46b993e792862ce9952336d532f5b))
+* **plugin-ucloud:**  ucloud us3部署插件增加region选择 ([8165a5f](https://github.com/certd/certd/commit/8165a5ff8986e759948c06f924d12e605b2ec8f6))
+* **tencent-clb:** 为腾讯云CLB部署插件支持远程选择输入 ([967846b](https://github.com/certd/certd/commit/967846bef590b76d27e472180b96372ff55cfb6f))
+
+## [1.42.6](https://github.com/certd/certd/compare/v1.42.5...v1.42.6) (2026-07-18)
+
+### Bug Fixes
+
+* 修复正常批量删除流水线报权限不足的bug ([5b50083](https://github.com/certd/certd/commit/5b500830a122c6c42dab054e57fed509050f94da))
+
+## [1.42.5](https://github.com/certd/certd/compare/v1.42.4...v1.42.5) (2026-07-15)
+
+### Bug Fixes
+
+* 修复上传到cos报runtimeDepsService未初始化的问题 ([167b303](https://github.com/certd/certd/commit/167b303faeca02cc11cf97e4be2a3df914852167))
+* 修复dingtalk通知格式没有换行的bug ([7ed1be9](https://github.com/certd/certd/commit/7ed1be994f8b4b74cdeb38743060c912c027248b))
+
+### Performance Improvements
+
+* 优化vke keubconfig获取方式，改成先查询，如果没有再创建临时config ([604fa5b](https://github.com/certd/certd/commit/604fa5be634d099d797bfee5c2b0f26ce0ac8461))
+
+## [1.42.4](https://github.com/certd/certd/compare/v1.42.3...v1.42.4) (2026-07-11)
+
+### Bug Fixes
+
+* 修复火山引擎查不到自定义源站域名的问题 ([02dabe1](https://github.com/certd/certd/commit/02dabe11db3e9b13ca4621ce9ddd2b808bfca390))
+* 修复火山引擎自定义源站域名查询不到的问题 ([e44bf9d](https://github.com/certd/certd/commit/e44bf9d77375d48ac7fd1582e69fae02dfd248fa))
+* **pipeline:** 重构运行时依赖加载逻辑，修复火山引擎DNS解析报runtimeDepsService未初始化的bug ([ec69b8f](https://github.com/certd/certd/commit/ec69b8f11bfd4b20991aef74a72a47182ca79a9d))
+
+## [1.42.3](https://github.com/certd/certd/compare/v1.42.2...v1.42.3) (2026-07-08)
+
+### Bug Fixes
+
+* **volcengine-alb:** 修复火山引擎ALB 默认证书部署类型会部署到扩展证书的问题 ([0a068a2](https://github.com/certd/certd/commit/0a068a274673e9768954e9f7367c267d44f3b530))
+
 ## [1.42.2](https://github.com/certd/certd/compare/v1.42.1...v1.42.2) (2026-07-07)
 
 ### Bug Fixes

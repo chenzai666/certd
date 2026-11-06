@@ -6,8 +6,15 @@ const tencentDnsProviderDefine: any = {
   name: "tencent",
   title: "腾讯云",
   desc: "腾讯云域名DNS解析提供者",
+  i18n: {
+    "en-US": {
+      title: "Tencent Cloud DNS",
+      desc: "Tencent Cloud DNS provider.",
+    },
+  },
   accessType: "tencent",
   icon: "svg:icon-tencentcloud",
+  order: 0,
   dependPlugins: {
     "access:tencent": "*",
   },

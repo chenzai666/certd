@@ -3,6 +3,13 @@ export default {
   scopeOpenApiOnly: "Open API Only",
   scopeFullAccount: "Full Account Permissions",
   scopeHelper: "Open API only allows access to open APIs; full account permissions allow access to all APIs",
+  keyRemark: "Key Purpose",
+  keyRemarkHelper: "Describe the purpose of this key for easier identification",
+  keyRemarkMaxChars: "Maximum 512 characters",
+  returnCertPassword: "Return certificate password",
+  returnCertPasswordHelper: "When enabled, the certificate password is included in Open API certificate responses. Keep this key secure.",
+  yes: "Yes",
+  no: "No",
   gen: {
     text: "API Test",
     title: "x-certd-token",
@@ -10,5 +17,6 @@ export default {
     contentPart1: "Test the x-certd-token below, you can use it within 3 minutes to test ",
     openApi: "Open API",
     contentPart2: " request testing",
+    apiAddress: "API Address",
   },
 };

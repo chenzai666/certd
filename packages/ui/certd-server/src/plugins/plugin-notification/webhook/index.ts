@@ -1,10 +1,28 @@
 import { BaseNotification, IsNotification, NotificationBody, NotificationInput } from "@certd/pipeline";
+import { stringUtils } from "@certd/basic";
 import qs from "qs";
 
 @IsNotification({
   name: "webhook",
   title: "自定义webhook",
   desc: "根据模版自定义http请求",
+  i18n: {
+    "en-US": {
+      title: "Webhook Notification",
+      desc: "Send pipeline notifications to a webhook.",
+      input: {
+        webhook: { title: "Webhook URL", helper: "Enter the webhook endpoint." },
+        method: { title: "Request Method" },
+        contentType: { title: "Content Type", helper: "You can enter a custom content type." },
+        headers: { title: "Headers", helper: "One key=value pair per line." },
+        template: {
+          title: "Message Body Template",
+          helper: "Build the JSON request body according to the webhook API documentation. Supported variables: {title}, {content}, and {url}. For GET requests, the fields are appended as query parameters.",
+        },
+        skipSslVerify: { title: "Skip Certificate Verification" },
+      },
+    },
+  },
   order: -100,
 })
 export class WebhookNotification extends BaseNotification {
@@ -95,17 +113,6 @@ export class WebhookNotification extends BaseNotification {
   })
   skipSslVerify: boolean;
 
-  replaceTemplate(target: string, body: any, urlEncode = false) {
-    let bodyStr = target;
-    const keys = Object.keys(body);
-    for (const key of keys) {
-      let value = urlEncode ? encodeURIComponent(body[key]) : body[key];
-      value = value.replaceAll(`\n`, "\\n");
-      bodyStr = bodyStr.replaceAll(`{${key}}`, value);
-    }
-    return bodyStr;
-  }
-
   async send(body: NotificationBody) {
     if (!this.template) {
       throw new Error("模版不能为空");
@@ -119,7 +126,7 @@ export class WebhookNotification extends BaseNotification {
       content: body.content,
       url: body.url,
     };
-    const bodyStr = this.replaceTemplate(this.template, replaceBody);
+    const bodyStr = stringUtils.replaceTemplate(this.template, replaceBody);
     let data = JSON.parse(bodyStr);
 
     let url = this.webhook;

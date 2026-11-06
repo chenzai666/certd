@@ -10,6 +10,12 @@ import { AliyunClient, AliyunSslClient, CasCertId } from "../../../plugin-lib/al
   icon: "svg:icon-aliyun",
   group: pluginGroups.aliyun.key,
   desc: "自动部署域名证书至阿里云CDN",
+  i18n: {
+    "en-US": {
+      title: "Aliyun-Deploy Certificate to CDN",
+      desc: "Deploy a certificate to Aliyun CDN.",
+    },
+  },
   runStrategy: RunStrategy.AlwaysRun,
   // default: {
   //   strategy: {
@@ -168,7 +174,6 @@ export class DeployCertToAliyunCDN extends AbstractTaskPlugin {
         await this.deployOne(client, domain, certId);
       }
     }
-
     this.logger.info("部署完成");
   }
 
@@ -209,7 +214,7 @@ export class DeployCertToAliyunCDN extends AbstractTaskPlugin {
   }
 
   async getClient(access: AliyunAccess) {
-    const client = new AliyunClient({ logger: this.logger, importRuntime: access.importRuntime.bind(access) });
+    const client = new AliyunClient({ logger: this.logger });
     await client.init({
       accessKeyId: access.accessKeyId,
       accessKeySecret: access.accessKeySecret,

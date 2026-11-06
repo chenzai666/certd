@@ -8,6 +8,7 @@ const uploadCertToTencentDefine: any = {
   title: "腾讯云-上传证书到腾讯云",
   icon: "svg:icon-tencentcloud",
   desc: "上传成功后输出：tencentCertId",
+  i18n: { "en-US": { title: "Tencent-Upload Certificate", desc: "Upload a certificate to Tencent Cloud." } },
   group: pluginGroups.tencent.key,
   dependPlugins: {
     "access:tencent": "*",
@@ -53,7 +54,7 @@ export class UploadCertToTencent extends AbstractTaskPlugin {
 
   Client: any;
   async onInstance() {
-    const sdk = await (this as any).importRuntime("tencentcloud-sdk-nodejs/tencentcloud/services/ssl/v20191205/index.js");
+    const sdk = await this.importRuntime("tencentcloud-sdk-nodejs/tencentcloud/services/ssl/v20191205/index.js");
     this.Client = sdk.v20191205.Client;
   }
 

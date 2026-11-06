@@ -63,6 +63,13 @@ export const siteInfoApi = {
       method: "post",
     });
   },
+  async CheckBatch(ids: number[]) {
+    return await request({
+      url: apiPrefix + "/checkBatch",
+      method: "post",
+      data: { ids },
+    });
+  },
 
   async Import(form: any) {
     return await request({
@@ -99,8 +106,6 @@ export const siteInfoApi = {
       data: { key },
     });
   },
-
-
 
   async DisabledChange(id: number, disabled: boolean) {
     return await request({

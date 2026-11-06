@@ -4,6 +4,7 @@ import { DomainService } from "../../../modules/cert/service/domain-service.js";
 import { checkPlus } from "@certd/plus-core";
 import { ApiTags } from "@midwayjs/swagger";
 import { parseDomainByPsl } from "@certd/plugin-lib";
+import { AuditType } from "../../../modules/sys/enterprise/service/audit-constants.js";
 
 /**
  * 授权
@@ -17,6 +18,10 @@ export class DomainController extends CrudController<DomainService> {
 
   getService(): DomainService {
     return this.service;
+  }
+
+  getAuditType(): string {
+    return AuditType.domain.value;
   }
 
   @Post("/page", { description: Constants.per.authOnly, summary: "查询域名分页列表" })
@@ -42,7 +47,6 @@ export class DomainController extends CrudController<DomainService> {
     });
     return this.ok(pageRet);
   }
-
   @Post("/list", { description: Constants.per.authOnly, summary: "查询域名列表" })
   async list(@Body(ALL) body: any) {
     const { projectId, userId } = await this.getProjectUserIdRead();
@@ -55,10 +59,12 @@ export class DomainController extends CrudController<DomainService> {
 
   @Post("/add", { description: Constants.per.authOnly, summary: "添加域名" })
   async add(@Body(ALL) bean: any) {
-    const { projectId, userId } = await this.getProjectUserIdRead();
+    const { projectId, userId } = await this.getProjectUserIdWrite();
     bean.projectId = projectId;
     bean.userId = userId;
-    return super.add(bean);
+    const res = await super.add(bean);
+    this.auditLog({ content: `新增了域名「${bean.domain}」` });
+    return res;
   }
 
   @Post("/update", { description: Constants.per.authOnly, summary: "更新域名" })
@@ -66,7 +72,9 @@ export class DomainController extends CrudController<DomainService> {
     await this.checkOwner(this.getService(), bean.id, "write");
     delete bean.userId;
     delete bean.projectId;
-    return super.update(bean);
+    const res = await super.update(bean);
+    this.auditLog({ content: `修改了域名「${bean.domain}」` });
+    return res;
   }
 
   @Post("/info", { description: Constants.per.authOnly, summary: "查询域名详情" })
@@ -78,20 +86,23 @@ export class DomainController extends CrudController<DomainService> {
   @Post("/delete", { description: Constants.per.authOnly, summary: "删除域名" })
   async delete(@Query("id") id: number) {
     await this.checkOwner(this.getService(), id, "write");
-    return super.delete(id);
+    const res = await super.delete(id);
+    this.auditLog({ content: `删除了域名(ID:${id})` });
+    return res;
   }
 
   @Post("/deleteByIds", { description: Constants.per.authOnly, summary: "批量删除域名" })
   async deleteByIds(@Body(ALL) body: any) {
-    const { projectId, userId } = await this.getProjectUserIdRead();
+    const { projectId, userId } = await this.getProjectUserIdWrite();
     await this.service.batchDelete(body.ids, userId, projectId);
+    this.auditLog({ content: `批量删除了${body.ids.length}条域名` });
     return this.ok();
   }
 
   @Post("/import/start", { description: Constants.per.authOnly, summary: "开始域名导入任务" })
   async importStart(@Body(ALL) body: any) {
     checkPlus();
-    const { projectId, userId } = await this.getProjectUserIdRead();
+    const { projectId, userId } = await this.getProjectUserIdWrite();
     const { key } = body;
     const req = {
       key,
@@ -99,6 +110,7 @@ export class DomainController extends CrudController<DomainService> {
       projectId: projectId,
     };
     await this.service.startDomainImportTask(req);
+    this.auditLog({ content: "开始了域名导入任务" });
     return this.ok();
   }
 
@@ -115,7 +127,7 @@ export class DomainController extends CrudController<DomainService> {
 
   @Post("/import/delete", { description: Constants.per.authOnly, summary: "删除域名导入任务" })
   async importDelete(@Body(ALL) body: any) {
-    const { projectId, userId } = await this.getProjectUserIdRead();
+    const { projectId, userId } = await this.getProjectUserIdWrite();
     const { key } = body;
     const req = {
       userId: userId,
@@ -123,13 +135,14 @@ export class DomainController extends CrudController<DomainService> {
       key,
     };
     await this.service.deleteDomainImportTask(req);
+    this.auditLog({ content: "删除了域名导入任务" });
     return this.ok();
   }
 
   @Post("/import/save", { description: Constants.per.authOnly, summary: "保存域名导入任务" })
   async importSave(@Body(ALL) body: any) {
     checkPlus();
-    const { projectId, userId } = await this.getProjectUserIdRead();
+    const { projectId, userId } = await this.getProjectUserIdWrite();
     const { dnsProviderType, dnsProviderAccessId, key } = body;
     const req = {
       userId: userId,
@@ -139,6 +152,7 @@ export class DomainController extends CrudController<DomainService> {
       key,
     };
     const item = await this.service.saveDomainImportTask(req);
+    this.auditLog({ content: "保存了域名导入任务" });
     return this.ok(item);
   }
 
@@ -149,6 +163,7 @@ export class DomainController extends CrudController<DomainService> {
       userId: userId,
       projectId: projectId,
     });
+    this.auditLog({ content: "开始了同步域名过期时间任务" });
     return this.ok();
   }
   @Post("/sync/expiration/status", { description: Constants.per.authOnly, summary: "查询同步域名过期时间任务状态" })
@@ -169,6 +184,7 @@ export class DomainController extends CrudController<DomainService> {
       projectId: projectId,
       setting: { ...body },
     });
+    this.auditLog({ content: "保存了域名监控设置" });
     return this.ok();
   }
 

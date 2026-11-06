@@ -15,6 +15,10 @@ export class VolcengineClient {
     this.opts = opts;
   }
 
+  async importRuntime(packageName: string) {
+    return this.opts.access.importRuntime(packageName);
+  }
+
   async getCertCenterService() {
     const CommonService = await this.getServiceCls();
 
@@ -140,7 +144,7 @@ export class VolcengineClient {
   }
 
   async getTOSService(opts: { region?: string }) {
-    const { TosClient } = await this.opts.access.importRuntime("@volcengine/tos-sdk");
+    const { TosClient } = await this.importRuntime("@volcengine/tos-sdk");
 
     const client = new TosClient({
       accessKeyId: this.opts.access.accessKeyId,
@@ -169,7 +173,7 @@ export class VolcengineClient {
     if (this.CommonService) {
       return this.CommonService;
     }
-    const { Service } = await this.opts.access.importRuntime("@volcengine/openapi");
+    const { Service } = await this.importRuntime("@volcengine/openapi");
 
     class CommonService extends Service {
       Generic: any;

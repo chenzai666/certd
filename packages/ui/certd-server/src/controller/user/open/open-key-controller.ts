@@ -1,8 +1,9 @@
 import { ALL, Body, Controller, Inject, Post, Provide, Query } from "@midwayjs/core";
-import { Constants, CrudController } from "@certd/lib-server";
+import { Constants, CrudController, isEnterprise } from "@certd/lib-server";
 import { AuthService } from "../../../modules/sys/authority/service/auth-service.js";
 import { OpenKeyService } from "../../../modules/open/service/open-key-service.js";
 import { ApiTags } from "@midwayjs/swagger";
+import { AuditType } from "../../../modules/sys/enterprise/service/audit-constants.js";
 
 /**
  */
@@ -14,9 +15,12 @@ export class OpenKeyController extends CrudController<OpenKeyService> {
   service: OpenKeyService;
   @Inject()
   authService: AuthService;
-
   getService(): OpenKeyService {
     return this.service;
+  }
+
+  getAuditType(): string {
+    return AuditType.openKey.value;
   }
 
   @Post("/page", { description: Constants.per.authOnly, summary: "查询开放API密钥分页列表" })
@@ -53,10 +57,17 @@ export class OpenKeyController extends CrudController<OpenKeyService> {
 
   @Post("/add", { description: Constants.per.authOnly, summary: "添加开放API密钥" })
   async add(@Body(ALL) body: any) {
-    const { projectId, userId } = await this.getProjectUserIdRead();
+    const { projectId, userId } = await this.getProjectUserIdWrite();
     body.projectId = projectId;
     body.userId = userId;
+    if (!isEnterprise()) {
+      //如果是非企业模式，禁止指定projectId
+      delete body.projectId;
+    }
     const res = await this.service.add(body);
+    this.auditLog({
+      content: `新增了API密钥(ID:${res.id}, scope:${body.scope}, remark:${body.remark})`,
+    });
     return this.ok(res);
   }
 
@@ -65,7 +76,16 @@ export class OpenKeyController extends CrudController<OpenKeyService> {
     await this.checkOwner(this.getService(), bean.id, "write");
     delete bean.userId;
     delete bean.projectId;
-    await this.service.update(bean);
+    const upd = {
+      id: bean.id,
+      remark: bean.remark,
+      scope: bean.scope,
+      returnCertPassword: bean.returnCertPassword,
+    };
+    await this.service.update(upd);
+    this.auditLog({
+      content: `修改了API密钥(ID:${bean.id}, scope:${bean.scope}, remark:${bean.remark})`,
+    });
     return this.ok();
   }
   @Post("/info", { description: Constants.per.authOnly, summary: "查询开放API密钥详情" })
@@ -90,7 +110,12 @@ export class OpenKeyController extends CrudController<OpenKeyService> {
   @Post("/delete", { description: Constants.per.authOnly, summary: "删除开放API密钥" })
   async delete(@Query("id") id: number) {
     await this.checkOwner(this.getService(), id, "write");
-    return await super.delete(id);
+    const info = await this.service.info(id);
+    const res = await super.delete(id);
+    this.auditLog({
+      content: `删除了API密钥(ID:${id}, scope:${info.scope}, remark:${info.remark})`,
+    });
+    return res;
   }
 
   @Post("/getApiToken", { description: Constants.per.authOnly, summary: "获取API测试令牌" })

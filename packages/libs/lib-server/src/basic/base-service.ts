@@ -75,7 +75,10 @@ export abstract class BaseService<T> {
     if (!id) {
       throw new ValidateException("id不能为空");
     }
-    const info = await this.getRepository().findOneBy({ id } as any);
+    const info = await this.getRepository().findOne({
+      //@ts-ignore
+      where: { id },
+    });
     if (info && infoIgnoreProperty) {
       for (const property of infoIgnoreProperty) {
         delete info[property];
@@ -100,6 +103,25 @@ export abstract class BaseService<T> {
     await this.getRepository().delete({
       ...where,
     });
+  }
+
+  /**
+   * 按条件直接更新，不触发子类 update 的业务生命周期。
+   */
+  async updateWhere(where: any, data: any) {
+    await this.getRepository().update(
+      {
+        ...where,
+      },
+      data
+    );
+  }
+
+  async updateById(data: any) {
+    if (!data.id) {
+      throw new ValidateException("id 不能为空");
+    }
+    await this.addOrUpdate(data);
   }
 
   /**
@@ -151,6 +173,7 @@ export abstract class BaseService<T> {
     const now = new Date();
     param.createTime = now;
     param.updateTime = now;
+    delete param.id;
     await this.addOrUpdate(param);
     await this.modifyAfter(param);
     return {
@@ -163,7 +186,9 @@ export abstract class BaseService<T> {
    * @param param 数据
    */
   async update(param: any) {
-    if (!param.id) throw new ValidateException("id 不能为空");
+    if (!param.id) {
+      throw new ValidateException("id 不能为空");
+    }
     param.updateTime = new Date();
     await this.addOrUpdate(param);
     await this.modifyAfter(param);
@@ -253,7 +278,6 @@ export abstract class BaseService<T> {
     if (!Array.isArray(ids)) {
       ids = [ids];
     }
-    ids = this.filterIds(ids);
     const res = await this.getRepository().find({
       // eslint-disable-next-line @typescript-eslint/ban-ts-comment
       // @ts-ignore
@@ -266,7 +290,7 @@ export abstract class BaseService<T> {
       },
     });
     if (!res || res.length === ids.length) {
-      return;
+      return ids;
     }
     throw new PermissionException("权限不足");
   }
@@ -279,7 +303,13 @@ export abstract class BaseService<T> {
       return item != null && item != "";
     });
   }
-  async batchDelete(ids: number[], userId: number, projectId?: number) {
+  async batchDelete(ids: number[], userId: number, projectId?: number): Promise<number> {
+    if (!ids || ids.length === 0) {
+      throw new ValidateException("ids不能为空");
+    }
+    if (!Array.isArray(ids)) {
+      ids = [ids];
+    }
     ids = this.filterIds(ids);
     if (userId != null) {
       const userProjectQuery = this.buildUserProjectQuery(userId, projectId);
@@ -295,6 +325,7 @@ export abstract class BaseService<T> {
     }
 
     await this.delete(ids);
+    return ids.length;
   }
 
   async findOne(options: FindOneOptions<T>) {

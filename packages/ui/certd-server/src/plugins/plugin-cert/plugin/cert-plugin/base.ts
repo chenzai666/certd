@@ -1,4 +1,5 @@
 import { NotificationBody, Step, TaskInput } from "@certd/pipeline";
+import { NotificationTypes } from "@certd/lib-server";
 import dayjs from "dayjs";
 import { CertReader } from "@certd/plugin-lib";
 import { pick } from "lodash-es";
@@ -76,7 +77,7 @@ export abstract class CertApplyBasePlugin extends CertApplyBaseConvertPlugin {
       this.clearLastStatus();
 
       if (this.successNotify) {
-        await this.sendSuccessNotify();
+        await this.sendSuccessNotify(cert);
       }
     } else {
       throw new Error("申请证书失败");
@@ -165,14 +166,16 @@ export abstract class CertApplyBasePlugin extends CertApplyBaseConvertPlugin {
       nextUpdateDays: leftDays - maxDays,
     };
   }
-  async sendSuccessNotify() {
+  async sendSuccessNotify(certReader: CertReader) {
     this.logger.info("发送证书申请成功通知");
     const url = await this.ctx.urlService.getPipelineDetailUrl(this.pipeline.id, this.ctx.runtime.id);
     const body: NotificationBody = {
       title: `证书申请成功【${this.pipeline.title}】`,
-      content: `域名：${this.domains.join(",")}`,
+      content: `域名：${this.domains.join(",")}\n
+证书有效期：${dayjs(certReader.expires).format("YYYY-MM-DD HH:mm:ss")}\n
+`,
       url: url,
-      notificationType: "certApplySuccess",
+      notificationType: NotificationTypes.CertApplySuccess,
     };
     try {
       await this.ctx.notificationService.send({

@@ -7,6 +7,19 @@ import { IsAccess, AccessInput, BaseAccess } from "@certd/pipeline";
   title: "LeCDN授权",
   desc: "",
   icon: "material-symbols:shield-outline",
+  i18n: {
+    "en-US": {
+      title: "LeCDN - Access",
+      input: {
+        url: { title: "LeCDN System URL", helper: "For example: http://demo.example.com." },
+        authType: { title: "Authentication Type" },
+        username: { title: "Username" },
+        password: { title: "Password" },
+        apiToken: { title: "API Access Token" },
+        testRequest: { title: "Test", helper: "Test the API connection." },
+      },
+    },
+  },
 })
 export class LeCDNAccess extends BaseAccess {
   @AccessInput({
@@ -117,7 +130,8 @@ export class LeCDNAccess extends BaseAccess {
 
   async doRequest(config: any) {
     const token = await this.getToken();
-    const access = this;
+    // @ts-ignore
+    const access = this as any;
     const Authorization = access.type === "token" ? access.apiToken : `Bearer ${token}`;
     const res = await this.ctx.http.request({
       baseURL: access.url,
@@ -138,7 +152,8 @@ export class LeCDNAccess extends BaseAccess {
       return this._token;
     }
     // http://cdnadmin.kxfox.com/prod-api/login
-    const access = this;
+    // @ts-ignore
+    const access = this as any;
     const res = await this.ctx.http.request({
       url: `/prod-api/login`,
       baseURL: access.url,
