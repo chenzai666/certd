@@ -1,3 +1,4 @@
+/// <reference types="mocha" />
 import assert from "node:assert/strict";
 import { RiskRecognitionMiddleware } from "./risk-recognition.js";
 
@@ -80,5 +81,17 @@ describe("RiskRecognitionMiddleware", () => {
     assert.deepEqual(mail.receivers, ["admin@example.com"]);
     assert.match(mail.content, /My Probe/);
     assert.match(mail.content, /123/);
+  });
+
+  it("preserves a successful save when looking up alert recipients fails", async () => {
+    const middleware = new RiskRecognitionMiddleware();
+    middleware.sysSettingsService = { getSetting: async () => ({}) } as any;
+    middleware.userService = { getAdmins: async () => { throw new Error("查询失败"); } } as any;
+    const ctx = context("192.0.2.92", 7);
+    ctx.method = "POST";
+    ctx.path = "/api/pi/pipeline/save";
+    ctx.request.body = { title: "Probe" };
+    await middleware.resolve()(ctx, async () => { ctx.body = { code: 0, data: { id: 124 } }; });
+    assert.deepEqual(ctx.body, { code: 0, data: { id: 124 } });
   });
 });

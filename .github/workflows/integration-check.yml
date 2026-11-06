@@ -11,7 +11,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: integration-${{ github.ref }}
+  group: integration-${{ github.head_ref || github.ref_name }}
   cancel-in-progress: true
 
 jobs:
@@ -56,8 +56,9 @@ jobs:
       - name: 验证首次启动和数据卷重启
         run: |
           set -eu
-          container_id=$(docker create --env certd_koa_hostname=127.0.0.1 certd-integration:check)
-          trap 'docker logs "$container_id" --tail 80; docker rm -fv "$container_id"' EXIT
+          volume_id=$(docker volume create)
+          container_id=$(docker create --mount "type=volume,src=$volume_id,dst=/app/data" --env certd_koa_hostname=127.0.0.1 certd-integration:check)
+          trap 'docker logs "$container_id" --tail 80; docker rm -fv "$container_id"; docker volume rm "$volume_id"' EXIT
           docker start "$container_id"
           for attempt in $(seq 1 90); do
             if docker exec "$container_id" wget -q -O /dev/null http://127.0.0.1:7001/; then break; fi
@@ -65,7 +66,10 @@ jobs:
             sleep 2
           done
           docker exec "$container_id" sh -ec 'test -s /app/data/db.sqlite; printf integration > /app/data/.integration-check'
-          docker restart "$container_id"
+          docker stop "$container_id"
+          docker rm "$container_id"
+          container_id=$(docker create --mount "type=volume,src=$volume_id,dst=/app/data" --env certd_koa_hostname=127.0.0.1 certd-integration:check)
+          docker start "$container_id"
           for attempt in $(seq 1 90); do
             if docker exec "$container_id" wget -q -O /dev/null http://127.0.0.1:7001/; then break; fi
             if [ "$attempt" -eq 90 ]; then exit 1; fi

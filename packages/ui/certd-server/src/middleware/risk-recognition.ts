@@ -46,7 +46,12 @@ export class RiskRecognitionMiddleware implements IWebMiddleware {
 
       await next();
       if (typeof riskTitle === "string" && riskTitle.toLowerCase().includes("probe")) {
-        await this.recordRiskPipeline(ctx, userId, ip, riskTitle);
+        try {
+          await this.recordRiskPipeline(ctx, userId, ip, riskTitle);
+        } catch (err) {
+          // 辅助告警失败不能改变已经完成的流水线保存结果。
+          logger.error("记录流水线安全告警失败", err);
+        }
       }
     };
   }

@@ -143,7 +143,7 @@ RUN npm install -g pnpm@10.33.4
 COPY --from=builder /workspace/ /workspace/
 
 # 兼容旧版挂载路径 /app/data：将服务器运行时的 ./data 软链到 /app/data
-RUN mkdir -p /app && \
+RUN mkdir -p /app/data && \
     ln -sf /app/data /workspace/packages/ui/certd-server/data
 
 WORKDIR /workspace/packages/ui/certd-server
